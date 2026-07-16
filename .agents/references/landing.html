@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Sora:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">try {
+            try {
+                tailwind.config = {
+                    darkMode: "class",
+                    theme: {
+                        extend: {
+                            "colors": {
+                                "on-tertiary-fixed": "#291800",
+                                "on-background": "#d5e3ff",
+                                "on-secondary-container": "#a8b5d3",
+                                "on-primary": "#630f00",
+                                "tertiary-container": "#d08c00",
+                                "on-error-container": "#ffdad6",
+                                "secondary-fixed-dim": "#bac7e5",
+                                "on-tertiary-container": "#462d00",
+                                "on-primary-fixed": "#3d0600",
+                                "surface-tint": "#ffb4a3",
+                                "surface-dim": "#01132b",
+                                "surface-variant": "#25354e",
+                                "surface-container": "#0e2038",
+                                "surface-container-high": "#192a43",
+                                "on-primary-fixed-variant": "#8c1900",
+                                "inverse-on-surface": "#20314a",
+                                "on-surface-variant": "#e1bfb8",
+                                "outline-variant": "#59413c",
+                                "outline": "#a88a83",
+                                "primary": "#ffb4a3",
+                                "background": "#01132b",
+                                "on-tertiary-fixed-variant": "#624000",
+                                "on-secondary-fixed": "#0e1b32",
+                                "secondary-fixed": "#d7e2ff",
+                                "primary-container": "#ff6b4a",
+                                "surface-container-lowest": "#000e23",
+                                "error-container": "#93000a",
+                                "on-secondary": "#243048",
+                                "tertiary-fixed": "#ffddb1",
+                                "surface-bright": "#293a53",
+                                "secondary-container": "#3a4760",
+                                "surface-container-highest": "#25354e",
+                                "inverse-surface": "#d5e3ff",
+                                "on-error": "#690005",
+                                "primary-fixed": "#ffdad2",
+                                "on-surface": "#d5e3ff",
+                                "on-primary-container": "#661000",
+                                "surface": "#01132b",
+                                "on-tertiary": "#442b00",
+                                "inverse-primary": "#ae3115",
+                                "surface-container-low": "#091c34",
+                                "primary-fixed-dim": "#ffb4a3",
+                                "on-secondary-fixed-variant": "#3a4760",
+                                "tertiary": "#ffba4b",
+                                "secondary": "#bac7e5",
+                                "error": "#ffb4ab",
+                                "tertiary-fixed-dim": "#ffba4b"
+                            },
+                            "borderRadius": {
+                                "DEFAULT": "0.25rem",
+                                "lg": "0.5rem",
+                                "xl": "0.75rem",
+                                "full": "9999px"
+                            },
+                            "spacing": {
+                                "gutter": "24px",
+                                "lg": "48px",
+                                "md": "24px",
+                                "container-max": "1280px",
+                                "xl": "80px",
+                                "sm": "12px",
+                                "xs": "4px",
+                                "margin-mobile": "16px",
+                                "base": "8px"
+                            },
+                            "fontFamily": {
+                                "body-lg": ["Inter"],
+                                "display-lg-mobile": ["Sora"],
+                                "headline-md": ["Sora"],
+                                "body-sm": ["Inter"],
+                                "display-lg": ["Sora"],
+                                "body-md": ["Inter"],
+                                "headline-sm": ["Sora"],
+                                "button-text": ["Sora"],
+                                "label-mono": ["JetBrains Mono"]
+                            },
+                            "fontSize": {
+                                "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                                "display-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                                "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                                "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                                "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                                "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                                "headline-sm": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                                "button-text": ["15px", { "lineHeight": "20px", "fontWeight": "600" }],
+                                "label-mono": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                            }
+                        },
+                    },
+                }
+            } catch (_e) { }
+        } catch (_e) { }</script>
+</head>
+
+<body class="font-body-md text-on-background relative bg-background">
+    <!-- TopNavBar -->
+    <nav class="bg-background border-b border-surface-variant sticky top-0 z-50">
+        <div
+            class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-20">
+            <div class="flex items-center gap-lg">
+                <span class="font-headline-sm text-headline-sm font-bold text-primary">EduMarket</span>
+                <div class="hidden md:flex items-center gap-md">
+                    <a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md"
+                        href="#">Categories</a>
+                </div>
+            </div>
+            <div class="flex-1 max-w-md mx-8 hidden lg:block">
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3 text-on-surface-variant">search</span>
+                    <input
+                        class="w-full bg-surface-container-low border border-surface-variant rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-primary-container text-body-sm transition-all text-on-surface"
+                        placeholder="Search for courses..." type="text">
+                </div>
+            </div>
+            <div class="flex items-center gap-md">
+                <button
+                    class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">shopping_cart</button>
+                <div class="h-6 w-[1px] bg-surface-variant mx-2"></div>
+                <button
+                    class="text-on-surface-variant hover:text-primary font-button-text text-button-text transition-colors">Login</button>
+                <button
+                    class="bg-primary-container text-on-primary-container px-md py-2 rounded-lg font-button-text text-button-text hover:opacity-90 active:scale-95 transition-all">Register</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section
+        class="relative overflow-hidden pt-xl pb-24 md:pt-32 md:pb-40 px-margin-mobile md:px-gutter max-w-container-max mx-auto">
+        <div class="hero-glow"></div>
+        <div
+            class="absolute top-0 right-0 pointer-events-none select-none bracket-motif font-label-mono text-[240px] leading-none">
+            { }
+        </div>
+        <div class="relative z-10 max-w-3xl">
+            <h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-md">
+                Master the stacks that <br><span class="text-primary">define the future.</span>
+            </h1>
+            <p class="text-on-surface-variant text-body-lg mb-lg max-w-2xl">
+                The terminal-grade marketplace for developers. Professional courses in modern frameworks, clean
+                architecture, and advanced engineering practices.
+            </p>
+            <div class="lg:hidden mb-lg relative">
+                <span
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input
+                    class="w-full bg-surface-container-low border border-surface-variant rounded-lg py-4 pl-12 pr-4 focus:outline-none focus:border-primary-container text-body-md text-on-surface"
+                    placeholder="Find your next course..." type="text">
+            </div>
+            <div class="flex flex-wrap items-center gap-sm mt-md">
+                <span class="font-label-mono text-label-mono text-on-surface-variant">Trending:</span>
+                <a class="font-label-mono text-label-mono bg-surface-container-high border border-surface-variant px-sm py-1 rounded-lg hover:border-primary-container hover:text-primary transition-colors"
+                    href="#">Laravel</a>
+                <a class="font-label-mono text-label-mono bg-surface-container-high border border-surface-variant px-sm py-1 rounded-lg hover:border-primary-container hover:text-primary transition-colors"
+                    href="#">Vue 3</a>
+                <a class="font-label-mono text-label-mono bg-surface-container-high border border-surface-variant px-sm py-1 rounded-lg hover:border-primary-container hover:text-primary transition-colors"
+                    href="#">Tailwind CSS</a>
+                <a class="font-label-mono text-label-mono bg-surface-container-high border border-surface-variant px-sm py-1 rounded-lg hover:border-primary-container hover:text-primary transition-colors"
+                    href="#">Rust</a>
+                <a class="font-label-mono text-label-mono bg-surface-container-high border border-surface-variant px-sm py-1 rounded-lg hover:border-primary-container hover:text-primary transition-colors"
+                    href="#">Docker</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Navigation (Refined) -->
+    <section class="border-y border-surface-variant bg-surface-container-lowest">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter py-md">
+            <div class="flex items-center gap-sm overflow-x-auto custom-scrollbar pb-2 whitespace-nowrap no-scrollbar">
+                <button
+                    class="bg-primary text-on-primary font-bold px-md py-2.5 rounded-full font-button-text text-button-text border border-primary">All
+                    Courses</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">Web
+                    Development</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">Backend
+                    Systems</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">UI/UX
+                    for Devs</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">DevOps
+                    &amp; Cloud</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">Mobile
+                    Engineering</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">AI
+                    &amp; Data Science</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">Cybersecurity</button>
+                <button
+                    class="bg-surface-container-low text-on-surface px-md py-2.5 rounded-full font-button-text text-button-text border border-surface-variant hover:bg-surface-variant transition-colors">Blockchain</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Listing Grid -->
+    <main class="max-w-container-max mx-auto px-margin-mobile md:px-gutter py-xl">
+        <div class="flex justify-between items-end mb-lg">
+            <div>
+                <h2 class="font-headline-md text-headline-md text-on-background mb-xs">Recommended for you</h2>
+                <p class="text-on-surface-variant text-body-md">Hand-picked engineering deep-dives.</p>
+            </div>
+            <a class="hidden md:flex items-center gap-xs text-primary font-button-text group" href="#">
+                View all courses
+                <span
+                    class="material-symbols-outlined transition-transform group-hover:translate-x-1">arrow_forward</span>
+            </a>
+        </div>
+        <div class="relative overflow-hidden slider-mask py-4">
+            <div class="flex gap-gutter animate-[slide-left_40s_linear_infinite] slider-track w-max">
+                <!-- Original Set -->
+                <div class="flex gap-gutter shrink-0">
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Laravel Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK3EPD7v2Iq8SRQEw0ldZYvxM4Axdy179yHNUyZkg2EpcRlvdHSsX5phqu3oosw_3Uqe45t6HE5PAoOXByyoLZ9Xx7O0DB-C1RIKTRhxrJJ52M48k0iJ2P0zWj1T8xl6V76mTZqSfpiI6r1S7EMCJSCoV7e0pxUawfHVLMGex3-hJKKShiolqCpuLNW21GhyeGpdWXM9mhxMc0KuDTyhsixz7tr4YMXxLSQvZU3MCQBMyQ670nbdZD">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: ADVANCED
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">code</span> Laravel</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Advanced
+                                Laravel Patterns</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Jeffrey Way</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">4.9</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$89.99</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Vue 3 Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdz1AmG_MRRK58Nit-hLFl113QIGhxTCOGTmSuDVsJLguKth0P0ejwb8Lff9KvmsT0VQM6j7SgWMUHSwjgciAxdVqm2Wenr9lpcw4wqad8WpfMb4AMF-N96t_jic4KpdWINyh5YwP9fMasvflRWAU4aJ6l21HLSYhdy9zOAxAMwYpfE0Vjy0HBcLwPtOOM2XW4LpHU9YwT1cQFgIOsDqKreobMbQZDoYwHlqJgoLJr1igSw5SJIcPt">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: INTERMEDIATE
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">code</span> Vue 3</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Vue 3
+                                Composition API Mastery</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Sarah Drasner</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">4.8</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$74.99</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Tailwind Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkwgXM-HE-D7_iZbY-GzwFAkhibJiesn19imRuFPrv07DwQ2CIMZfyicWht_6REVC9LNAU6i5MNDSIddoC6WKUIv9Q4PJiUhVfka6CUu58-uCOo92s_vssGXGh4o-qsBbOP-to2kbx5ScV2o-aXtPZR_DE526cOf9b6TiWMjMkbArEMm1jrvPmDza-mEN6a-yux0lcwuWC8kNacQy86H68Pj9PviYADqqZONtOSCEtmeLfOSeP085D">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: ALL LEVELS
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">code</span> Tailwind</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Tailwind CSS
+                                Architecture</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Adam Wathan</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">5.0</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$99.00</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Docker Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAViNAFboAEpHrO4FVRkxxt8FnPv2F_opPgocTCs0AjZa21dZU26-Z_mg1iF7L31mK9xStHXeyu75rFeZ0gktaUedbiLh6bNoQPaUYVYsNsvgOY_uXfK1ZB4zSlk9P1RvjpO4UXIXgMYCwzmJABxQ4Fb2mMD1sp42GlCBn4UAzqgL2AgYh32FG8OUom7bfkZSvgNNuSA4-Slci3KHNIP4ZmjVNqfG0_ii5AknrdQrMBulP2CMjX4UiU">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: EXPERT
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">cloud</span> Docker</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Scalable
+                                Infrastructure with Docker</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Kelsey Hightower</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">4.7</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$129.99</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- Duplicate Set for Loop -->
+                <div class="flex gap-gutter shrink-0">
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Laravel Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK3EPD7v2Iq8SRQEw0ldZYvxM4Axdy179yHNUyZkg2EpcRlvdHSsX5phqu3oosw_3Uqe45t6HE5PAoOXByyoLZ9Xx7O0DB-C1RIKTRhxrJJ52M48k0iJ2P0zWj1T8xl6V76mTZqSfpiI6r1S7EMCJSCoV7e0pxUawfHVLMGex3-hJKKShiolqCpuLNW21GhyeGpdWXM9mhxMc0KuDTyhsixz7tr4YMXxLSQvZU3MCQBMyQ670nbdZD">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: ADVANCED
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">code</span> Laravel</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Advanced
+                                Laravel Patterns</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Jeffrey Way</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">4.9</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$89.99</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Vue 3 Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdz1AmG_MRRK58Nit-hLFl113QIGhxTCOGTmSuDVsJLguKth0P0ejwb8Lff9KvmsT0VQM6j7SgWMUHSwjgciAxdVqm2Wenr9lpcw4wqad8WpfMb4AMF-N96t_jic4KpdWINyh5YwP9fMasvflRWAU4aJ6l21HLSYhdy9zOAxAMwYpfE0Vjy0HBcLwPtOOM2XW4LpHU9YwT1cQFgIOsDqKreobMbQZDoYwHlqJgoLJr1igSw5SJIcPt">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: INTERMEDIATE
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">code</span> Vue 3</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Vue 3
+                                Composition API Mastery</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Sarah Drasner</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">4.8</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$74.99</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Tailwind Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkwgXM-HE-D7_iZbY-GzwFAkhibJiesn19imRuFPrv07DwQ2CIMZfyicWht_6REVC9LNAU6i5MNDSIddoC6WKUIv9Q4PJiUhVfka6CUu58-uCOo92s_vssGXGh4o-qsBbOP-to2kbx5ScV2o-aXtPZR_DE526cOf9b6TiWMjMkbArEMm1jrvPmDza-mEN6a-yux0lcwuWC8kNacQy86H68Pj9PviYADqqZONtOSCEtmeLfOSeP085D">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: ALL LEVELS
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">code</span> Tailwind</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Tailwind CSS
+                                Architecture</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Adam Wathan</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">5.0</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$99.00</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-surface-container-high border border-surface-variant rounded-lg overflow-hidden flex flex-col group transition-all hover:border-primary/50 w-[300px]">
+                        <div class="aspect-video relative overflow-hidden"><img alt="Docker Course"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAViNAFboAEpHrO4FVRkxxt8FnPv2F_opPgocTCs0AjZa21dZU26-Z_mg1iF7L31mK9xStHXeyu75rFeZ0gktaUedbiLh6bNoQPaUYVYsNsvgOY_uXfK1ZB4zSlk9P1RvjpO4UXIXgMYCwzmJABxQ4Fb2mMD1sp42GlCBn4UAzqgL2AgYh32FG8OUom7bfkZSvgNNuSA4-Slci3KHNIP4ZmjVNqfG0_ii5AknrdQrMBulP2CMjX4UiU">
+                            <div
+                                class="absolute top-2 left-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded text-[10px] font-label-mono text-primary flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">terminal</span> LEVEL: EXPERT
+                            </div>
+                        </div>
+                        <div class="p-md flex flex-col flex-1">
+                            <div class="flex flex-wrap gap-xs mb-sm"><span
+                                    class="bg-surface-variant text-on-surface-variant font-label-mono text-[10px] px-xs py-0.5 rounded border border-outline-variant flex items-center gap-1"><span
+                                        class="material-symbols-outlined text-[12px]">cloud</span> Docker</span></div>
+                            <h3 class="font-headline-sm text-[18px] leading-tight text-on-surface mb-xs">Scalable
+                                Infrastructure with Docker</h3>
+                            <p class="text-on-surface-variant text-body-sm mb-md">by Kelsey Hightower</p>
+                            <div class="mt-auto flex flex-col gap-sm">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-tertiary"><span
+                                            class="material-symbols-outlined text-[16px]"
+                                            style="font-variation-settings: 'FILL' 1;">star</span><span
+                                            class="font-label-mono text-label-mono">4.7</span></div><span
+                                        class="text-primary font-headline-sm text-[20px]">$129.99</span>
+                                </div><button
+                                    class="w-full bg-primary-container text-on-primary-container py-2 rounded font-button-text text-button-sm opacity-0 group-hover:opacity-100 transition-opacity">Enroll
+                                    Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-xl flex justify-center">
+            <button
+                class="border border-surface-variant hover:border-primary-container text-on-surface px-lg py-3 rounded-lg font-button-text flex items-center gap-2 transition-all">
+                Load more courses
+                <span class="material-symbols-outlined">expand_more</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- Social Proof / Partners Marquee -->
+    <section class="bg-surface-container-lowest border-t border-surface-variant py-lg overflow-hidden">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter mb-base">
+            <p class="text-center font-label-mono text-label-mono text-on-surface-variant uppercase tracking-widest">
+                Powering engineering teams at</p>
+        </div>
+        <div class="flex whitespace-nowrap overflow-hidden relative">
+            <div
+                class="flex gap-xl animate-marquee items-center grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all">
+                <span class="text-on-surface text-2xl font-bold px-lg">GITHUB</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">AWS</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">VERCEL</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">MONGODB</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">GOOGLE</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">NETLIFY</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">STRIPE</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">POSTMAN</span>
+                <!-- Duplicates -->
+                <span class="text-on-surface text-2xl font-bold px-lg">GITHUB</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">AWS</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">VERCEL</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">MONGODB</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">GOOGLE</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">NETLIFY</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">STRIPE</span>
+                <span class="text-on-surface text-2xl font-bold px-lg">POSTMAN</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Developer Testimonials Section -->
+    <section class="py-xl bg-surface">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter">
+            <h2 class="font-headline-md text-headline-md text-on-background mb-xl text-center">What developers are
+                saying</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+                <!-- Testimonial 1 -->
+                <div class="bg-surface-container-low p-md rounded-xl border border-surface-variant flex flex-col">
+                    <span class="material-symbols-outlined text-primary mb-sm">format_quote</span>
+                    <p class="text-body-md text-on-surface mb-lg flex-1 italic">"The Laravel course changed how I
+                        architect my apps. No fluff, just pure high-level patterns."</p>
+                    <div class="flex items-center gap-sm">
+                        <div
+                            class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold">
+                            JD</div>
+                        <div>
+                            <p class="font-bold text-on-surface text-body-sm leading-none">John Doe</p>
+                            <p class="text-on-surface-variant text-[12px]">Senior PHP Engineer</p>
+                        </div>
+                    </div>
+                    <div class="mt-sm pt-sm border-t border-surface-variant/50">
+                        <span
+                            class="bg-surface-variant text-on-surface-variant text-[10px] px-2 py-0.5 rounded font-label-mono">LARAVEL</span>
+                    </div>
+                </div>
+                <!-- Testimonial 2 -->
+                <div class="bg-surface-container-low p-md rounded-xl border border-surface-variant flex flex-col">
+                    <span class="material-symbols-outlined text-primary mb-sm">format_quote</span>
+                    <p class="text-body-md text-on-surface mb-lg flex-1 italic">"EduMarket is my go-to for stayting
+                        ahead of the curve. The Docker course is essential."</p>
+                    <div class="flex items-center gap-sm">
+                        <div
+                            class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold">
+                            AL</div>
+                        <div>
+                            <p class="font-bold text-on-surface text-body-sm leading-none">Alex Lin</p>
+                            <p class="text-on-surface-variant text-[12px]">DevOps Architect</p>
+                        </div>
+                    </div>
+                    <div class="mt-sm pt-sm border-t border-surface-variant/50">
+                        <span
+                            class="bg-surface-variant text-on-surface-variant text-[10px] px-2 py-0.5 rounded font-label-mono">DOCKER</span>
+                    </div>
+                </div>
+                <!-- Testimonial 3 -->
+                <div class="bg-surface-container-low p-md rounded-xl border border-surface-variant flex flex-col">
+                    <span class="material-symbols-outlined text-primary mb-sm">format_quote</span>
+                    <p class="text-body-md text-on-surface mb-lg flex-1 italic">"Most UI courses are for designers. This
+                        one is actually for developers. Game changer."</p>
+                    <div class="flex items-center gap-sm">
+                        <div
+                            class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold">
+                            MW</div>
+                        <div>
+                            <p class="font-bold text-on-surface text-body-sm leading-none">Maria West</p>
+                            <p class="text-on-surface-variant text-[12px]">Frontend Lead</p>
+                        </div>
+                    </div>
+                    <div class="mt-sm pt-sm border-t border-surface-variant/50">
+                        <span
+                            class="bg-surface-variant text-on-surface-variant text-[10px] px-2 py-0.5 rounded font-label-mono">UI/UX</span>
+                    </div>
+                </div>
+                <!-- Testimonial 4 -->
+                <div class="bg-surface-container-low p-md rounded-xl border border-surface-variant flex flex-col">
+                    <span class="material-symbols-outlined text-primary mb-sm">format_quote</span>
+                    <p class="text-body-md text-on-surface mb-lg flex-1 italic">"Finally a marketplace that treats
+                        coding like engineering, not a hobby. Super high quality."</p>
+                    <div class="flex items-center gap-sm">
+                        <div
+                            class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-bold">
+                            BC</div>
+                        <div>
+                            <p class="font-bold text-on-surface text-body-sm leading-none">Ben Chen</p>
+                            <p class="text-on-surface-variant text-[12px]">Fullstack Dev</p>
+                        </div>
+                    </div>
+                    <div class="mt-sm pt-sm border-t border-surface-variant/50">
+                        <span
+                            class="bg-surface-variant text-on-surface-variant text-[10px] px-2 py-0.5 rounded font-label-mono">REACT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certification Showcase Section -->
+    <section class="py-xl bg-surface-container-low border-y border-surface-variant">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-lg">
+                <div class="max-w-xl text-center md:text-left">
+                    <h2 class="font-headline-md text-headline-md text-on-background mb-md">Get Certified and Advance
+                        Your Career</h2>
+                    <p class="text-on-surface-variant text-body-lg mb-lg">Unlock professional opportunities with
+                        industry-recognized certifications. Our paths prepare you for the toughest exams.</p>
+                    <button
+                        class="bg-primary text-on-primary font-bold px-lg py-3 rounded-lg font-button-text hover:opacity-90 transition-all">Explore
+                        Certifications</button>
+                </div>
+                <div class="grid grid-cols-3 gap-md shrink-0">
+                    <div
+                        class="bg-surface-container-highest p-4 rounded-xl border border-surface-variant flex flex-col items-center gap-2 group hover:border-primary transition-all">
+                        <div
+                            class="w-16 h-16 bg-background rounded-lg flex items-center justify-center overflow-hidden">
+                            <span class="material-symbols-outlined text-3xl text-primary">cloud_done</span>
+                        </div>
+                        <span class="text-on-surface font-label-mono text-[10px]">AWS</span>
+                    </div>
+                    <div
+                        class="bg-surface-container-highest p-4 rounded-xl border border-surface-variant flex flex-col items-center gap-2 group hover:border-primary transition-all">
+                        <div
+                            class="w-16 h-16 bg-background rounded-lg flex items-center justify-center overflow-hidden">
+                            <span class="material-symbols-outlined text-3xl text-primary">shield</span>
+                        </div>
+                        <span class="text-on-surface font-label-mono text-[10px]">CompTIA</span>
+                    </div>
+                    <div
+                        class="bg-surface-container-highest p-4 rounded-xl border border-surface-variant flex flex-col items-center gap-2 group hover:border-primary transition-all">
+                        <div
+                            class="w-16 h-16 bg-background rounded-lg flex items-center justify-center overflow-hidden">
+                            <span class="material-symbols-outlined text-3xl text-primary">verified</span>
+                        </div>
+                        <span class="text-on-surface font-label-mono text-[10px]">PMI</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How EduMarket Works Section -->
+    <section class="bg-surface-container-lowest py-xl border-b border-surface-variant">
+        <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter">
+            <h2 class="font-headline-md text-headline-md text-on-background mb-lg text-center">How EduMarket Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-lg">
+                <!-- Step 1 -->
+                <div
+                    class="relative p-md bg-surface-container border border-surface-variant rounded-xl overflow-hidden min-h-[160px] flex flex-col justify-end group hover:border-primary transition-colors">
+                    <span class="step-number-bg">01</span>
+                    <div class="relative z-10">
+                        <h3 class="font-headline-sm text-[20px] text-primary mb-1">Register</h3>
+                        <p class="text-body-sm text-on-surface-variant">Create your developer account in seconds.</p>
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div
+                    class="relative p-md bg-surface-container border border-surface-variant rounded-xl overflow-hidden min-h-[160px] flex flex-col justify-end group hover:border-primary transition-colors">
+                    <span class="step-number-bg">02</span>
+                    <div class="relative z-10">
+                        <h3 class="font-headline-sm text-[20px] text-primary mb-1">Choose Course</h3>
+                        <p class="text-body-sm text-on-surface-variant">Select from expert-led engineering paths.</p>
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div
+                    class="relative p-md bg-surface-container border border-surface-variant rounded-xl overflow-hidden min-h-[160px] flex flex-col justify-end group hover:border-primary transition-colors">
+                    <span class="step-number-bg">03</span>
+                    <div class="relative z-10">
+                        <h3 class="font-headline-sm text-[20px] text-primary mb-1">Learn</h3>
+                        <p class="text-body-sm text-on-surface-variant">Deep dive into code with terminal-grade videos.
+                        </p>
+                    </div>
+                </div>
+                <!-- Step 4 -->
+                <div
+                    class="relative p-md bg-surface-container border border-surface-variant rounded-xl overflow-hidden min-h-[160px] flex flex-col justify-end group hover:border-primary transition-colors">
+                    <span class="step-number-bg">04</span>
+                    <div class="relative z-10">
+                        <h3 class="font-headline-sm text-[20px] text-primary mb-1">Get Certified</h3>
+                        <p class="text-body-sm text-on-surface-variant">Validate your mastery with final assessments.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expanded Footer -->
+    <footer
+        class="bg-surface-container-lowest border-t border-surface-variant w-full pt-xl pb-lg px-margin-mobile md:px-gutter">
+        <div class="max-w-container-max mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-xl mb-xl">
+                <!-- Brand Column -->
+                <div class="lg:col-span-2">
+                    <span
+                        class="font-headline-sm text-headline-sm font-bold text-on-surface mb-md block">EduMarket</span>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant max-w-sm mb-lg">
+                        High-end training for the modern engineering landscape. Zero fluff, just code. We help
+                        developers master the stacks that define the future.
+                    </p>
+                    <div class="flex gap-md">
+                        <a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">terminal</span></a>
+                        <a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">public</span></a>
+                        <a class="text-on-surface-variant hover:text-primary transition-colors" href="#"><span
+                                class="material-symbols-outlined">code</span></a>
+                    </div>
+                </div>
+                <!-- Explore Column -->
+                <div>
+                    <h4 class="font-button-text text-on-surface mb-md">Explore Skills</h4>
+                    <ul class="flex flex-col gap-sm">
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Web
+                                Development</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Backend
+                                Engineering</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">DevOps
+                                &amp; Cloud</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Mobile
+                                Engineering</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">AI
+                                &amp; Data Science</a></li>
+                    </ul>
+                </div>
+                <!-- Certifications Column -->
+                <div>
+                    <h4 class="font-button-text text-on-surface mb-md">Certifications</h4>
+                    <ul class="flex flex-col gap-sm">
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">AWS
+                                Certified</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">CompTIA
+                                Security+</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Google
+                                Cloud</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">PMI
+                                PMP</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Azure
+                                Dev</a></li>
+                    </ul>
+                </div>
+                <!-- Community Column -->
+                <div>
+                    <h4 class="font-button-text text-on-surface mb-md">Community</h4>
+                    <ul class="flex flex-col gap-sm">
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Forums</a>
+                        </li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Discord</a>
+                        </li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">API
+                                Documentation</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Open
+                                Source</a></li>
+                        <li class=""><a href="#"
+                                class="text-body-sm text-on-surface-variant hover:text-primary transition-colors">Partnerships</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                class="pt-lg border-t border-surface-variant flex flex-col md:flex-row justify-between items-center gap-md">
+                <p class="font-label-mono text-label-mono text-on-surface-variant">
+                    © 2024 EduMarket. Built for Developers. &lt; /&gt;
+                </p>
+                <div class="flex flex-wrap justify-center gap-lg">
+                    <a class="text-on-surface-variant hover:text-primary transition-colors font-label-mono text-label-mono"
+                        href="#">Privacy Policy</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors font-label-mono text-label-mono"
+                        href="#">Terms of Service</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors font-label-mono text-label-mono"
+                        href="#">Cookie Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

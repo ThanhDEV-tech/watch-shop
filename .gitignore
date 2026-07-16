@@ -1,0 +1,10 @@
+backend/.env
+backend/.env.docker
+backend/vendor/
+backend/storage/logs/*.log
+backend/storage/app/public/*
+!backend/storage/app/public/.gitkeep
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+frontend/.env

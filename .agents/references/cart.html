@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Cart - EduMarket</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&family=Sora:wght@100..900&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffddb1",
+                        "tertiary-fixed-dim": "#ffba4b",
+                        "surface-variant": "#25354e",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#462d00",
+                        "on-primary-container": "#661000",
+                        "on-primary": "#630f00",
+                        "secondary-fixed": "#d7e2ff",
+                        "error": "#ffb4ab",
+                        "background": "#16233A", // Overridden by prompt specific Navy primary
+                        "primary-fixed": "#ffdad2",
+                        "primary-container": "#ff6b4a",
+                        "on-secondary-fixed": "#0e1b32",
+                        "surface-container-lowest": "#000e23",
+                        "surface": "#16233A",
+                        "on-primary-fixed-variant": "#8c1900",
+                        "inverse-on-surface": "#20314a",
+                        "on-secondary": "#243048",
+                        "on-tertiary-fixed": "#291800",
+                        "on-tertiary": "#442b00",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#3a4760",
+                        "on-secondary-container": "#a8b5d3",
+                        "surface-bright": "#293a53",
+                        "secondary-container": "#3a4760",
+                        "surface-tint": "#ffb4a3",
+                        "primary-fixed-dim": "#ffb4a3",
+                        "on-surface-variant": "#93A4C2", // Overridden by prompt specific muted
+                        "inverse-surface": "#d5e3ff",
+                        "secondary": "#bac7e5",
+                        "tertiary-container": "#d08c00",
+                        "inverse-primary": "#ae3115",
+                        "surface-container-high": "#192a43",
+                        "secondary-fixed-dim": "#bac7e5",
+                        "primary": "#FF6B4A", // Overridden by prompt specific accent
+                        "outline-variant": "#2C3E5E", // Border color
+                        "on-primary-fixed": "#3d0600",
+                        "tertiary": "#ffba4b",
+                        "surface-container": "#1E2F4A", // Elevated surface
+                        "surface-container-highest": "#25354e",
+                        "on-surface": "#F5F7FA", // Primary text
+                        "outline": "#2C3E5E",
+                        "on-tertiary-fixed-variant": "#624000",
+                        "on-background": "#F5F7FA",
+                        "surface-container-low": "#1E2F4A",
+                        "surface-dim": "#16233A"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "8px",
+                        "lg": "8px",
+                        "xl": "12px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "container-max": "1280px",
+                        "xl": "80px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "base": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "button-text": ["Sora"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Sora"],
+                        "display-lg": ["Sora"],
+                        "headline-md": ["Sora"],
+                        "label-mono": ["JetBrains Mono"],
+                        "body-sm": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            background-color: #16233A;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 150px;
+            background-blend-mode: overlay;
+            opacity: 0.98;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        .glass-card {
+            background: rgba(30, 47, 74, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid #2C3E5E;
+        }
+    </style>
+</head>
+
+<body class="font-body-md text-on-surface selection:bg-primary selection:text-white">
+    <!-- TopNavBar -->
+    <header
+        class="bg-background dark:bg-background border-b border-surface-variant dark:border-surface-variant docked full-width top-0 sticky z-50">
+        <div
+            class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-20">
+            <div class="flex items-center gap-md">
+                <span
+                    class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary tracking-tight">EduMarket</span>
+                <nav class="hidden md:flex gap-md ml-lg">
+                    <a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-md" href="#">Cart</a>
+                    <a class="text-on-surface-variant dark:text-on-surface-variant font-body-md hover:text-primary transition-colors duration-200"
+                        href="#">Categories</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-base md:gap-md">
+                <div class="hidden sm:flex relative mr-md">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    <input
+                        class="bg-surface-container-lowest border border-outline rounded-lg py-2 pl-10 pr-4 text-body-sm focus:outline-none focus:border-primary w-64 text-on-surface"
+                        placeholder="Search courses..." type="text" />
+                </div>
+                <button class="text-on-surface-variant hover:text-primary transition-colors relative">
+                    <span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+                    <span
+                        class="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">2</span>
+                </button>
+                <div class="h-6 w-px bg-surface-variant mx-2"></div>
+                <button class="text-on-surface-variant font-body-md hover:text-primary transition-colors">Login</button>
+                <button
+                    class="bg-primary text-white px-md py-2 rounded-lg font-button-text text-button-text hover:opacity-90 active:scale-95 transition-all">Register</button>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-container-max mx-auto px-margin-mobile md:px-gutter py-lg min-h-[calc(100vh-320px)]">
+        <h1 class="font-headline-md text-headline-md mb-lg">Your Cart <span
+                class="text-on-surface-variant font-body-md font-normal ml-2">(2 items)</span></h1>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+            <!-- Left Column: Items -->
+            <div class="lg:col-span-8 space-y-md">
+                <!-- Cart Item 1 -->
+                <div
+                    class="flex flex-col sm:flex-row gap-md p-md glass-card rounded-lg group transition-all duration-300 hover:bg-[#25354e]">
+                    <div
+                        class="w-full sm:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0 border border-outline-variant">
+                        <img class="w-full h-full object-cover"
+                            data-alt="A high-quality digital artwork of a modern laptop screen showing complex React code with colorful syntax highlighting, sitting on a dark wooden desk in a moody, professional developer studio. Warm ambient lighting from a desk lamp creates deep shadows and orange glows, reflecting the EduMarket aesthetic of authoritative yet approachable learning environments."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHmJrCn3Iq2J4Ui9ZPpax1VrkjWbSLvclPkyxpLWf0verARWaZEX6Cm9jB95dLyuuKxtoxwKMnIDYmiiQc8oiaeDcGNskmjcHAlD2KKG0A9CjLd6_a2vefbB6qhjEm7u3RFlwICDI5MBj9w5c-uudgzoXp9KnWPY4vNqP7xI8xD9Yjs4YGEre7AJQE1keMhgXjyTT7ahv9yW2RMHgckMlkDBfqmkvrkWmHW25QOJHQHaLPCHDMw7uo" />
+                    </div>
+                    <div class="flex flex-col flex-grow justify-between py-xs">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3
+                                    class="font-headline-sm text-headline-sm font-semibold mb-1 group-hover:text-primary transition-colors">
+                                    Advanced React Architecture: Scalable Design Patterns</h3>
+                                <button
+                                    class="text-on-surface-variant hover:text-error transition-colors flex items-center gap-xs">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                </button>
+                            </div>
+                            <p class="font-body-sm text-on-surface-variant">By Sarah Jenkins • Senior Staff Engineer</p>
+                            <div class="flex gap-xs mt-sm">
+                                <span
+                                    class="bg-surface-container-highest text-primary px-2 py-0.5 rounded text-[10px] font-label-mono uppercase tracking-wider">Bestseller</span>
+                                <span
+                                    class="bg-surface-container-highest text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-label-mono">React</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-end mt-md">
+                            <div class="flex items-center gap-xs text-tertiary">
+                                <span class="material-symbols-outlined text-[18px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-mono text-body-sm">4.9 (1,240 reviews)</span>
+                            </div>
+                            <span class="font-label-mono text-headline-sm text-primary">$89.99</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Cart Item 2 -->
+                <div
+                    class="flex flex-col sm:flex-row gap-md p-md glass-card rounded-lg group transition-all duration-300 hover:bg-[#25354e]">
+                    <div
+                        class="w-full sm:w-48 h-32 rounded-lg overflow-hidden flex-shrink-0 border border-outline-variant">
+                        <img class="w-full h-full object-cover"
+                            data-alt="Close up photography of a sleek terminal window displayed on a high-resolution monitor, showing advanced Docker container logs and Kubernetes orchestrations. The background is a dark, tech-focused environment with subtle navy and charcoal tones. The lighting is focused and precise, emphasizing a professional, high-end developer atmosphere consistent with the EduMarket branding."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6fsoNcqKqmbj2ACZjPzq4O_UbF6H2p0_Xx09ZmfVwi38c7Njk3v3s0QyJtK82kEURWsxMwBWeF7Wmd5lZDNmFO6S2r6d1gx69LWwlCKw0xRBzuzT0EeU8p0v4D_GRG3SBPZZQBWOrSO2u26hBAkElT1WeHIvNbAFZK4CV9duSGq1QZpHciVyPVLF7TsbRHoZ61wSEkff8qTqu_IW-fGf2DLVHeI0T7N05BFIEInoCFJa8FpoQwntH" />
+                    </div>
+                    <div class="flex flex-col flex-grow justify-between py-xs">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h3
+                                    class="font-headline-sm text-headline-sm font-semibold mb-1 group-hover:text-primary transition-colors">
+                                    DevOps Mastery: Docker & Kubernetes in Production</h3>
+                                <button
+                                    class="text-on-surface-variant hover:text-error transition-colors flex items-center gap-xs">
+                                    <span class="material-symbols-outlined text-[20px]">delete</span>
+                                </button>
+                            </div>
+                            <p class="font-body-sm text-on-surface-variant">By Marcus Chen • DevOps Architect</p>
+                            <div class="flex gap-xs mt-sm">
+                                <span
+                                    class="bg-surface-container-highest text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-label-mono">DevOps</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-end mt-md">
+                            <div class="flex items-center gap-xs text-tertiary">
+                                <span class="material-symbols-outlined text-[18px]"
+                                    style="font-variation-settings: 'FILL' 1;">star</span>
+                                <span class="font-label-mono text-body-sm">4.7 (856 reviews)</span>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="text-on-surface-variant line-through text-body-sm">$124.99</span>
+                                <span class="font-label-mono text-headline-sm text-primary">$54.99</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Empty State Check (Hidden by default, shown via JS or logic) -->
+                <div class="hidden flex flex-col items-center justify-center py-xl text-center" id="empty-state">
+                    <div
+                        class="w-24 h-24 bg-surface-container rounded-full flex items-center justify-center mb-md border border-outline-variant">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant"
+                            data-icon="shopping_basket">shopping_basket</span>
+                    </div>
+                    <h2 class="font-headline-sm text-headline-sm mb-base">Your cart is empty</h2>
+                    <p class="text-on-surface-variant mb-lg max-w-md">Looks like you haven't added any courses to your
+                        cart yet. Explore our top-rated courses to start your learning journey.</p>
+                    <button
+                        class="bg-primary text-white px-lg py-3 rounded-lg font-button-text text-button-text hover:opacity-90 active:scale-95 transition-all">Browse
+                        Courses</button>
+                </div>
+            </div>
+            <!-- Right Column: Summary -->
+            <div class="lg:col-span-4">
+                <div class="sticky top-28 space-y-md">
+                    <div class="p-md glass-card rounded-lg shadow-xl">
+                        <h2 class="font-headline-sm text-headline-sm mb-lg">Order Summary</h2>
+                        <div class="space-y-sm mb-lg">
+                            <div class="flex justify-between text-body-md text-on-surface-variant">
+                                <span>Original Price</span>
+                                <span class="font-label-mono">$214.98</span>
+                            </div>
+                            <div class="flex justify-between text-body-md text-primary">
+                                <span>Discounts</span>
+                                <span class="font-label-mono">-$70.00</span>
+                            </div>
+                            <div class="h-px bg-outline-variant my-md"></div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-headline-sm text-headline-sm">Total</span>
+                                <span class="font-label-mono text-headline-md text-on-surface">$144.98</span>
+                            </div>
+                        </div>
+                        <div class="mb-lg">
+                            <label
+                                class="block text-[11px] font-label-mono uppercase tracking-widest text-on-surface-variant mb-2">Apply
+                                Coupon</label>
+                            <div class="flex gap-2">
+                                <input
+                                    class="flex-grow bg-background border border-outline-variant rounded-lg px-md py-2 text-body-sm focus:outline-none focus:border-primary text-on-surface"
+                                    placeholder="Enter code" type="text" />
+                                <button
+                                    class="px-md py-2 border border-outline-variant rounded-lg text-body-sm font-semibold hover:bg-surface-variant transition-colors">Apply</button>
+                            </div>
+                        </div>
+                        <button
+                            class="w-full bg-primary text-white py-4 rounded-lg font-button-text text-headline-sm hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20">
+                            Proceed to Checkout
+                        </button>
+                        <div class="mt-md flex items-center justify-center gap-xs text-[12px] text-on-surface-variant">
+                            <span class="material-symbols-outlined text-[16px]">lock</span>
+                            <span>Secure Checkout Powered by Stripe</span>
+                        </div>
+                    </div>
+                    <div class="p-md border border-outline-variant rounded-lg bg-surface-container-high/30">
+                        <h4 class="font-button-text text-on-surface mb-2">Need Help?</h4>
+                        <p class="text-body-sm text-on-surface-variant">Contact our developer support team at <a
+                                class="text-primary hover:underline" href="#">support@edumarket.io</a> or check our FAQ.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-surface-variant dark:border-surface-variant w-full mt-xl">
+        <div
+            class="w-full py-xl px-margin-mobile md:px-gutter max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-md">
+            <div class="flex flex-col gap-xs items-center md:items-start">
+                <span class="font-headline-sm text-headline-sm font-bold text-on-surface">EduMarket</span>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 EduMarket. Built for Developers. <
+                        />
+                </p>
+            </div>
+            <div class="flex gap-lg">
+                <div class="flex flex-col gap-sm">
+                    <a class="text-on-surface-variant dark:text-on-surface-variant font-body-sm hover:text-primary transition-colors duration-200"
+                        href="#">Courses</a>
+                    <a class="text-on-surface-variant dark:text-on-surface-variant font-body-sm hover:text-primary transition-colors duration-200"
+                        href="#">Instructors</a>
+                </div>
+                <div class="flex flex-col gap-sm">
+                    <a class="text-on-surface-variant dark:text-on-surface-variant font-body-sm hover:text-primary transition-colors duration-200"
+                        href="#">API Documentation</a>
+                    <a class="text-on-surface-variant dark:text-on-surface-variant font-body-sm hover:text-primary transition-colors duration-200"
+                        href="#">Terms of Service</a>
+                </div>
+            </div>
+            <div class="flex gap-md">
+                <a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">public</span>
+                </a>
+                <a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">terminal</span>
+                </a>
+                <a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-all"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">code</span>
+                </a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // Micro-interaction: Scale down and fade out on remove (simulation)
+        document.querySelectorAll('.material-symbols-outlined').forEach(icon => {
+            if (icon.textContent === 'delete') {
+                icon.parentElement.addEventListener('click', function (e) {
+                    const card = this.closest('.glass-card');
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        card.remove();
+                        // If no cards left, show empty state (simple check)
+                        if (document.querySelectorAll('.lg\\:col-span-8 > .glass-card').length === 0) {
+                            document.getElementById('empty-state').classList.remove('hidden');
+                        }
+                    }, 300);
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

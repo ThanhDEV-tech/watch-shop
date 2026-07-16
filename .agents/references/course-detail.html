@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>EduMarket | Course Details</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..900&family=Sora:wght@100..900&display=swap"
+        rel="stylesheet" />
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #01132b;
+            color: #d5e3ff;
+        }
+
+        .sora {
+            font-family: 'Sora', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-card {
+            background-color: #1E2F4A;
+            border: 1px solid #2C3E5E;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-open .accordion-content {
+            max-height: 500px;
+        }
+
+        .accordion-open .chevron-icon {
+            transform: rotate(180deg);
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ffb4ab",
+                        "surface-container": "#0e2038",
+                        "on-surface": "#d5e3ff",
+                        "primary": "#ffb4a3",
+                        "on-secondary": "#243048",
+                        "on-error": "#690005",
+                        "primary-container": "#ff6b4a",
+                        "surface-container-low": "#091c34",
+                        "outline": "#a88a83",
+                        "on-surface-variant": "#e1bfb8",
+                        "surface-dim": "#01132b",
+                        "on-primary-container": "#661000",
+                        "tertiary-container": "#d08c00",
+                        "error-container": "#93000a",
+                        "tertiary": "#ffba4b",
+                        "secondary-container": "#3a4760",
+                        "surface-container-highest": "#25354e",
+                        "secondary": "#bac7e5",
+                        "background": "#01132b",
+                        "surface-variant": "#25354e",
+                        "surface": "#01132b",
+                        "on-background": "#d5e3ff",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "80px",
+                        "lg": "48px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "margin-mobile": "16px",
+                        "base": "8px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Sora"],
+                        "display-lg": ["Sora"],
+                        "button-text": ["Sora"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-sm": ["Sora"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "button-text": ["15px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "label-mono": ["13px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-sm": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background text-on-background min-h-screen selection:bg-primary-container selection:text-white">
+    <!-- TopNavBar -->
+    <nav
+        class="bg-background dark:bg-background border-b border-surface-variant dark:border-surface-variant docked full-width top-0 sticky flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-20 z-50">
+        <div class="flex items-center gap-lg">
+            <span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary">EduMarket</span>
+            <div class="hidden md:flex gap-md">
+                <a class="text-primary font-bold border-b-2 border-primary pb-1 hover:text-primary transition-colors duration-200"
+                    href="#">Categories</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-md">
+            <div class="hidden md:flex relative group">
+                <span
+                    class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input
+                    class="bg-surface-container-low border border-surface-variant rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-primary-container w-64 transition-all"
+                    placeholder="Search courses..." type="text" />
+            </div>
+            <button
+                class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">shopping_cart</button>
+            <div class="flex gap-sm">
+                <button
+                    class="px-4 py-2 font-button-text text-button-text text-on-surface-variant hover:text-primary transition-colors">Login</button>
+                <button
+                    class="px-6 py-2 bg-primary-container text-white rounded-lg font-button-text text-button-text active:opacity-80 active:scale-95 transition-all">Register</button>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-container-max mx-auto px-margin-mobile md:px-gutter py-lg">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+            <!-- Left Column -->
+            <div class="lg:col-span-8 space-y-lg">
+                <!-- Header -->
+                <section class="space-y-sm">
+                    <div class="flex items-center gap-xs text-primary font-label-mono text-label-mono">
+                        <span class="material-symbols-outlined text-[18px]">terminal</span>
+                        <span>ADVANCED DEVELOPMENT</span>
+                    </div>
+                    <h1 class="font-display-lg text-display-lg text-on-surface sora">Mastering Microservices with Go and
+                        Kubernetes</h1>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                        An intensive, studio-grade guide to building, scaling, and deploying distributed systems using
+                        the most powerful tools in a developer's arsenal.
+                    </p>
+                    <div class="flex items-center gap-md pt-base">
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-tertiary"
+                                style="font-variation-settings: 'FILL' 1;">star</span>
+                            <span class="font-headline-sm text-[20px] text-on-surface">4.9</span>
+                        </div>
+                        <span class="text-on-surface-variant font-body-sm">(2.4k Students enrolled)</span>
+                        <span class="text-on-surface-variant font-body-sm">•</span>
+                        <span class="text-on-surface-variant font-body-sm">Created by <span
+                                class="text-primary font-semibold">Marcus Thorne</span></span>
+                    </div>
+                </section>
+                <div class="h-px w-full bg-surface-variant opacity-30 flex justify-center items-center">
+                    <span class="px-4 bg-background text-on-surface-variant font-label-mono text-label-mono">
+                        < />
+                    </span>
+                </div>
+                <!-- What you'll learn -->
+                <section class="glass-card p-md rounded-xl">
+                    <h2 class="font-headline-sm text-headline-sm sora mb-md text-on-surface">What you'll learn</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                        <div class="flex gap-sm">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span class="font-body-md text-on-surface-variant">Architecting scalable microservices using
+                                Go's concurrency primitives.</span>
+                        </div>
+                        <div class="flex gap-sm">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span class="font-body-md text-on-surface-variant">Implementing gRPC and Protobuf for
+                                high-performance communication.</span>
+                        </div>
+                        <div class="flex gap-sm">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span class="font-body-md text-on-surface-variant">Deploying and managing production
+                                clusters with Kubernetes and Helm.</span>
+                        </div>
+                        <div class="flex gap-sm">
+                            <span class="material-symbols-outlined text-primary">check_circle</span>
+                            <span class="font-body-md text-on-surface-variant">Observability with Prometheus, Grafana,
+                                and OpenTelemetry.</span>
+                        </div>
+                    </div>
+                </section>
+                <!-- Curriculum -->
+                <section class="space-y-md">
+                    <h2 class="font-headline-sm text-headline-sm sora text-on-surface">Course Curriculum</h2>
+                    <div class="space-y-base">
+                        <!-- Chapter 1 -->
+                        <div
+                            class="accordion-item glass-card rounded-lg overflow-hidden group transition-all duration-300">
+                            <button
+                                class="w-full flex items-center justify-between p-md hover:bg-surface-container transition-colors text-left"
+                                onclick="toggleAccordion(this)">
+                                <div class="flex items-center gap-md">
+                                    <span
+                                        class="sora font-bold text-headline-sm text-surface-variant opacity-40 select-none">01</span>
+                                    <div>
+                                        <h3 class="font-headline-sm text-[18px] text-on-surface sora">The Foundation: Go
+                                            Microservices</h3>
+                                        <p class="font-body-sm text-on-surface-variant">5 lessons • 48m total</p>
+                                    </div>
+                                </div>
+                                <span
+                                    class="material-symbols-outlined chevron-icon transition-transform text-primary">expand_more</span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="p-md pt-0 space-y-sm">
+                                    <div
+                                        class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group/lesson">
+                                        <div class="flex items-center gap-sm">
+                                            <span
+                                                class="material-symbols-outlined text-on-surface-variant group-hover/lesson:text-primary transition-colors">play_circle</span>
+                                            <span
+                                                class="font-body-md text-on-surface-variant group-hover/lesson:text-on-surface">Introduction
+                                                to the Microservice Architecture</span>
+                                        </div>
+                                        <span class="mono text-label-mono text-on-surface-variant">12:45</span>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group/lesson">
+                                        <div class="flex items-center gap-sm">
+                                            <span
+                                                class="material-symbols-outlined text-on-surface-variant group-hover/lesson:text-primary transition-colors">play_circle</span>
+                                            <span
+                                                class="font-body-md text-on-surface-variant group-hover/lesson:text-on-surface">Setting
+                                                up the Go Workspace</span>
+                                        </div>
+                                        <span class="mono text-label-mono text-on-surface-variant">08:20</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chapter 2 -->
+                        <div
+                            class="accordion-item glass-card rounded-lg overflow-hidden group transition-all duration-300">
+                            <button
+                                class="w-full flex items-center justify-between p-md hover:bg-surface-container transition-colors text-left"
+                                onclick="toggleAccordion(this)">
+                                <div class="flex items-center gap-md">
+                                    <span
+                                        class="sora font-bold text-headline-sm text-surface-variant opacity-40 select-none">02</span>
+                                    <div>
+                                        <h3 class="font-headline-sm text-[18px] text-on-surface sora">Advanced
+                                            Orchestration</h3>
+                                        <p class="font-body-sm text-on-surface-variant">8 lessons • 1h 22m total</p>
+                                    </div>
+                                </div>
+                                <span
+                                    class="material-symbols-outlined chevron-icon transition-transform text-primary">expand_more</span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="p-md pt-0 space-y-sm">
+                                    <div
+                                        class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer group/lesson">
+                                        <div class="flex items-center gap-sm">
+                                            <span
+                                                class="material-symbols-outlined text-on-surface-variant group-hover/lesson:text-primary transition-colors">lock</span>
+                                            <span class="font-body-md text-on-surface-variant">Writing Kubernetes
+                                                Manifests from Scratch</span>
+                                        </div>
+                                        <span class="mono text-label-mono text-on-surface-variant">22:15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Instructor Bio -->
+                <section class="glass-card p-md rounded-xl">
+                    <h2 class="font-headline-sm text-headline-sm sora mb-lg text-on-surface">Your Instructor</h2>
+                    <div class="flex flex-col md:flex-row gap-lg items-center md:items-start">
+                        <div class="relative">
+                            <div class="w-32 h-32 rounded-xl overflow-hidden border-2 border-primary-container">
+                                <img class="w-full h-full object-cover"
+                                    data-alt="A professional portrait of a senior software architect with short hair and a modern tech-studio background. Warm, low-key lighting illuminates his face from the side, creating a high-end, authoritative developer aesthetic. He wears a dark minimalist hoodie. The overall mood is focused and academic."
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsHQvtVH2NURpB6Gt84dXw_V6Kcaos5h73HSYr3CF0bCsFXgEfpkqBIdTiYplc7MERTwIQoM2IMBwfPi_F8YRL3FsE1qP8WA03HEaaZoEwTJYmVKH08_mhflb1oTu3zI2dZ6_O1sCBt8NyvDb9iCM1EL3Ckyg18g_CrwbhUsBe9LdxxiuZadJZtqaOsk9fM7Bm365d1kmxxdZ19PXcpz8QQiovG8jSi70s0TsgazKQVyNQ3Eza7d2V" />
+                            </div>
+                            <div
+                                class="absolute -bottom-2 -right-2 bg-primary-container px-2 py-1 rounded text-[10px] mono text-white font-bold">
+                                SENIOR</div>
+                        </div>
+                        <div class="flex-1 space-y-base text-center md:text-left">
+                            <h3 class="font-headline-sm text-on-surface sora">Marcus Thorne</h3>
+                            <p class="text-primary font-label-mono text-label-mono mb-sm uppercase tracking-wider">Cloud
+                                Native Architect & OSS Contributor</p>
+                            <p class="font-body-md text-on-surface-variant">
+                                Marcus has spent over 15 years building infrastructure at scale for Silicon Valley
+                                giants. He is an active contributor to the Kubernetes core and a passionate teacher of
+                                modern engineering practices.
+                            </p>
+                            <div class="flex flex-wrap gap-xs justify-center md:justify-start pt-base">
+                                <span
+                                    class="bg-surface-container-highest px-3 py-1 rounded-full mono text-label-mono text-on-surface-variant border border-surface-variant">Go</span>
+                                <span
+                                    class="bg-surface-container-highest px-3 py-1 rounded-full mono text-label-mono text-on-surface-variant border border-surface-variant">Rust</span>
+                                <span
+                                    class="bg-surface-container-highest px-3 py-1 rounded-full mono text-label-mono text-on-surface-variant border border-surface-variant">K8s</span>
+                                <span
+                                    class="bg-surface-container-highest px-3 py-1 rounded-full mono text-label-mono text-on-surface-variant border border-surface-variant">Terraform</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Reviews -->
+                <section class="space-y-md pb-xl">
+                    <div class="flex justify-between items-end">
+                        <h2 class="font-headline-sm text-headline-sm sora text-on-surface">Student Feedback</h2>
+                        <button class="text-primary font-button-text hover:underline">View all reviews</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+                        <div class="glass-card p-md rounded-xl space-y-sm">
+                            <div class="flex justify-between items-start">
+                                <div class="flex gap-1">
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                </div>
+                                <span class="mono text-label-mono text-on-surface-variant opacity-60">2 days ago</span>
+                            </div>
+                            <p class="font-body-md text-on-surface italic">"The most comprehensive Go course I've ever
+                                taken. The Kubernetes section alone is worth the price of admission. Highly technical
+                                and no fluff."</p>
+                            <p class="font-label-mono text-label-mono text-primary">— Alex D., Senior Backend Engineer
+                            </p>
+                        </div>
+                        <div class="glass-card p-md rounded-xl space-y-sm">
+                            <div class="flex justify-between items-start">
+                                <div class="flex gap-1">
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="material-symbols-outlined text-tertiary text-[18px]"
+                                        style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span
+                                        class="material-symbols-outlined text-on-surface-variant text-[18px]">star</span>
+                                </div>
+                                <span class="mono text-label-mono text-on-surface-variant opacity-60">1 week ago</span>
+                            </div>
+                            <p class="font-body-md text-on-surface italic">"The pacing is perfect. I finally understand
+                                gRPC load balancing after months of struggling with other tutorials."</p>
+                            <p class="font-label-mono text-label-mono text-primary">— Sarah L., DevOps Lead</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- Right Column (Sticky Sidebar) -->
+            <div class="lg:col-span-4 lg:sticky lg:top-24 space-y-gutter">
+                <div class="glass-card rounded-xl overflow-hidden shadow-2xl">
+                    <div class="relative h-56 bg-surface-container-low group cursor-pointer">
+                        <img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+                            data-alt="A cinematic, high-contrast shot of a server room with glowing blue and orange LEDs reflecting off dark metallic surfaces. The composition is angled and dynamic, representing complex microservices infrastructure. The overall color palette is deep navy with vibrant orange accents, consistent with a high-end developer platform's branding."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAib3exMvX4yDJIim_6RiXImTQksU--dPHJ8_yxgs0AqxgvdaiUb7vy2FSdSVrx2uRBmHVLVs_JenBFwbNUM82Wl8nrJLD9kFshOYeFFPQbM_U1jSS-pPIr2PGGxv-efaSxeNBVvBBTlDemd3CjcLGzkOK6rO7n6h4KdDZwcPV4c-mbu77R9UDeRUSPXVDi0FI1MIt3oHFeNXuqolkD32uP6WkPlcYM9-UlO4WI8IofoLT_e6YDaEqs" />
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div
+                                class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined text-white text-4xl">play_arrow</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-0 right-0 text-center">
+                            <span
+                                class="font-label-mono text-label-mono text-white/80 bg-black/40 backdrop-blur px-3 py-1 rounded-full">Preview
+                                this course</span>
+                        </div>
+                    </div>
+                    <div class="p-md space-y-md">
+                        <div class="flex items-baseline gap-base">
+                            <span class="font-display-lg text-headline-md text-primary sora">$149.99</span>
+                            <span class="font-body-md text-on-surface-variant line-through">$199.99</span>
+                            <span class="text-tertiary font-label-mono text-label-mono ml-auto">25% OFF</span>
+                        </div>
+                        <div class="space-y-sm">
+                            <button
+                                class="w-full py-4 bg-primary-container text-white rounded-lg font-button-text text-button-text active:scale-95 transition-all shadow-lg shadow-primary-container/20">Enroll
+                                Now</button>
+                            <button
+                                class="w-full py-3 border border-surface-variant text-on-surface rounded-lg font-button-text text-button-text hover:bg-surface-container transition-all">Add
+                                to Cart</button>
+                        </div>
+                        <p class="text-center font-body-sm text-on-surface-variant opacity-60">30-Day Money-Back
+                            Guarantee</p>
+                        <div class="h-px bg-surface-variant"></div>
+                        <div class="space-y-sm">
+                            <h4 class="font-headline-sm text-[16px] sora text-on-surface">This course includes:</h4>
+                            <ul class="space-y-sm">
+                                <li class="flex items-center gap-sm font-body-sm text-on-surface-variant">
+                                    <span class="material-symbols-outlined text-primary text-[20px]">videocam</span>
+                                    24 hours on-demand video
+                                </li>
+                                <li class="flex items-center gap-sm font-body-sm text-on-surface-variant">
+                                    <span class="material-symbols-outlined text-primary text-[20px]">description</span>
+                                    12 coding exercises
+                                </li>
+                                <li class="flex items-center gap-sm font-body-sm text-on-surface-variant">
+                                    <span class="material-symbols-outlined text-primary text-[20px]">article</span>
+                                    Full lifetime access
+                                </li>
+                                <li class="flex items-center gap-sm font-body-sm text-on-surface-variant">
+                                    <span class="material-symbols-outlined text-primary text-[20px]">smartphone</span>
+                                    Access on mobile and TV
+                                </li>
+                                <li class="flex items-center gap-sm font-body-sm text-on-surface-variant">
+                                    <span
+                                        class="material-symbols-outlined text-primary text-[20px]">workspace_premium</span>
+                                    Certificate of completion
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="flex justify-center gap-md pt-sm">
+                            <button
+                                class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs font-label-mono text-label-mono">
+                                <span class="material-symbols-outlined text-[18px]">share</span>
+                                Share
+                            </button>
+                            <button
+                                class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs font-label-mono text-label-mono">
+                                <span class="material-symbols-outlined text-[18px]">bookmark</span>
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Secondary Promo Card -->
+                <div
+                    class="bg-surface-container-low border border-dashed border-surface-variant p-md rounded-xl space-y-sm">
+                    <h5 class="font-headline-sm text-[14px] sora text-primary">Team Training?</h5>
+                    <p class="font-body-sm text-on-surface-variant">Get this course and 10,000+ top-rated courses for
+                        your team.</p>
+                    <button
+                        class="font-label-mono text-label-mono text-on-surface underline hover:text-primary">EduMarket
+                        for Business</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Footer -->
+    <footer
+        class="w-full py-xl px-margin-mobile md:px-gutter max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-md border-t border-surface-variant dark:border-surface-variant bg-surface-container-lowest dark:bg-surface-container-lowest">
+        <div class="flex flex-col items-center md:items-start gap-sm">
+            <span class="font-headline-sm text-headline-sm font-bold text-on-surface">EduMarket</span>
+            <p class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant">© 2024 EduMarket.
+                Built for Developers. < />
+            </p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-lg">
+            <a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="#">Courses</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="#">Instructors</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="#">API Documentation</a>
+            <a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="#">Terms of Service</a>
+        </div>
+        <div class="flex gap-md">
+            <span
+                class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors">terminal</span>
+            <span
+                class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors">hub</span>
+            <span
+                class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors">code</span>
+        </div>
+    </footer>
+    <script>
+        function toggleAccordion(btn) {
+            const item = btn.parentElement;
+            const isOpen = item.classList.contains('accordion-open');
+
+            // Close all others
+            document.querySelectorAll('.accordion-item').forEach(el => {
+                el.classList.remove('accordion-open');
+                el.querySelector('.accordion-content').style.maxHeight = null;
+            });
+
+            if (!isOpen) {
+                item.classList.add('accordion-open');
+                const content = item.querySelector('.accordion-content');
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        }
+
+        // Initialize first accordion
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstAccordionBtn = document.querySelector('.accordion-item button');
+            if (firstAccordionBtn) toggleAccordion(firstAccordionBtn);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+:root {
+  /* Nền */
+  --bg-primary:    #16233A;  /* nền chính, xanh navy đậm */
+  --bg-surface:    #1E2F4A;  /* card, nav, panel nổi trên nền chính */
+  --bg-surface-2:  #263A5C;  /* hover/active state của surface */
+
+  /* Chữ */
+  --text-primary:  #F5F7FA;  /* tiêu đề, nội dung chính */
+  --text-muted:    #93A4C2;  /* mô tả phụ, meta info (số học viên, ngày...) */
+  --text-disabled: #5C6C89;
+
+  /* Accent — dùng có kiểm soát, không rải khắp trang */
+  --accent-primary:   #FF6B4A;  /* CTA chính: "Mua ngay", giá, nút Enroll */
+  --accent-primary-hover: #FF8A6B;
+  --accent-primary-soft: #FFB4A3;
+  --accent-warn:   #FFB020;  /* rating sao, badge "Bestseller" */
+  --accent-success: #3DD68C;  /* trạng thái đã mua / hoàn thành */
+
+  /* Border / divider */
+  --border-subtle: #2C3E5E;
+}
+
+@theme {
+  /* Map colors from HTML to design system tokens */
+  --color-background: var(--bg-primary);
+  --color-on-background: var(--text-primary);
+  --color-surface: var(--bg-surface);
+  --color-surface-container: var(--bg-surface);
+  --color-surface-container-low: var(--bg-surface);
+  --color-surface-container-lowest: #0e1b2e; /* slightly darker navy for nav, footer and marquee */
+  --color-surface-container-high: var(--bg-surface);
+  --color-surface-container-highest: var(--bg-surface-2);
+  --color-surface-variant: var(--border-subtle);
+  
+  --color-primary: var(--accent-primary-soft);
+  --color-primary-container: var(--accent-primary);
+  --color-on-primary-container: #661000;
+  --color-on-primary: #630f00;
+
+  --color-on-surface: var(--text-primary);
+  --color-on-surface-variant: var(--text-muted);
+  --color-outline: var(--border-subtle);
+  --color-outline-variant: var(--border-subtle);
+
+  --color-tertiary: var(--accent-warn);
+  --color-error: #FFB4AB;
+  
+  /* Layout sizes and spaces — prefixed with em- to avoid shadowing Tailwind's built-in size scale */
+  --spacing-gutter: 24px;
+  --spacing-lg: 48px;
+  --spacing-md: 24px;
+  --spacing-container-max: 1280px;
+  --spacing-xl: 80px;
+  --spacing-sm: 12px;
+  --spacing-xs: 4px;
+  --spacing-margin-mobile: 16px;
+  --spacing-base: 8px;
+
+  /* Font Families */
+  --font-display: "Sora", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Font Sizes */
+  --text-body-lg: 18px;
+  --text-display-lg-mobile: 32px;
+  --text-headline-md: 32px;
+  --text-body-sm: 14px;
+  --text-display-lg: 48px;
+  --text-body-md: 16px;
+  --text-headline-sm: 24px;
+  --text-button-text: 15px;
+  --text-label-mono: 13px;
+
+  /* Custom animation keyframes */
+  --animate-marquee: marquee 30s linear infinite;
+
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+}
+
+/*
+ * Tailwind v4 also uses --spacing-md/lg/xl for max-w-md/lg/xl. The project
+ * intentionally defines those spacing tokens for padding and gaps, so restore
+ * the container widths explicitly to avoid overly narrow modals and wrapped text.
+ */
+.max-w-sm { max-width: 24rem; }
+.max-w-md { max-width: 28rem; }
+.max-w-lg { max-width: 32rem; }
+.max-w-xl { max-width: 36rem; }
+
+/* Custom CSS and design textures from design.md */
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  /* Texture: svg noise overlay for depth — no opacity here to avoid stacking context breaking sticky header */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 150px;
+  background-blend-mode: overlay;
+}
+
+/* Scrollbar behaviors */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Glassmorphism card default styles */
+.glass-card {
+  background: rgba(30, 47, 74, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Polish: Hero section radial gradient glow behind text */
+.hero-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255, 107, 74, 0.08) 0%, rgba(255, 107, 74, 0) 70%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Polish: Code bracket signature decoration */
+.bracket-motif {
+  color: var(--text-disabled);
+  opacity: 0.08;
+  transform: perspective(600px) rotateX(20deg) rotateY(-20deg) rotateZ(-10deg);
+  user-select: none;
+  pointer-events: none;
+  transition: transform 0.5s ease-out;
+}
+.bracket-motif:hover {
+  transform: perspective(600px) rotateX(10deg) rotateY(-10deg) rotateZ(-5deg);
+}
+
+/* Polish: How it works step numbers */
+.step-number-bg {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--text-disabled);
+  opacity: 0.15;
+  line-height: 1;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Polish: Recommended course grid slide loop edge fade mask */
+.slider-mask {
+  mask-image: linear-gradient(to right, transparent 0, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 8%, black 92%, transparent 100%);
+}
+
+@keyframes slide-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Polish: Hover effects on CourseCard */
+.course-card-element {
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.course-card-element:hover {
+  border-color: rgba(255, 107, 74, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+.course-card-element img {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.course-card-element:hover img {
+  transform: scale(1.03);
+}
+
+.material-symbols-outlined {
+  display: inline-block;
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+.filled-star {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .bracket-motif {
+    transform: none;
+  }
+
+  .animate-marquee {
+    animation: none !important;
+  }
+}
