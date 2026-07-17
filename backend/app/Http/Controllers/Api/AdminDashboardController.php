@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\DashboardIndexRequest;
 use App\Http\Resources\AdminOrderDetailResource;
 use App\Http\Resources\OrderResource;
+use App\Http\Resources\StockMovementResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\VnpayTransactionResource;
 use App\Models\Order;
+use App\Models\StockMovement;
 use App\Models\User;
 use App\Models\VnpayTransaction;
 use App\Services\AdminDashboardService;
@@ -228,6 +230,34 @@ class AdminDashboardController extends Controller
                 VnpayTransactionResource::collection($transactions->getCollection()),
             ),
             'message' => 'Lấy danh sách giao dịch VNPay thành công.',
+        ]);
+    }
+
+    public function stockMovements(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'product_variant_id' => ['nullable', 'integer', 'exists:product_variants,id'],
+            'order_id' => ['nullable', 'integer', 'exists:orders,id'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $movements = StockMovement::query()
+            ->with(['productVariant.product.brand', 'order.user.role', 'creator.role'])
+            ->when(isset($validated['product_variant_id']), fn ($query) => $query->where(
+                'product_variant_id',
+                $validated['product_variant_id'],
+            ))
+            ->when(isset($validated['order_id']), fn ($query) => $query->where('order_id', $validated['order_id']))
+            ->latest('id')
+            ->paginate((int) ($validated['per_page'] ?? 15));
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->paginatedData(
+                $movements,
+                StockMovementResource::collection($movements->getCollection()),
+            ),
+            'message' => 'Lấy lịch sử tồn kho thành công.',
         ]);
     }
 

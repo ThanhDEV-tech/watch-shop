@@ -9,7 +9,8 @@ const stats = ref(null)
 const loading = ref(true)
 const error = ref('')
 
-const courseBreakdown = computed(() => stats.value?.total_courses ?? {})
+const productCounts = computed(() => stats.value?.product_status_counts ?? {})
+const orderCounts = computed(() => stats.value?.order_status_counts ?? {})
 
 const fetchStats = async () => {
   loading.value = true
@@ -33,8 +34,8 @@ onMounted(fetchStats)
     <div class="flex w-full min-w-0 flex-wrap items-end justify-between gap-md">
       <div class="w-full min-w-0 sm:w-auto">
         <p class="w-full font-mono text-label-mono uppercase tracking-widest text-primary">Admin analytics</p>
-        <h1 class="mt-xs w-full font-display text-headline-md font-bold text-on-surface">Tổng quan hệ thống</h1>
-        <p class="mt-xs w-full text-body-sm text-on-surface-variant">Theo dõi người dùng, khóa học và doanh thu EduMarket.</p>
+        <h1 class="mt-xs w-full font-display text-headline-md font-bold text-on-surface">Tổng quan Watchora</h1>
+        <p class="mt-xs w-full text-body-sm text-on-surface-variant">Theo dõi catalog, đơn hàng, doanh thu và tồn kho cần xử lý.</p>
       </div>
       <button class="shrink-0 cursor-pointer rounded-lg border border-surface-variant px-md py-2 text-body-sm text-on-surface transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60" type="button" :disabled="loading" @click="fetchStats">
         Làm mới
@@ -43,16 +44,17 @@ onMounted(fetchStats)
 
     <p v-if="error" class="mt-md w-full rounded-lg border border-error/40 bg-error/10 p-md text-body-sm text-error">{{ error }}</p>
 
-    <div v-if="loading" class="mt-lg grid w-full grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4">
-      <div v-for="index in 4" :key="index" class="h-36 animate-pulse rounded-lg border border-surface-variant bg-surface"></div>
+    <div v-if="loading" class="mt-lg grid w-full grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-5">
+      <div v-for="index in 5" :key="index" class="h-36 animate-pulse rounded-lg border border-surface-variant bg-surface"></div>
     </div>
 
     <template v-else-if="stats">
-      <section class="mt-lg grid w-full grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-4" aria-label="System statistics">
-        <DashboardStatCard label="Tổng người dùng" :value="stats.total_users" icon="group" :detail="`${stats.total_students} học viên · ${stats.total_instructors} giảng viên`" />
-        <DashboardStatCard label="Tổng khóa học" :value="courseBreakdown.all ?? 0" icon="menu_book" :detail="`${courseBreakdown.approved ?? 0} đã duyệt · ${courseBreakdown.rejected ?? 0} từ chối`" />
-        <DashboardStatCard label="Tổng doanh thu" :value="formatCurrency(stats.total_revenue)" icon="payments" :detail="`${stats.total_orders} đơn hàng`" />
-        <DashboardStatCard label="Chờ duyệt" :value="stats.pending_courses_count" icon="pending_actions" detail="Khóa học cần admin xử lý" />
+      <section class="mt-lg grid w-full grid-cols-1 gap-md sm:grid-cols-2 xl:grid-cols-5" aria-label="System statistics">
+        <DashboardStatCard label="Tổng sản phẩm" :value="stats.total_products" icon="inventory_2" :detail="`${productCounts.active ?? 0} active · ${productCounts.draft ?? 0} draft · ${productCounts.inactive ?? 0} inactive`" />
+        <DashboardStatCard label="Tổng đơn hàng" :value="stats.total_orders" icon="receipt_long" :detail="`${orderCounts.paid ?? 0} paid · ${orderCounts.shipping ?? 0} shipping · ${orderCounts.completed ?? 0} completed`" />
+        <DashboardStatCard label="Cần xử lý" :value="stats.needs_attention_count" icon="priority_high" detail="Đơn paid_stock_issue" />
+        <DashboardStatCard label="Doanh thu" :value="formatCurrency(stats.total_revenue)" icon="payments" detail="Paid, shipping, completed" />
+        <DashboardStatCard label="Variant sắp hết" :value="stats.low_stock_variants_count" icon="inventory" :detail="`Ngưỡng <= ${stats.low_stock_threshold}`" />
       </section>
 
       <section class="mt-lg grid w-full min-w-0 grid-cols-1 gap-md xl:grid-cols-3">
@@ -64,26 +66,49 @@ onMounted(fetchStats)
           <RevenueBarChart class="mt-md" :data="stats.revenue_last_7_days" />
         </article>
 
-        <article id="pending-courses" class="glass-card w-full min-w-0 rounded-lg p-md">
+        <article class="glass-card w-full min-w-0 rounded-lg p-md">
           <div class="w-full min-w-0">
-            <p class="w-full font-mono text-[11px] uppercase tracking-widest text-primary">Review queue</p>
-            <h2 class="mt-xs w-full font-display text-headline-sm font-semibold text-on-surface">Course đang chờ duyệt</h2>
+            <p class="w-full font-mono text-[11px] uppercase tracking-widest text-primary">Order status</p>
+            <h2 class="mt-xs w-full font-display text-headline-sm font-semibold text-on-surface">Trạng thái đơn hàng</h2>
           </div>
           <div class="mt-md w-full min-w-0 overflow-hidden rounded-lg border border-surface-variant">
-            <table class="w-full min-w-[320px] text-left text-body-sm">
+            <table class="w-full min-w-[360px] text-left text-body-sm">
               <thead class="bg-surface-container-lowest text-on-surface-variant">
                 <tr><th class="px-sm py-3 font-medium">Trạng thái</th><th class="px-sm py-3 text-right font-medium">Số lượng</th></tr>
               </thead>
               <tbody>
-                <tr class="border-t border-surface-variant transition-colors hover:bg-surface-container-highest/40">
-                  <td class="p-0 text-on-surface"><RouterLink to="/admin/courses?status=pending" class="block w-full cursor-pointer px-sm py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"><span class="rounded bg-tertiary/10 px-2 py-1 text-tertiary">Pending</span></RouterLink></td>
-                  <td class="p-0 text-right font-mono text-lg font-semibold text-primary"><RouterLink to="/admin/courses?status=pending" class="block w-full cursor-pointer px-sm py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">{{ stats.pending_courses_count }}</RouterLink></td>
+                <tr v-for="(count, status) in orderCounts" :key="status" class="border-t border-surface-variant transition-colors hover:bg-surface-container-highest/40" :class="{ 'bg-error/5': status === 'paid_stock_issue' }">
+                  <td class="px-sm py-3 text-on-surface"><RouterLink :to="`/admin/orders?status=${status}`" class="inline-flex rounded px-2 py-1 font-mono text-[11px] uppercase" :class="status === 'paid_stock_issue' ? 'bg-error/10 text-error' : 'bg-surface-container-highest text-on-surface-variant'">{{ status }}</RouterLink></td>
+                  <td class="px-sm py-3 text-right font-mono text-lg font-semibold" :class="status === 'paid_stock_issue' ? 'text-error' : 'text-primary'">{{ count }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <RouterLink to="/admin/courses?status=pending" class="mt-md inline-flex items-center gap-xs text-body-sm text-primary hover:underline">Mở hàng chờ duyệt <span class="material-symbols-outlined text-[18px]">arrow_forward</span></RouterLink>
+          <RouterLink to="/admin/orders?status=paid_stock_issue" class="mt-md inline-flex items-center gap-xs text-body-sm text-error hover:underline">Mở đơn cần xử lý <span class="material-symbols-outlined text-[18px]">arrow_forward</span></RouterLink>
         </article>
+      </section>
+
+      <section class="mt-lg w-full min-w-0 rounded-lg border border-surface-variant bg-surface">
+        <div class="w-full min-w-0 border-b border-surface-variant p-md">
+          <p class="w-full font-mono text-[11px] uppercase tracking-widest text-primary">Top selling</p>
+          <h2 class="mt-xs w-full font-display text-headline-sm font-semibold text-on-surface">Top 5 sản phẩm bán chạy</h2>
+        </div>
+        <div class="w-full min-w-0 overflow-x-auto">
+          <table class="w-full min-w-[720px] text-left text-body-sm">
+            <thead class="bg-surface-container-lowest text-on-surface-variant">
+              <tr><th class="px-md py-sm font-medium">Sản phẩm</th><th class="px-md py-sm font-medium">Brand</th><th class="px-md py-sm text-right font-medium">Số lượng</th><th class="px-md py-sm text-right font-medium">Doanh thu</th></tr>
+            </thead>
+            <tbody>
+              <tr v-if="!stats.top_selling_products?.length"><td colspan="4" class="px-md py-lg text-center text-on-surface-variant">Chưa có sản phẩm bán chạy.</td></tr>
+              <tr v-for="product in stats.top_selling_products" :key="product.product_id" class="border-t border-surface-variant hover:bg-surface-container-highest/40">
+                <td class="px-md py-sm font-medium text-on-surface">{{ product.product_name }}</td>
+                <td class="px-md py-sm text-on-surface-variant">{{ product.brand_name || '—' }}</td>
+                <td class="px-md py-sm text-right font-mono text-primary">{{ product.total_quantity }}</td>
+                <td class="px-md py-sm text-right font-mono font-semibold text-on-surface">{{ formatCurrency(product.total_revenue) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
     </template>
   </main>

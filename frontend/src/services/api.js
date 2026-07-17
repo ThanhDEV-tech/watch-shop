@@ -106,7 +106,11 @@ export const getAdminOrder = (orderId) => api.get(`/admin/orders/${orderId}`)
 
 export const markAdminOrderAsPaid = (orderId) => api.post(`/admin/orders/${orderId}/mark-as-paid`)
 
+export const markAdminOrderAsRefunded = (orderId, payload = {}) => api.post(`/admin/orders/${orderId}/mark-as-refunded`, payload)
+
 export const getAdminVnpayTransactions = (params = {}) => api.get('/admin/vnpay-transactions', { params })
+
+export const getAdminStockMovements = (params = {}) => api.get('/admin/stock-movements', { params })
 
 export const getAdminCourses = (params = {}) => api.get('/admin/courses', { params })
 

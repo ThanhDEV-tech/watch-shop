@@ -89,6 +89,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
             'message' => 'Không tìm thấy đơn hàng.',
         ], 404));
     Route::get('/vnpay-transactions', [AdminDashboardController::class, 'vnpayTransactions']);
+    Route::get('/stock-movements', [AdminDashboardController::class, 'stockMovements']);
     Route::get('/categories', [CategoryController::class, 'adminIndex']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::match(['put', 'patch'], '/categories/{category}', [CategoryController::class, 'update']);

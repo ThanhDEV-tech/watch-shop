@@ -11,12 +11,16 @@ const isLoggingOut = ref(false)
 const menus = {
   admin: [
     { label: 'Tổng quan', icon: 'dashboard', to: '/admin/dashboard' },
-    { label: 'Duyệt khóa học', icon: 'fact_check', to: '/admin/courses' },
-    { label: 'Danh mục', icon: 'category', to: '/admin/categories' },
-    { label: 'Chứng chỉ', icon: 'workspace_premium', to: '/admin/certifications' },
-    { label: 'Người dùng', icon: 'group', to: '/admin/users' },
-    { label: 'Đơn hàng', icon: 'receipt_long', to: '/admin/orders' },
-    { label: 'Giao dịch VNPay', icon: 'account_balance', to: '/admin/vnpay-transactions' },
+    { label: 'Catalog sản phẩm', icon: 'inventory_2', to: '/admin/products' },
+    { label: 'Variant/SKU', icon: 'qr_code_2', to: '/admin/product-variants' },
+    { label: 'Brand', icon: 'sell', to: '/admin/brands' },
+    { label: 'Category', icon: 'category', to: '/admin/categories' },
+    { label: 'Collection', icon: 'collections_bookmark', to: '/admin/collections' },
+    { label: 'Shipping Zone', icon: 'local_shipping', to: '/admin/shipping-zones' },
+    { label: 'Order Management', icon: 'receipt_long', to: '/admin/orders' },
+    { label: 'VNPay Transaction Logs', icon: 'account_balance', to: '/admin/vnpay-transactions' },
+    { label: 'Stock Movement History', icon: 'history', to: '/admin/stock-movements' },
+    { label: 'User Management', icon: 'group', to: '/admin/users' },
   ],
   instructor: [
     { label: 'Tổng quan', icon: 'dashboard', to: '/instructor/dashboard' },
@@ -27,7 +31,7 @@ const menus = {
 const roleName = computed(() => authStore.user?.role?.name ?? '')
 const menuItems = computed(() => menus[roleName.value] ?? [])
 const roleLabel = computed(() => roleName.value === 'admin' ? 'Admin Console' : 'Instructor Studio')
-const productLabel = computed(() => roleName.value === 'admin' ? 'EduMarket Admin' : 'EduMarket Instructor')
+const productLabel = computed(() => roleName.value === 'admin' ? 'Watchora Admin' : 'EduMarket Instructor')
 const dashboardLink = computed(() => roleName.value === 'admin' ? '/admin/dashboard' : '/instructor/dashboard')
 const dashboardLinkLabel = computed(() => roleName.value === 'admin' ? 'Quản trị' : 'Kênh giảng dạy')
 
@@ -79,12 +83,12 @@ const handleLogout = async () => {
               </RouterLink>
 
               <RouterLink
-                to="/my-courses"
+                to="/my-orders"
                 class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-md px-4 py-3 text-body-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 @click="isUserMenuOpen = false"
               >
-                <span class="material-symbols-outlined shrink-0 text-[19px]">school</span>
-                <span class="min-w-0">My Courses</span>
+                <span class="material-symbols-outlined shrink-0 text-[19px]">shopping_bag</span>
+                <span class="min-w-0">My Orders</span>
               </RouterLink>
 
               <div class="my-2 h-px w-full bg-outline-variant"></div>
@@ -107,29 +111,29 @@ const handleLogout = async () => {
     <div class="flex min-h-[calc(100vh-4rem)] w-full min-w-0">
       <aside class="hidden w-64 shrink-0 border-r border-surface-variant bg-surface-container-lowest lg:block">
         <div class="sticky top-16 flex h-[calc(100vh-4rem)] w-full min-w-0 flex-col p-md">
-        <div class="w-full min-w-0 border-b border-surface-variant pb-md">
-          <p class="w-full font-mono text-[11px] uppercase tracking-[0.2em] text-primary">{{ roleLabel }}</p>
-          <p class="mt-xs w-full truncate font-display text-body-md font-semibold text-on-surface">{{ authStore.user?.name }}</p>
-        </div>
+          <div class="w-full min-w-0 border-b border-surface-variant pb-md">
+            <p class="w-full font-mono text-[11px] uppercase tracking-[0.2em] text-primary">{{ roleLabel }}</p>
+            <p class="mt-xs w-full truncate font-display text-body-md font-semibold text-on-surface">{{ authStore.user?.name }}</p>
+          </div>
 
-        <nav class="mt-md flex w-full min-w-0 flex-col gap-xs" aria-label="Dashboard navigation">
-          <RouterLink
-            v-for="item in menuItems"
-            :key="item.to"
-            :to="item.to"
-            class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-lg px-sm py-3 text-body-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            active-class="bg-surface-container-highest !text-primary"
-          >
-            <span class="material-symbols-outlined shrink-0 text-[20px]">{{ item.icon }}</span>
-            <span class="min-w-0 truncate">{{ item.label }}</span>
+          <nav class="mt-md flex w-full min-w-0 flex-col gap-xs overflow-y-auto" aria-label="Dashboard navigation">
+            <RouterLink
+              v-for="item in menuItems"
+              :key="item.to"
+              :to="item.to"
+              class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-lg px-sm py-3 text-body-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              active-class="bg-surface-container-highest !text-primary"
+            >
+              <span class="material-symbols-outlined shrink-0 text-[20px]">{{ item.icon }}</span>
+              <span class="min-w-0 truncate">{{ item.label }}</span>
+            </RouterLink>
+          </nav>
+
+          <RouterLink to="/" class="mt-auto flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-lg px-sm py-3 text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+            <span class="material-symbols-outlined shrink-0 text-[20px]">arrow_back</span>
+            <span class="min-w-0">Về trang chủ</span>
           </RouterLink>
-        </nav>
-
-        <RouterLink to="/" class="mt-auto flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-lg px-sm py-3 text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-          <span class="material-symbols-outlined shrink-0 text-[20px]">arrow_back</span>
-          <span class="min-w-0">Về trang chủ</span>
-        </RouterLink>
-      </div>
+        </div>
       </aside>
 
       <div class="w-full min-w-0 flex-1">
