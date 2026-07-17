@@ -18,6 +18,7 @@ class BrandResource extends JsonResource
             'logo' => $this->logo,
             'country' => $this->country,
             'is_active' => $this->is_active,
+            'products_count' => $this->whenCounted('products'),
             'created_at' => $this->created_at,
         ];
     }

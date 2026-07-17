@@ -27,16 +27,18 @@ export const useCartStore = defineStore('cart', () => {
   const itemCount = computed(() => items.value.length)
 
   const itemPrice = (item) => Number(
-    item.course?.final_price
-      ?? item.course?.discount_price
-      ?? item.price_snapshot
-      ?? item.course?.price
+    item.product_variant?.final_price
+      ?? item.product_variant?.discount_price
+      ?? item.product_variant?.price
       ?? 0,
   )
 
   const updateCart = (cart) => {
     items.value = cart?.items ?? []
-    totalAmount.value = items.value.reduce((sum, item) => sum + itemPrice(item), 0)
+    totalAmount.value = Number(
+      cart?.subtotal_amount
+        ?? items.value.reduce((sum, item) => sum + itemPrice(item) * Number(item.quantity ?? 1), 0),
+    )
   }
 
   const clearCart = () => {
@@ -64,7 +66,7 @@ export const useCartStore = defineStore('cart', () => {
 
   const fetchCart = () => runCartAction(getCart)
 
-  const addItem = (courseId) => runCartAction(() => addToCart(courseId))
+  const addItem = (productVariantId, quantity = 1) => runCartAction(() => addToCart(productVariantId, quantity))
 
   const removeItem = (itemId) => runCartAction(() => removeFromCart(itemId))
 

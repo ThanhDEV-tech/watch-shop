@@ -1,81 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  /* Nền */
-  --bg-primary:    #16233A;  /* nền chính, xanh navy đậm */
-  --bg-surface:    #1E2F4A;  /* card, nav, panel nổi trên nền chính */
-  --bg-surface-2:  #263A5C;  /* hover/active state của surface */
+  /*
+   * Watchora luxury-minimal design system.
+   * Original palette inspired by broad premium retail language: warm paper,
+   * soft black, brushed brass, restrained state colors, and generous spacing.
+   */
 
-  /* Chữ */
-  --text-primary:  #F5F7FA;  /* tiêu đề, nội dung chính */
-  --text-muted:    #93A4C2;  /* mô tả phụ, meta info (số học viên, ngày...) */
-  --text-disabled: #5C6C89;
+  /* Primitive color tokens */
+  --watch-color-ink-950: #0c0a09;
+  --watch-color-ink-900: #1c1917;
+  --watch-color-ink-800: #292524;
+  --watch-color-ink-700: #44403c;
+  --watch-color-ink-500: #64748b;
+  --watch-color-ivory-50: #fafaf9;
+  --watch-color-ivory-100: #f5f5f4;
+  --watch-color-ivory-200: #e8ecf0;
+  --watch-color-stone-150: #d6d3d1;
+  --watch-color-gold-300: #d6b272;
+  --watch-color-gold-600: #a16207;
+  --watch-color-gold-800: #713f12;
+  --watch-color-oxblood-600: #dc2626;
+  --watch-color-oxblood-100: #fee2e2;
+  --watch-color-sage-700: #4f6657;
+  --watch-color-sage-100: #dfe9df;
+  --watch-color-amber-700: #a16207;
+  --watch-color-amber-100: #fef3c7;
 
-  /* Accent — dùng có kiểm soát, không rải khắp trang */
-  --accent-primary:   #FF6B4A;  /* CTA chính: "Mua ngay", giá, nút Enroll */
-  --accent-primary-hover: #FF8A6B;
-  --accent-primary-soft: #FFB4A3;
-  --accent-warn:   #FFB020;  /* rating sao, badge "Bestseller" */
-  --accent-success: #3DD68C;  /* trạng thái đã mua / hoàn thành */
+  /* Semantic surface and text tokens */
+  --bg-primary: var(--watch-color-ivory-50);
+  --bg-surface: #ffffff;
+  --bg-surface-2: var(--watch-color-ivory-100);
+  --bg-surface-elevated: #fffdf9;
+  --bg-inverse: var(--watch-color-ink-900);
+  --text-primary: var(--watch-color-ink-950);
+  --text-muted: var(--watch-color-ink-500);
+  --text-disabled: #a39a8f;
+  --border-subtle: var(--watch-color-ivory-200);
+  --border-strong: var(--watch-color-stone-150);
 
-  /* Border / divider */
-  --border-subtle: #2C3E5E;
+  /* Accent and state tokens */
+  --accent-primary: var(--watch-color-gold-600);
+  --accent-primary-hover: var(--watch-color-gold-800);
+  --accent-primary-soft: var(--watch-color-gold-300);
+  --accent-warn: var(--watch-color-amber-700);
+  --accent-warn-surface: var(--watch-color-amber-100);
+  --accent-success: var(--watch-color-sage-700);
+  --accent-success-surface: var(--watch-color-sage-100);
+  --accent-danger: var(--watch-color-oxblood-600);
+  --accent-danger-surface: var(--watch-color-oxblood-100);
+
+  /* Layout tokens, intentionally not named --spacing-* to avoid Tailwind core namespace collisions. */
+  --layout-space-1: 4px;
+  --layout-space-2: 8px;
+  --layout-space-3: 12px;
+  --layout-space-4: 16px;
+  --layout-space-5: 24px;
+  --layout-space-6: 32px;
+  --layout-space-7: 48px;
+  --layout-space-8: 64px;
+  --layout-space-9: 96px;
+  --layout-gutter-mobile: 20px;
+  --layout-gutter-desktop: 40px;
+  --layout-container-max: 1280px;
+
+  /* Shape, elevation, and motion tokens */
+  --radius-watch-sm: 4px;
+  --radius-watch-md: 6px;
+  --radius-watch-lg: 8px;
+  --shadow-watch-soft: 0 18px 50px rgb(12 10 9 / 0.07);
+  --shadow-watch-floating: 0 24px 70px rgb(12 10 9 / 0.11);
+  --motion-watch-fast: 160ms;
+  --motion-watch-base: 220ms;
+  --ease-watch: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @theme {
-  /* Map colors from HTML to design system tokens */
+  /* Semantic color tokens consumed by Tailwind utilities */
   --color-background: var(--bg-primary);
   --color-on-background: var(--text-primary);
   --color-surface: var(--bg-surface);
   --color-surface-container: var(--bg-surface);
-  --color-surface-container-low: var(--bg-surface);
-  --color-surface-container-lowest: #0e1b2e; /* slightly darker navy for nav, footer and marquee */
-  --color-surface-container-high: var(--bg-surface);
-  --color-surface-container-highest: var(--bg-surface-2);
+  --color-surface-container-low: var(--bg-surface-elevated);
+  --color-surface-container-lowest: var(--bg-surface-2);
+  --color-surface-container-high: var(--bg-surface-elevated);
+  --color-surface-container-highest: var(--watch-color-ivory-100);
   --color-surface-variant: var(--border-subtle);
-  
-  --color-primary: var(--accent-primary-soft);
-  --color-primary-container: var(--accent-primary);
-  --color-on-primary-container: #661000;
-  --color-on-primary: #630f00;
+
+  --color-primary: var(--watch-color-ink-900);
+  --color-primary-container: var(--watch-color-ink-900);
+  --color-on-primary-container: var(--watch-color-ivory-50);
+  --color-on-primary: var(--watch-color-ivory-50);
 
   --color-on-surface: var(--text-primary);
   --color-on-surface-variant: var(--text-muted);
-  --color-outline: var(--border-subtle);
+  --color-outline: var(--border-strong);
   --color-outline-variant: var(--border-subtle);
 
   --color-tertiary: var(--accent-warn);
-  --color-error: #FFB4AB;
-  
-  /* Layout sizes and spaces — prefixed with em- to avoid shadowing Tailwind's built-in size scale */
-  --spacing-gutter: 24px;
-  --spacing-lg: 48px;
-  --spacing-md: 24px;
-  --spacing-container-max: 1280px;
-  --spacing-xl: 80px;
-  --spacing-sm: 12px;
-  --spacing-xs: 4px;
-  --spacing-margin-mobile: 16px;
-  --spacing-base: 8px;
+  --color-error: var(--accent-danger);
+  --color-accent: var(--accent-primary);
+  --color-secondary: var(--watch-color-ink-700);
+  --color-muted: var(--watch-color-ivory-200);
+  --color-border: var(--watch-color-stone-150);
+  --color-ring: var(--watch-color-ink-900);
 
-  /* Font Families */
-  --font-display: "Sora", sans-serif;
-  --font-body: "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  /* Typography: editorial heading + highly readable body. */
+  --font-display: "Cormorant", "Cormorant Garamond", Georgia, serif;
+  --font-body: "Montserrat", "Inter", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", monospace;
 
-  /* Font Sizes */
   --text-body-lg: 18px;
-  --text-display-lg-mobile: 32px;
-  --text-headline-md: 32px;
+  --text-display-lg-mobile: 36px;
+  --text-headline-md: 34px;
   --text-body-sm: 14px;
-  --text-display-lg: 48px;
+  --text-display-lg: 56px;
   --text-body-md: 16px;
   --text-headline-sm: 24px;
   --text-button-text: 15px;
-  --text-label-mono: 13px;
+  --text-label-mono: 12px;
 
-  /* Custom animation keyframes */
-  --animate-marquee: marquee 30s linear infinite;
+  --animate-marquee: marquee 36s linear infinite;
 
   @keyframes marquee {
     0% { transform: translateX(0%); }
@@ -84,24 +129,83 @@
 }
 
 /*
- * Tailwind v4 also uses --spacing-md/lg/xl for max-w-md/lg/xl. The project
- * intentionally defines those spacing tokens for padding and gaps, so restore
- * the container widths explicitly to avoid overly narrow modals and wrapped text.
+ * Compatibility utilities for the existing app while keeping source tokens out
+ * of Tailwind's --spacing-* namespace.
  */
+@utility p-xs { padding: var(--layout-space-1); }
+@utility p-sm { padding: var(--layout-space-3); }
+@utility p-md { padding: var(--layout-space-5); }
+@utility p-lg { padding: var(--layout-space-7); }
+@utility p-xl { padding: var(--layout-space-8); }
+@utility p-margin-mobile { padding: var(--layout-gutter-mobile); }
+@utility p-gutter { padding: var(--layout-gutter-desktop); }
+
+@utility px-xs { padding-inline: var(--layout-space-1); }
+@utility px-sm { padding-inline: var(--layout-space-3); }
+@utility px-md { padding-inline: var(--layout-space-5); }
+@utility px-lg { padding-inline: var(--layout-space-7); }
+@utility px-margin-mobile { padding-inline: var(--layout-gutter-mobile); }
+@utility px-gutter { padding-inline: var(--layout-gutter-desktop); }
+
+@utility py-xs { padding-block: var(--layout-space-1); }
+@utility py-sm { padding-block: var(--layout-space-3); }
+@utility py-md { padding-block: var(--layout-space-5); }
+@utility py-lg { padding-block: var(--layout-space-7); }
+@utility py-xl { padding-block: var(--layout-space-8); }
+
+@utility pt-md { padding-top: var(--layout-space-5); }
+@utility pb-md { padding-bottom: var(--layout-space-5); }
+@utility mt-xs { margin-top: var(--layout-space-1); }
+@utility mt-sm { margin-top: var(--layout-space-3); }
+@utility mt-md { margin-top: var(--layout-space-5); }
+@utility mt-lg { margin-top: var(--layout-space-7); }
+@utility mt-xl { margin-top: var(--layout-space-8); }
+@utility mb-sm { margin-bottom: var(--layout-space-3); }
+@utility my-2 { margin-block: var(--layout-space-2); }
+@utility my-md { margin-block: var(--layout-space-5); }
+
+@utility gap-xs { gap: var(--layout-space-1); }
+@utility gap-sm { gap: var(--layout-space-3); }
+@utility gap-md { gap: var(--layout-space-5); }
+@utility gap-lg { gap: var(--layout-space-7); }
+
+@utility max-w-container-max { max-width: var(--layout-container-max); }
+
+/* Restore Tailwind container widths explicitly for modal and layout classes. */
 .max-w-sm { max-width: 24rem; }
 .max-w-md { max-width: 28rem; }
 .max-w-lg { max-width: 32rem; }
 .max-w-xl { max-width: 36rem; }
 
-/* Custom CSS and design textures from design.md */
+html {
+  color-scheme: light;
+}
+
 body {
+  min-width: 320px;
   font-family: var(--font-body);
-  background-color: var(--bg-primary);
-  /* Texture: svg noise overlay for depth — no opacity here to avoid stacking context breaking sticky header */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 150px;
-  background-blend-mode: overlay;
+  color: var(--text-primary);
+  background:
+    linear-gradient(180deg, rgb(251 250 247 / 0.98), rgb(245 241 232 / 0.96));
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  transition:
+    color var(--motion-watch-fast) var(--ease-watch),
+    background-color var(--motion-watch-fast) var(--ease-watch),
+    border-color var(--motion-watch-fast) var(--ease-watch),
+    opacity var(--motion-watch-fast) var(--ease-watch);
 }
 
 /* Scrollbar behaviors */
@@ -113,56 +217,117 @@ body {
   scrollbar-width: none;
 }
 
-/* Glassmorphism card default styles */
+/* Luxury admin/card surfaces: restrained border, light paper, minimal shadow. */
 .glass-card {
-  background: rgba(30, 47, 74, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgb(255 255 255 / 0.86);
   border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-watch-soft);
 }
 
-/* Polish: Hero section radial gradient glow behind text */
+.watch-admin-shell {
+  background:
+    linear-gradient(180deg, var(--watch-color-ivory-50), var(--watch-color-ivory-100));
+}
+
+.watch-admin-header {
+  background: rgb(251 250 247 / 0.92);
+  border-color: var(--border-subtle);
+  backdrop-filter: blur(18px);
+}
+
+.watch-admin-sidebar {
+  background: var(--watch-color-ink-950);
+  color: var(--watch-color-ivory-100);
+  border-color: rgb(216 191 133 / 0.18);
+}
+
+.watch-admin-brand {
+  color: var(--watch-color-ink-950);
+  letter-spacing: 0.01em;
+}
+
+.watch-admin-sidebar .watch-admin-brand,
+.watch-admin-sidebar .watch-admin-kicker {
+  color: var(--watch-color-gold-300);
+}
+
+.watch-admin-nav-link {
+  border: 1px solid transparent;
+  border-radius: var(--radius-watch-md);
+}
+
+.watch-admin-nav-link:hover {
+  color: var(--watch-color-ivory-50);
+  background: rgb(255 255 255 / 0.06);
+  border-color: rgb(161 98 7 / 0.2);
+}
+
+.watch-admin-nav-link.router-link-active,
+.watch-admin-nav-link.bg-surface-container-highest {
+  color: var(--watch-color-gold-300) !important;
+  background: rgb(161 98 7 / 0.14) !important;
+  border-color: rgb(161 98 7 / 0.32);
+}
+
+.watch-admin-card {
+  background: rgb(255 255 255 / 0.92);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-watch-lg);
+  box-shadow: var(--shadow-watch-soft);
+}
+
+.watch-admin-button {
+  min-height: 44px;
+  border-radius: var(--radius-watch-md);
+  border-color: var(--border-strong);
+  background: rgb(255 255 255 / 0.6);
+}
+
+.watch-admin-button:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary-hover);
+}
+
+.watch-accent-text {
+  color: var(--accent-primary);
+}
+
+.watch-accent-strong {
+  color: var(--accent-primary-hover);
+}
+
+.watch-price-accent {
+  color: var(--accent-primary);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Legacy decorative helpers toned down for the new premium direction. */
 .hero-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255, 107, 74, 0.08) 0%, rgba(255, 107, 74, 0) 70%);
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
-/* Polish: Code bracket signature decoration */
 .bracket-motif {
   color: var(--text-disabled);
-  opacity: 0.08;
-  transform: perspective(600px) rotateX(20deg) rotateY(-20deg) rotateZ(-10deg);
+  opacity: 0.06;
   user-select: none;
   pointer-events: none;
-  transition: transform 0.5s ease-out;
-}
-.bracket-motif:hover {
-  transform: perspective(600px) rotateX(10deg) rotateY(-10deg) rotateZ(-5deg);
 }
 
-/* Polish: How it works step numbers */
 .step-number-bg {
   position: absolute;
   top: 12px;
   right: 16px;
   font-family: var(--font-display);
   font-size: 64px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-disabled);
-  opacity: 0.15;
+  opacity: 0.12;
   line-height: 1;
   user-select: none;
   pointer-events: none;
 }
 
-/* Polish: Recommended course grid slide loop edge fade mask */
 .slider-mask {
   mask-image: linear-gradient(to right, transparent 0, black 8%, black 92%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0, black 8%, black 92%, transparent 100%);
@@ -173,20 +338,22 @@ body {
   to { transform: translateX(-50%); }
 }
 
-/* Polish: Hover effects on CourseCard */
 .course-card-element {
-  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    border-color var(--motion-watch-base) var(--ease-watch),
+    box-shadow var(--motion-watch-base) var(--ease-watch),
+    transform var(--motion-watch-base) var(--ease-watch);
 }
 .course-card-element:hover {
-  border-color: rgba(255, 107, 74, 0.4);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border-color: rgb(184 148 91 / 0.38);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-watch-soft);
 }
 .course-card-element img {
-  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--motion-watch-base) var(--ease-watch);
 }
 .course-card-element:hover img {
-  transform: scale(1.03);
+  transform: scale(1.02);
 }
 
 .material-symbols-outlined {
@@ -203,7 +370,7 @@ body {
   -webkit-font-feature-settings: "liga";
   font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
   vertical-align: middle;
 }
 
@@ -216,10 +383,6 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .bracket-motif {
-    transform: none;
   }
 
   .animate-marquee {

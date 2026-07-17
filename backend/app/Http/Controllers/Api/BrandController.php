@@ -13,6 +13,23 @@ use Illuminate\Support\Str;
 
 class BrandController extends Controller
 {
+    public function publicIndex(): JsonResponse
+    {
+        $brands = Brand::query()
+            ->where('is_active', true)
+            ->withCount([
+                'products as products_count' => fn ($query) => $query->where('status', 'active'),
+            ])
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => BrandResource::collection($brands),
+            'message' => 'Lấy danh sách thương hiệu thành công.',
+        ]);
+    }
+
     public function index(DashboardIndexRequest $request): JsonResponse
     {
         $brands = Brand::query()

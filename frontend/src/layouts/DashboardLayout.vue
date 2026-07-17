@@ -31,7 +31,7 @@ const menus = {
 const roleName = computed(() => authStore.user?.role?.name ?? '')
 const menuItems = computed(() => menus[roleName.value] ?? [])
 const roleLabel = computed(() => roleName.value === 'admin' ? 'Admin Console' : 'Instructor Studio')
-const productLabel = computed(() => roleName.value === 'admin' ? 'Watchora Admin' : 'EduMarket Instructor')
+const productLabel = computed(() => roleName.value === 'admin' ? 'Watchora Admin' : 'Watchora Studio')
 const dashboardLink = computed(() => roleName.value === 'admin' ? '/admin/dashboard' : '/instructor/dashboard')
 const dashboardLinkLabel = computed(() => roleName.value === 'admin' ? 'Quản trị' : 'Kênh giảng dạy')
 
@@ -51,15 +51,15 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen w-full min-w-0 bg-background">
-    <header class="sticky top-0 z-50 flex h-16 w-full min-w-0 items-center justify-between border-b border-surface-variant bg-surface-container-lowest px-margin-mobile md:px-gutter">
-      <RouterLink :to="dashboardLink" class="min-w-0 font-display text-lg font-bold text-primary">
+  <div class="watch-admin-shell min-h-screen w-full min-w-0 bg-background">
+    <header class="watch-admin-header sticky top-0 z-50 flex h-16 w-full min-w-0 items-center justify-between border-b px-margin-mobile md:px-gutter">
+      <RouterLink :to="dashboardLink" class="watch-admin-brand min-w-0 font-display text-lg font-bold">
         {{ productLabel }}
       </RouterLink>
 
       <div class="relative shrink-0" @mouseenter="isUserMenuOpen = true" @mouseleave="isUserMenuOpen = false">
         <button
-          class="flex max-w-64 min-w-0 cursor-pointer items-center gap-xs rounded-lg border border-transparent px-sm py-2 text-body-sm text-on-surface transition-colors hover:border-surface-variant hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          class="watch-admin-button flex max-w-64 min-w-0 cursor-pointer items-center gap-xs px-sm py-2 text-body-sm text-on-surface transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           type="button"
           :aria-expanded="isUserMenuOpen"
           aria-haspopup="true"
@@ -72,7 +72,7 @@ const handleLogout = async () => {
 
         <Transition name="dashboard-menu">
           <div v-if="isUserMenuOpen" class="absolute right-0 top-full z-[70] w-64 max-w-[calc(100vw-2rem)] pt-2">
-            <div class="w-full min-w-0 rounded-lg border border-surface-variant bg-surface p-2 shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
+            <div class="watch-admin-card w-full min-w-0 p-2">
               <RouterLink
                 :to="dashboardLink"
                 class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-md px-4 py-3 text-body-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -109,11 +109,11 @@ const handleLogout = async () => {
     </header>
 
     <div class="flex min-h-[calc(100vh-4rem)] w-full min-w-0">
-      <aside class="hidden w-64 shrink-0 border-r border-surface-variant bg-surface-container-lowest lg:block">
+      <aside class="watch-admin-sidebar hidden w-64 shrink-0 border-r lg:block">
         <div class="sticky top-16 flex h-[calc(100vh-4rem)] w-full min-w-0 flex-col p-md">
           <div class="w-full min-w-0 border-b border-surface-variant pb-md">
-            <p class="w-full font-mono text-[11px] uppercase tracking-[0.2em] text-primary">{{ roleLabel }}</p>
-            <p class="mt-xs w-full truncate font-display text-body-md font-semibold text-on-surface">{{ authStore.user?.name }}</p>
+            <p class="watch-admin-kicker w-full font-mono text-[11px] uppercase tracking-[0.2em]">{{ roleLabel }}</p>
+            <p class="mt-xs w-full truncate font-display text-body-md font-semibold text-[var(--watch-color-ivory-50)]">{{ authStore.user?.name }}</p>
           </div>
 
           <nav class="mt-md flex w-full min-w-0 flex-col gap-xs overflow-y-auto" aria-label="Dashboard navigation">
@@ -121,7 +121,7 @@ const handleLogout = async () => {
               v-for="item in menuItems"
               :key="item.to"
               :to="item.to"
-              class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-lg px-sm py-3 text-body-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              class="watch-admin-nav-link flex w-full min-w-0 cursor-pointer items-center gap-sm px-sm py-3 text-body-sm font-medium text-[var(--watch-color-ivory-200)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               active-class="bg-surface-container-highest !text-primary"
             >
               <span class="material-symbols-outlined shrink-0 text-[20px]">{{ item.icon }}</span>
@@ -129,7 +129,7 @@ const handleLogout = async () => {
             </RouterLink>
           </nav>
 
-          <RouterLink to="/" class="mt-auto flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-lg px-sm py-3 text-body-sm text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+          <RouterLink to="/" class="watch-admin-nav-link mt-auto flex w-full min-w-0 cursor-pointer items-center gap-sm px-sm py-3 text-body-sm text-[var(--watch-color-ivory-200)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             <span class="material-symbols-outlined shrink-0 text-[20px]">arrow_back</span>
             <span class="min-w-0">Về trang chủ</span>
           </RouterLink>

@@ -46,6 +46,12 @@ export const getPublicInstructorCourses = (instructorId, params = {}) => (
 
 export const getCategories = () => api.get('/categories')
 
+export const getBrands = () => api.get('/brands')
+
+export const getCollections = () => api.get('/collections')
+
+export const getProducts = (params = {}) => api.get('/products', { params })
+
 export const getCertifications = () => api.get('/certifications')
 
 export const getCertificationById = (certificationId, params = {}) => api.get(`/certifications/${certificationId}`, { params })
@@ -60,7 +66,10 @@ export const resetPassword = (payload) => api.post('/auth/reset-password', paylo
 
 export const getCart = () => api.get('/cart')
 
-export const addToCart = (courseId) => api.post('/cart/items', { course_id: courseId })
+export const addToCart = (productVariantId, quantity = 1) => api.post('/cart/items', {
+  product_variant_id: productVariantId,
+  quantity,
+})
 
 export const removeFromCart = (itemId) => api.delete(`/cart/items/${itemId}`)
 

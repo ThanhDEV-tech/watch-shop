@@ -37,7 +37,7 @@ onMounted(fetchStats)
         <h1 class="mt-xs w-full font-display text-headline-md font-bold text-on-surface">Tổng quan Watchora</h1>
         <p class="mt-xs w-full text-body-sm text-on-surface-variant">Theo dõi catalog, đơn hàng, doanh thu và tồn kho cần xử lý.</p>
       </div>
-      <button class="shrink-0 cursor-pointer rounded-lg border border-surface-variant px-md py-2 text-body-sm text-on-surface transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60" type="button" :disabled="loading" @click="fetchStats">
+      <button class="watch-admin-button shrink-0 cursor-pointer px-md py-2 text-body-sm text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60" type="button" :disabled="loading" @click="fetchStats">
         Làm mới
       </button>
     </div>
@@ -58,7 +58,7 @@ onMounted(fetchStats)
       </section>
 
       <section class="mt-lg grid w-full min-w-0 grid-cols-1 gap-md xl:grid-cols-3">
-        <article class="glass-card w-full min-w-0 rounded-lg p-md xl:col-span-2">
+        <article class="watch-admin-card w-full min-w-0 p-md xl:col-span-2">
           <div class="w-full min-w-0">
             <p class="w-full font-mono text-[11px] uppercase tracking-widest text-primary">7 ngày gần nhất</p>
             <h2 class="mt-xs w-full font-display text-headline-sm font-semibold text-on-surface">Doanh thu đã thanh toán</h2>
@@ -66,7 +66,7 @@ onMounted(fetchStats)
           <RevenueBarChart class="mt-md" :data="stats.revenue_last_7_days" />
         </article>
 
-        <article class="glass-card w-full min-w-0 rounded-lg p-md">
+        <article class="watch-admin-card w-full min-w-0 p-md">
           <div class="w-full min-w-0">
             <p class="w-full font-mono text-[11px] uppercase tracking-widest text-primary">Order status</p>
             <h2 class="mt-xs w-full font-display text-headline-sm font-semibold text-on-surface">Trạng thái đơn hàng</h2>
@@ -88,7 +88,7 @@ onMounted(fetchStats)
         </article>
       </section>
 
-      <section class="mt-lg w-full min-w-0 rounded-lg border border-surface-variant bg-surface">
+      <section class="watch-admin-card mt-lg w-full min-w-0 overflow-hidden">
         <div class="w-full min-w-0 border-b border-surface-variant p-md">
           <p class="w-full font-mono text-[11px] uppercase tracking-widest text-primary">Top selling</p>
           <h2 class="mt-xs w-full font-display text-headline-sm font-semibold text-on-surface">Top 5 sản phẩm bán chạy</h2>

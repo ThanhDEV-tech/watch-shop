@@ -85,7 +85,7 @@ const submitSearch = () => {
 
   if (!keyword) return
 
-  router.push({ name: 'search-results', query: { q: keyword } })
+  router.push({ name: 'products', query: { search: keyword } })
 }
 
 const handleLogout = async () => {
@@ -128,7 +128,7 @@ onBeforeUnmount(() => {
   <nav class="bg-background border-b border-surface-variant sticky top-0 z-50 font-body">
     <div class="flex justify-between items-center w-full px-margin-mobile md:px-gutter max-w-container-max mx-auto h-20">
       <div class="flex min-w-0 items-center gap-sm md:gap-lg">
-        <RouterLink class="font-display text-headline-sm font-bold text-primary" to="/">EduMarket</RouterLink>
+        <RouterLink class="font-display text-headline-sm font-bold text-primary" to="/">Watchora</RouterLink>
         <div
           ref="categoriesMenu"
           class="relative flex min-w-0 items-center"
@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
             :aria-expanded="isCategoriesOpen"
             @click="toggleCategories"
           >
-            Categories
+            Catalog
             <span
               class="material-symbols-outlined text-[18px] transition-transform duration-200"
               :class="{ 'rotate-180': isCategoriesOpen }"
@@ -172,7 +172,7 @@ onBeforeUnmount(() => {
                 <RouterLink
                   v-for="category in categories"
                   :key="category.id ?? category.slug"
-                  :to="`/category/${category.slug}`"
+                  :to="{ name: 'products', query: { category: category.slug } }"
                   class="block w-full cursor-pointer rounded-md px-4 py-3 text-body-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:bg-surface-container-highest focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   @click="closeCategories"
                 >
@@ -188,7 +188,7 @@ onBeforeUnmount(() => {
           <button
             class="material-symbols-outlined absolute left-3 cursor-pointer rounded text-on-surface-variant transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             type="button"
-            aria-label="Search courses"
+            aria-label="Tìm đồng hồ"
             @click="submitSearch"
           >
             search
@@ -196,7 +196,7 @@ onBeforeUnmount(() => {
           <input
             v-model="searchQuery"
             class="w-full bg-surface-container-low border border-surface-variant rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-primary-container focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background text-body-sm transition-all text-on-surface"
-            placeholder="Search for courses..."
+            placeholder="Tìm đồng hồ, thương hiệu..."
             type="text"
             @keyup.enter="submitSearch"
           />
@@ -238,21 +238,24 @@ onBeforeUnmount(() => {
                     <RouterLink
                       v-for="item in cartItems.slice(0, 3)"
                       :key="item.id"
-                      :to="`/courses/${item.course_id}`"
+                      :to="`/products/${item.product_variant?.product?.slug ?? ''}`"
                       class="flex w-full min-w-0 cursor-pointer gap-3 rounded-md p-2 transition-colors hover:bg-surface-container-highest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       @click="closeCart"
                     >
                       <img
-                        :src="item.course?.thumbnail_url"
-                        :alt="item.course?.title"
+                        :src="item.product_variant?.image || item.product_variant?.product?.thumbnail"
+                        :alt="item.product_variant?.product?.name"
                         class="h-14 w-20 shrink-0 rounded-md object-cover"
                       />
                       <div class="min-w-0 flex-1">
                         <p class="line-clamp-2 w-full text-body-sm font-semibold leading-5 text-on-surface">
-                          {{ item.course?.title }}
+                          {{ item.product_variant?.product?.name }}
+                        </p>
+                        <p class="mt-0.5 w-full truncate text-xs text-on-surface-variant">
+                          {{ item.product_variant?.strap_color }} / {{ item.product_variant?.dial_color }} · SL {{ item.quantity }}
                         </p>
                         <p class="mt-1 font-mono text-body-sm font-medium text-primary">
-                          {{ formatCurrency(item.course?.final_price ?? item.price_snapshot) }}
+                          {{ formatCurrency(item.product_variant?.final_price) }}
                         </p>
                       </div>
                     </RouterLink>
@@ -272,12 +275,12 @@ onBeforeUnmount(() => {
                     class="block w-full cursor-pointer rounded-lg bg-primary px-4 py-3 text-center font-display text-button-text font-semibold text-on-primary transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     @click="closeCart"
                   >
-                    View Cart
+                    Xem giỏ hàng
                   </RouterLink>
                 </template>
 
                 <p v-else class="w-full py-6 text-center text-body-sm text-on-surface-variant">
-                  Your cart is empty
+                  Giỏ hàng đang trống
                 </p>
               </div>
             </div>
@@ -349,7 +352,7 @@ onBeforeUnmount(() => {
                   @click="closeUserMenu"
                 >
                   <span class="material-symbols-outlined shrink-0 text-[19px]">school</span>
-                  <span class="min-w-0">My Courses</span>
+                  <span class="min-w-0">Sản phẩm đã mua</span>
                 </RouterLink>
 
                 <RouterLink
@@ -386,9 +389,9 @@ onBeforeUnmount(() => {
           </div>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="cursor-pointer rounded text-on-surface-variant hover:text-primary font-display text-button-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Login</RouterLink>
+          <RouterLink to="/login" class="cursor-pointer rounded text-on-surface-variant hover:text-primary font-display text-button-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Đăng nhập</RouterLink>
           <RouterLink to="/register" class="cursor-pointer bg-primary-container text-on-primary-container px-md py-2 rounded-lg font-display text-button-text hover:opacity-90 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-            Register
+            Đăng ký
           </RouterLink>
         </template>
       </div>

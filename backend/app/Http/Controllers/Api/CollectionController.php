@@ -13,6 +13,22 @@ use Illuminate\Support\Str;
 
 class CollectionController extends Controller
 {
+    public function publicIndex(): JsonResponse
+    {
+        $collections = Collection::query()
+            ->withCount([
+                'products as products_count' => fn ($query) => $query->where('status', 'active'),
+            ])
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => CollectionResource::collection($collections),
+            'message' => 'Lấy danh sách bộ sưu tập thành công.',
+        ]);
+    }
+
     public function index(DashboardIndexRequest $request): JsonResponse
     {
         $collections = Collection::query()

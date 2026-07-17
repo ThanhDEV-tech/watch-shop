@@ -64,3 +64,19 @@ Skill output is tracked as local markdown under `.agents/docs/`; do not use GitH
 ### Domain docs
 
 Use the single-context layout: root `CONTEXT.md` plus `docs/adr/` when those files exist. See `docs/agents/domain.md`.
+
+## Testing & Cleanup
+
+- `Product` dùng `softDeletes()`. Mọi lệnh dọn dữ liệu test liên quan Product
+  PHẢI dùng `withTrashed()->forceDelete()`, không phải `delete()` thường —
+  nếu không, bản ghi vẫn tồn tại ngầm (chỉ ẩn khỏi query mặc định) và sẽ
+  chặn xóa các bảng cha (category, brand) qua foreign key constraint.
+- MySQL luôn chặn `TRUNCATE` nếu có bất kỳ FK nào trỏ tới bảng đó, kể cả
+  khi bảng con đang hoàn toàn trống. Dùng `->query()->delete()` để dọn
+  dữ liệu test an toàn hơn thay vì `truncate()`.
+- Dữ liệu test tạo qua tinker/artisan command có thể rò rỉ ra giao diện
+  công khai nếu nằm ở bảng public-facing (category, brand, product...).
+  Sau mỗi lần test tạo dữ liệu, PHẢI dọn dẹp TOÀN BỘ chuỗi quan hệ liên
+  quan (variant → product → category/brand), không chỉ bảng đang test
+  trực tiếp — kiểm tra bằng cách đếm count() ở tất cả bảng liên quan
+  trước khi coi là "đã dọn sạch".

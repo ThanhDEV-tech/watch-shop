@@ -4,12 +4,24 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Collection;
 
 class ProductResource extends JsonResource
 {
     /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
+        $activeVariants = $this->whenLoaded('variants', fn () => $this->variants->where('is_active', true));
+        $minFinalPrice = $activeVariants instanceof Collection
+            ? $activeVariants
+                ->map(fn ($variant) => (float) ($variant->discount_price ?? $variant->price))
+                ->filter(fn ($price) => $price > 0)
+                ->min()
+            : null;
+        $isOutOfStock = $activeVariants instanceof Collection
+            ? ! $activeVariants->contains(fn ($variant) => $variant->stock_quantity > 0)
+            : null;
+
         return [
             'id' => $this->id,
             'brand_id' => $this->brand_id,
@@ -28,6 +40,8 @@ class ProductResource extends JsonResource
             'warranty_note' => $this->warranty_note,
             'status' => $this->status,
             'rating_avg' => $this->rating_avg,
+            'min_final_price' => $minFinalPrice,
+            'is_out_of_stock' => $isOutOfStock,
             'brand' => new BrandResource($this->whenLoaded('brand')),
             'category' => new CategoryResource($this->whenLoaded('category')),
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),

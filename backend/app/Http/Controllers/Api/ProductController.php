@@ -14,6 +14,60 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    public function publicIndex(Request $request): JsonResponse
+    {
+        $products = Product::query()
+            ->with([
+                'brand',
+                'category',
+                'collections',
+                'variants' => fn ($query) => $query->where('is_active', true),
+            ])
+            ->where('status', 'active')
+            ->when($request->filled('search'), function ($query) use ($request): void {
+                $search = $request->string('search')->trim()->toString();
+
+                $query->where(fn ($searchQuery) => $searchQuery
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhereHas('brand', fn ($brandQuery) => $brandQuery->where('name', 'like', "%{$search}%")));
+            })
+            ->when($request->filled('gender_target'), fn ($query) => $query
+                ->where('gender_target', $request->string('gender_target')))
+            ->when($request->filled('brand_id'), fn ($query) => $query
+                ->where('brand_id', $request->integer('brand_id')))
+            ->when($request->filled('brand'), fn ($query) => $query
+                ->whereHas('brand', fn ($brandQuery) => $brandQuery
+                    ->where('slug', $request->string('brand'))))
+            ->when($request->filled('category_id'), fn ($query) => $query
+                ->where('category_id', $request->integer('category_id')))
+            ->when($request->filled('category'), fn ($query) => $query
+                ->whereHas('category', fn ($categoryQuery) => $categoryQuery
+                    ->where('slug', $request->string('category'))))
+            ->when($request->filled('collection_id'), fn ($query) => $query
+                ->whereHas('collections', fn ($collectionQuery) => $collectionQuery
+                    ->where('collections.id', $request->integer('collection_id'))))
+            ->when($request->filled('collection'), fn ($query) => $query
+                ->whereHas('collections', fn ($collectionQuery) => $collectionQuery
+                    ->where('collections.slug', $request->string('collection'))))
+            ->orderByDesc('created_at')
+            ->paginate($request->integer('per_page', 12));
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'items' => ProductResource::collection($products->getCollection()),
+                'pagination' => [
+                    'current_page' => $products->currentPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total(),
+                    'last_page' => $products->lastPage(),
+                ],
+            ],
+            'message' => 'Lấy danh sách sản phẩm thành công.',
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $products = Product::query()

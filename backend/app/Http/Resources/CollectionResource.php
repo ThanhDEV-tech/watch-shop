@@ -16,6 +16,7 @@ class CollectionResource extends JsonResource
             'slug' => $this->slug,
             'start_date' => $this->start_date?->toDateString(),
             'end_date' => $this->end_date?->toDateString(),
+            'products_count' => $this->whenCounted('products'),
             'created_at' => $this->created_at,
         ];
     }

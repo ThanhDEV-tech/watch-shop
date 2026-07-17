@@ -39,6 +39,9 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/brands', [BrandController::class, 'publicIndex']);
+Route::get('/collections', [CollectionController::class, 'publicIndex']);
+Route::get('/products', [ProductController::class, 'publicIndex']);
 Route::get('/certifications', [CertificationController::class, 'index']);
 Route::get('/certifications/{certification}', [CertificationController::class, 'show']);
 Route::get('/stats/public', [PublicLandingController::class, 'stats']);
