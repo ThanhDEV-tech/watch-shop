@@ -1,15 +1,22 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProductShowcaseGrid from '../components/ProductShowcaseGrid.vue'
 import { getBrands, getProducts } from '../services/api'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const featuredProducts = ref([])
 const partnerBrands = ref([])
 const isLoadingProducts = ref(false)
+const homeRootRef = ref(null)
 const heroTiltRef = ref(null)
 const heroImagePanelRef = ref(null)
+const campaignBannerRef = ref(null)
+const campaignImageRef = ref(null)
 let heroTiltMatchMedia
+let scrollMatchMedia
 let removeHeroTiltListeners = () => {}
 
 const collectionHighlights = [
@@ -49,6 +56,29 @@ const faqs = [
   {
     question: 'Nếu sản phẩm tạm hết hàng thì sao?',
     answer: 'Card sản phẩm sẽ hiển thị trạng thái Hết hàng khi toàn bộ phiên bản/SKU không còn tồn kho.',
+  },
+]
+
+const uspItems = [
+  {
+    icon: 'workspace_premium',
+    title: 'Bảo hành rõ ràng',
+    copy: 'Thông tin bảo hành theo từng sản phẩm, lưu lại cùng đơn hàng để dễ đối chiếu.',
+  },
+  {
+    icon: 'verified',
+    title: 'Nguồn hàng chọn lọc',
+    copy: 'Watchora ưu tiên các mẫu có thiết kế bền gu, dễ phối và phù hợp nhiều dịp.',
+  },
+  {
+    icon: 'sync_alt',
+    title: 'Đổi trả 7 ngày',
+    copy: 'Hỗ trợ đổi trả khi sản phẩm chưa qua sử dụng và còn đầy đủ phụ kiện.',
+  },
+  {
+    icon: 'local_shipping',
+    title: 'Giao hàng nhanh',
+    copy: 'Khu vực nội thành được ưu tiên xử lý nhanh, phí giao hàng hiển thị trước thanh toán.',
   },
 ]
 
@@ -125,19 +155,107 @@ const setupHeroTilt = () => {
   })
 }
 
+const setupScrollEffects = () => {
+  if (!homeRootRef.value) return
+
+  scrollMatchMedia = gsap.matchMedia()
+
+  scrollMatchMedia.add('(prefers-reduced-motion: reduce)', () => {
+    const scoped = gsap.utils.selector(homeRootRef.value)
+
+    gsap.set([
+      campaignImageRef.value,
+      ...scoped('.watch-collection-card'),
+      ...scoped('.watch-usp-card'),
+    ].filter(Boolean), { clearProps: 'all' })
+  })
+
+  scrollMatchMedia.add('(prefers-reduced-motion: no-preference)', () => {
+    const scoped = gsap.utils.selector(homeRootRef.value)
+    const collectionCards = scoped('.watch-collection-card')
+    const uspCards = scoped('.watch-usp-card')
+    const triggers = []
+
+    if (campaignBannerRef.value && campaignImageRef.value) {
+      gsap.set(campaignImageRef.value, { yPercent: -6, scale: 1.1, willChange: 'transform' })
+
+      gsap.to(campaignImageRef.value, {
+        yPercent: 6,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: campaignBannerRef.value,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 0.8,
+        },
+      })
+    }
+
+    if (collectionCards.length) {
+      gsap.set(collectionCards, { autoAlpha: 0, y: 28, scale: 0.98 })
+      triggers.push(...ScrollTrigger.batch(collectionCards, {
+        start: 'top 86%',
+        once: true,
+        batchMax: 3,
+        interval: 0.08,
+        onEnter: (batch) => {
+          gsap.to(batch, {
+            autoAlpha: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.55,
+            ease: 'power2.out',
+            stagger: 0.08,
+            overwrite: true,
+          })
+        },
+      }))
+    }
+
+    if (uspCards.length) {
+      gsap.set(uspCards, { autoAlpha: 0, y: 24 })
+      triggers.push(...ScrollTrigger.batch(uspCards, {
+        start: 'top 88%',
+        once: true,
+        batchMax: 4,
+        interval: 0.08,
+        onEnter: (batch) => {
+          gsap.to(batch, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            stagger: 0.07,
+            overwrite: true,
+          })
+        },
+      }))
+    }
+
+    ScrollTrigger.refresh()
+
+    return () => {
+      triggers.forEach((trigger) => trigger.kill())
+      gsap.set(campaignImageRef.value, { clearProps: 'transform,willChange' })
+    }
+  })
+}
+
 onMounted(() => {
   fetchHomeData()
   setupHeroTilt()
+  setupScrollEffects()
 })
 
 onBeforeUnmount(() => {
   removeHeroTiltListeners()
   heroTiltMatchMedia?.revert()
+  scrollMatchMedia?.revert()
 })
 </script>
 
 <template>
-  <main class="w-full min-w-0 bg-background text-on-surface">
+  <main ref="homeRootRef" class="w-full min-w-0 bg-background text-on-surface">
     <section class="relative overflow-hidden border-b border-border bg-surface">
       <div class="mx-auto grid min-h-[calc(100vh-5rem)] w-full max-w-container-max gap-10 px-margin-mobile py-16 md:px-gutter lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div class="flex w-full min-w-0 flex-col items-start">
@@ -211,7 +329,7 @@ onBeforeUnmount(() => {
           v-for="collection in collectionHighlights"
           :key="collection.slug"
           :to="{ name: 'products', query: collection.query }"
-          class="flex min-h-72 w-full min-w-0 flex-col justify-end rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 transition-colors hover:border-primary/35"
+          class="watch-collection-card flex min-h-72 w-full min-w-0 flex-col justify-end rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-[rgb(161_98_7/0.42)] hover:shadow-[var(--shadow-watch-floating)]"
         >
           <p class="w-full font-display text-4xl font-semibold text-primary">
             {{ collection.name }}
@@ -220,6 +338,36 @@ onBeforeUnmount(() => {
             {{ collection.copy }}
           </p>
         </RouterLink>
+      </div>
+    </section>
+
+    <section ref="campaignBannerRef" class="relative min-h-[72vh] w-full overflow-hidden bg-[var(--watch-color-ink-950)]">
+      <img
+        ref="campaignImageRef"
+        src="https://images.unsplash.com/photo-1560379353-319e3563cf54?auto=format&fit=crop&w=1800&q=85"
+        alt="Đồng hồ phối cùng suit nâu trong bộ sưu tập Office Style"
+        class="absolute inset-0 h-[116%] w-full object-cover"
+        loading="lazy"
+      />
+      <div class="absolute inset-0 bg-[linear-gradient(90deg,rgb(12_10_9/0.88),rgb(12_10_9/0.52),rgb(12_10_9/0.18))]"></div>
+      <div class="relative z-10 mx-auto flex min-h-[72vh] w-full max-w-container-max items-end px-margin-mobile py-16 md:px-gutter lg:items-center">
+        <div class="w-full max-w-2xl min-w-0">
+          <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.22em]">
+            Campaign edit
+          </p>
+          <h2 class="mt-4 w-full font-display text-[clamp(3.5rem,9vw,8rem)] font-semibold leading-[0.86] text-white">
+            Office Style
+          </h2>
+          <p class="mt-6 w-full text-base leading-8 text-[rgb(250_250_249/0.78)] md:text-lg">
+            Những mẫu đồng hồ đủ kín đáo cho phòng họp, đủ sắc nét cho bữa tối sau giờ làm. Tập trung vào dây da, mặt số trầm và tỉ lệ dễ đeo mỗi ngày.
+          </p>
+          <RouterLink
+            :to="{ name: 'products', query: { collection: 'office-style' } }"
+            class="mt-8 inline-flex min-h-12 items-center justify-center rounded-[var(--radius-watch-md)] bg-[var(--accent-primary)] px-6 text-sm font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[var(--accent-primary-hover)]"
+          >
+            Khám phá Office Style
+          </RouterLink>
+        </div>
       </div>
     </section>
 
@@ -243,6 +391,40 @@ onBeforeUnmount(() => {
         <div v-else class="mt-10 w-full rounded-[var(--radius-watch-lg)] border border-[rgb(214_178_114/0.2)] bg-white/5 p-10 text-center text-[rgb(250_250_249/0.72)]">
           Chưa có sản phẩm nổi bật.
         </div>
+      </div>
+    </section>
+
+    <section class="mx-auto w-full max-w-container-max px-margin-mobile py-16 md:px-gutter">
+      <div class="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div class="w-full min-w-0 md:max-w-2xl">
+          <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">
+            Why Watchora
+          </p>
+          <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
+            Mua đồng hồ đẹp, an tâm hơn.
+          </h2>
+        </div>
+        <p class="w-full min-w-0 text-sm leading-7 text-on-surface-variant md:max-w-md md:text-right">
+          Những cam kết cơ bản nhưng quan trọng: rõ chính sách, rõ chi phí, rõ trách nhiệm sau mua.
+        </p>
+      </div>
+
+      <div class="mt-10 grid w-full min-w-0 gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <article
+          v-for="item in uspItems"
+          :key="item.title"
+          class="watch-usp-card flex min-h-56 w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)]"
+        >
+          <div class="flex h-12 w-12 items-center justify-center rounded-full border border-[rgb(161_98_7/0.26)] bg-[rgb(161_98_7/0.08)] text-[var(--accent-primary)]">
+            <span class="material-symbols-outlined text-[24px]" aria-hidden="true">{{ item.icon }}</span>
+          </div>
+          <h3 class="mt-6 w-full font-display text-3xl font-semibold leading-tight text-primary">
+            {{ item.title }}
+          </h3>
+          <p class="mt-3 w-full text-sm leading-7 text-on-surface-variant">
+            {{ item.copy }}
+          </p>
+        </article>
       </div>
     </section>
 
