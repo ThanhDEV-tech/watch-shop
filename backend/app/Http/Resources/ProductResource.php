@@ -21,6 +21,25 @@ class ProductResource extends JsonResource
         $isOutOfStock = $activeVariants instanceof Collection
             ? ! $activeVariants->contains(fn ($variant) => $variant->stock_quantity > 0)
             : null;
+        $productImages = collect();
+
+        if ($this->resource->relationLoaded('images')) {
+            $productImages = $this->images;
+        } elseif ($this->resource->relationLoaded('productImages')) {
+            $productImages = $this->productImages;
+        }
+
+        $normalizedProductImages = $productImages
+            ->sortBy('display_order')
+            ->map(fn ($image) => [
+                'id' => $image->id,
+                'image_path' => $image->image_path ?? $image->url ?? $image->path ?? null,
+                'url' => $image->url ?? $image->image_path ?? $image->path ?? null,
+                'alt_text' => $image->alt_text ?? $this->name,
+                'display_order' => $image->display_order ?? 0,
+                'is_primary' => (bool) ($image->is_primary ?? false),
+            ])
+            ->values();
 
         return [
             'id' => $this->id,
@@ -44,6 +63,8 @@ class ProductResource extends JsonResource
             'is_out_of_stock' => $isOutOfStock,
             'brand' => new BrandResource($this->whenLoaded('brand')),
             'category' => new CategoryResource($this->whenLoaded('category')),
+            'product_images' => $normalizedProductImages,
+            'images' => $normalizedProductImages,
             'variants' => ProductVariantResource::collection($this->whenLoaded('variants')),
             'collections' => CollectionResource::collection($this->whenLoaded('collections')),
             'variants_count' => $this->whenCounted('variants'),

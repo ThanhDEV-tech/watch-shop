@@ -209,6 +209,8 @@ Initial allowed colors:
 
 Maintain a static color-to-hex mapping in backend or frontend config so variant selectors can render color swatches instead of text-only dropdowns.
 
+When creating or seeding variants, `strap_color` must make material sense with the product's `strap_material`. Metal straps should only use Äen, Báº¡c, VÃ ng gold, or VÃ ng rose. Leather, fabric, and rubber straps should only use Äen, NÃ¢u, Xanh navy, or Tráº¯ng. Do not assign random colors that do not match the strap material, such as NÃ¢u for a metal strap.
+
 ### Movement Type
 
 Stored on `product_variants.movement_type` as a database enum.

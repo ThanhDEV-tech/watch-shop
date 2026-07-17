@@ -52,6 +52,8 @@ export const getCollections = () => api.get('/collections')
 
 export const getProducts = (params = {}) => api.get('/products', { params })
 
+export const getProductBySlug = (slug) => api.get(`/products/${slug}`)
+
 export const getCertifications = () => api.get('/certifications')
 
 export const getCertificationById = (certificationId, params = {}) => api.get(`/certifications/${certificationId}`, { params })

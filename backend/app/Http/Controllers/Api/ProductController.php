@@ -68,6 +68,44 @@ class ProductController extends Controller
         ]);
     }
 
+    public function publicShow(string $slug): JsonResponse
+    {
+        $relations = [
+            'brand',
+            'category',
+            'collections',
+            'variants' => fn ($query) => $query->where('is_active', true),
+        ];
+
+        if (method_exists(Product::class, 'images')) {
+            $relations[] = 'images';
+        }
+
+        if (method_exists(Product::class, 'productImages')) {
+            $relations[] = 'productImages';
+        }
+
+        $product = Product::query()
+            ->with($relations)
+            ->where('status', 'active')
+            ->where('slug', $slug)
+            ->first();
+
+        if (! $product) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => 'Không tìm thấy sản phẩm.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => new ProductResource($product),
+            'message' => 'Lấy chi tiết sản phẩm thành công.',
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $products = Product::query()

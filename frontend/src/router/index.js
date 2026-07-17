@@ -18,7 +18,7 @@ const router = createRouter({
     {
       path: '/products/:slug',
       name: 'product-detail',
-      component: () => import('../views/ProductDetailPlaceholderView.vue'),
+      component: () => import('../views/ProductDetailView.vue'),
     },
     {
       path: '/courses/:id',
