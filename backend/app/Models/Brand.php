@@ -6,20 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Category extends Model
+class Brand extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'description', 'icon', 'accent_color', 'is_active'];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'logo',
+        'country',
+        'is_active',
+    ];
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean'];
-    }
-
-    public function courses(): HasMany
-    {
-        return $this->hasMany(Course::class);
+        return [
+            'is_active' => 'boolean',
+        ];
     }
 
     public function products(): HasMany
