@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
-use App\Mail\OrderPaidMail;
 use App\Models\Cart;
-use App\Models\Enrollment;
 use App\Models\Order;
+use App\Models\ProductVariant;
+use App\Models\StockMovement;
 use App\Models\VnpayTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class VnpayService
 {
@@ -63,7 +62,8 @@ class VnpayService
         return $this->url.'?'.$hashData.'&vnp_SecureHash='.$signedParams['vnp_SecureHash'];
     }
 
-    /** @param array<string, mixed> $params
+    /**
+     * @param  array<string, mixed>  $params
      * @return array<string, mixed>
      */
     public function signParams(array $params): array
@@ -104,45 +104,83 @@ class VnpayService
     /** @param array<string, mixed> $params */
     public function processSuccessfulPayment(Order $order, array $params, ?int $adminId = null): void
     {
-        $receivedAmount = $this->receivedAmount($params);
+        DB::transaction(function () use ($order, $params, $adminId): void {
+            $lockedOrder = Order::query()
+                ->whereKey($order->id)
+                ->with('items')
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $order->update([
-            'status' => 'paid',
-            'paid_at' => now(),
-        ]);
+            if (in_array($lockedOrder->status, ['paid', 'paid_stock_issue'], true)) {
+                return;
+            }
 
-        $this->createTransaction($order, $params, $receivedAmount, $adminId);
+            if ($lockedOrder->status !== 'pending') {
+                return;
+            }
 
-        $order->loadMissing('items');
+            $receivedAmount = $this->receivedAmount($params);
+            $items = $lockedOrder->items;
+            $variantIds = $items->pluck('product_variant_id')->filter()->unique()->values();
 
-        foreach ($order->items as $item) {
-            Enrollment::query()->firstOrCreate(
-                [
-                    'user_id' => $order->user_id,
-                    'course_id' => $item->course_id,
-                ],
-                [
-                    'order_id' => $order->id,
-                    'enrolled_at' => now(),
-                ],
-            );
-        }
+            // Keep variant locks in a stable order to reduce deadlock risk for multi-variant orders.
+            $variants = ProductVariant::query()
+                ->whereIn('id', $variantIds)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get()
+                ->keyBy('id');
 
-        $this->clearPurchasedCartItems($order);
+            $hasStockIssue = $items->contains(function ($item) use ($variants): bool {
+                $variant = $variants->get($item->product_variant_id);
 
-        $order->loadMissing(['user', 'items.course']);
+                return ! $variant || $variant->stock_quantity < $item->quantity;
+            });
 
-        DB::afterCommit(function () use ($order): void {
-            Mail::to($order->user->email)->queue(new OrderPaidMail($order));
+            if ($hasStockIssue) {
+                $lockedOrder->update([
+                    'status' => 'paid_stock_issue',
+                    'paid_at' => $lockedOrder->paid_at ?? now(),
+                ]);
+
+                $this->createTransaction($lockedOrder, $params, $receivedAmount, $adminId);
+
+                return;
+            }
+
+            foreach ($items as $item) {
+                $variant = $variants->get($item->product_variant_id);
+                $stockAfter = $variant->stock_quantity - $item->quantity;
+
+                $variant->update(['stock_quantity' => $stockAfter]);
+
+                StockMovement::query()->create([
+                    'product_variant_id' => $variant->id,
+                    'type' => 'order_paid',
+                    'quantity_change' => -1 * $item->quantity,
+                    'stock_after' => $stockAfter,
+                    'order_id' => $lockedOrder->id,
+                    'note' => "Order {$lockedOrder->code} paid via VNPay.",
+                    'created_by' => $adminId,
+                ]);
+            }
+
+            $lockedOrder->update([
+                'status' => 'paid',
+                'paid_at' => $lockedOrder->paid_at ?? now(),
+            ]);
+
+            $this->createTransaction($lockedOrder, $params, $receivedAmount, $adminId);
+            $this->clearPurchasedCartItems($lockedOrder);
         });
     }
 
     public function clearPurchasedCartItems(Order $order): void
     {
         $order->loadMissing('items');
-        $purchasedCourseIds = $order->items->pluck('course_id')->filter()->values();
+        $purchasedVariantIds = $order->items->pluck('product_variant_id')->filter()->values();
 
-        if ($purchasedCourseIds->isEmpty()) {
+        if ($purchasedVariantIds->isEmpty()) {
             return;
         }
 
@@ -152,21 +190,32 @@ class VnpayService
             ->first();
 
         $cart?->items()
-            ->whereIn('course_id', $purchasedCourseIds)
+            ->whereIn('product_variant_id', $purchasedVariantIds)
             ->delete();
     }
 
     /** @param array<string, mixed> $params */
     public function processFailedPayment(Order $order, array $params): void
     {
-        $receivedAmount = $this->receivedAmount($params);
+        DB::transaction(function () use ($order, $params): void {
+            $lockedOrder = Order::query()
+                ->whereKey($order->id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $order->update([
-            'status' => 'failed',
-            'paid_at' => null,
-        ]);
+            if ($lockedOrder->status !== 'pending') {
+                return;
+            }
 
-        $this->createTransaction($order, $params, $receivedAmount);
+            $receivedAmount = $this->receivedAmount($params);
+
+            $lockedOrder->update([
+                'status' => 'failed',
+                'paid_at' => null,
+            ]);
+
+            $this->createTransaction($lockedOrder, $params, $receivedAmount);
+        });
     }
 
     /** @param array<string, mixed> $params */

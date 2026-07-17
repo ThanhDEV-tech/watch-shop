@@ -49,6 +49,7 @@ class AdminDashboardService
                 'rejected' => (int) ($coursesByStatus['rejected'] ?? 0),
             ],
             'total_orders' => Order::query()->count(),
+            'paid_stock_issue_orders' => Order::query()->where('status', 'paid_stock_issue')->count(),
             'total_revenue' => (float) Order::query()->where('status', 'paid')->sum('total_amount'),
             'revenue_last_7_days' => $revenueLastSevenDays,
             'pending_courses_count' => $pendingCourses,

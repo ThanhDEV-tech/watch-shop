@@ -81,6 +81,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::patch('/users/{user}/toggle-active', [AdminDashboardController::class, 'toggleActive']);
     Route::get('/orders', [AdminDashboardController::class, 'orders']);
     Route::post('/orders/{order}/mark-as-paid', [AdminDashboardController::class, 'markOrderAsPaid']);
+    Route::post('/orders/{order}/mark-as-refunded', [AdminDashboardController::class, 'markOrderAsRefunded']);
     Route::get('/orders/{order}', [AdminDashboardController::class, 'order'])
         ->missing(fn () => response()->json([
             'success' => false,

@@ -27,8 +27,11 @@ class AdminOrderDetailResource extends JsonResource
             'subtotal_amount' => $this->subtotal_amount,
             'total_amount' => $this->total_amount,
             'status' => $this->status,
+            'needs_attention' => $this->status === 'paid_stock_issue',
             'created_at' => $this->created_at,
             'paid_at' => $this->paid_at,
+            'refunded_at' => $this->refunded_at,
+            'refund_note' => $this->refund_note,
             'user' => $this->whenLoaded('user', fn () => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,

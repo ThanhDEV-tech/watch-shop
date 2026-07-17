@@ -6,7 +6,6 @@ use App\Models\Order;
 use App\Services\VnpayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class VnpayController extends Controller
 {
@@ -59,61 +58,7 @@ class VnpayController extends Controller
 
         $responseCode = (string) ($params['vnp_ResponseCode'] ?? '');
         $isSuccess = $responseCode === '00';
-        $processingStatus = 'display_only';
-        $message = $isSuccess
-            ? 'Thanh toán thành công.'
-            : 'Thanh toán không thành công.';
-
-        if ($isSuccess) {
-            $processingResult = DB::transaction(function () use ($params): array {
-                $order = Order::query()
-                    ->where('code', (string) ($params['vnp_TxnRef'] ?? ''))
-                    ->lockForUpdate()
-                    ->first();
-
-                if (! $order) {
-                    return [
-                        'is_success' => false,
-                        'message' => 'Không tìm thấy đơn hàng.',
-                        'processing_status' => 'order_not_found',
-                    ];
-                }
-
-                if (! $this->vnpayService->amountMatches($order, $params)) {
-                    return [
-                        'is_success' => false,
-                        'message' => 'Số tiền thanh toán không khớp với đơn hàng.',
-                        'processing_status' => 'invalid_amount',
-                    ];
-                }
-
-                if ($order->status !== 'pending') {
-                    if ($order->status === 'paid') {
-                        $this->vnpayService->clearPurchasedCartItems($order);
-                    }
-
-                    return [
-                        'is_success' => $order->status === 'paid',
-                        'message' => $order->status === 'paid'
-                            ? 'Thanh toán thành công.'
-                            : 'Đơn hàng đã được xử lý trước đó.',
-                        'processing_status' => 'already_processed',
-                    ];
-                }
-
-                $this->vnpayService->processSuccessfulPayment($order, $params);
-
-                return [
-                    'is_success' => true,
-                    'message' => 'Thanh toán thành công.',
-                    'processing_status' => 'processed',
-                ];
-            });
-
-            $isSuccess = $processingResult['is_success'];
-            $message = $processingResult['message'];
-            $processingStatus = $processingResult['processing_status'];
-        }
+        $order = Order::query()->where('code', (string) ($params['vnp_TxnRef'] ?? ''))->first();
 
         return response()->json([
             'success' => true,
@@ -122,9 +67,13 @@ class VnpayController extends Controller
                 'order_code' => (string) ($params['vnp_TxnRef'] ?? ''),
                 'amount' => ((float) ($params['vnp_Amount'] ?? 0)) / 100,
                 'is_success' => $isSuccess,
-                'processing_status' => $processingStatus,
+                'processing_status' => 'display_only',
+                'order_status' => $order?->status,
+                'amount_matches' => $order ? $this->vnpayService->amountMatches($order, $params) : null,
             ],
-            'message' => $message,
+            'message' => $isSuccess
+                ? 'Thanh toán thành công. Hệ thống đang chờ IPN xác nhận đơn hàng.'
+                : 'Thanh toán không thành công.',
         ]);
     }
 
@@ -136,32 +85,29 @@ class VnpayController extends Controller
             return $this->ipnResponse('97', 'Invalid signature');
         }
 
-        return DB::transaction(function () use ($params): JsonResponse {
-            $order = Order::query()
-                ->where('code', (string) ($params['vnp_TxnRef'] ?? ''))
-                ->lockForUpdate()
-                ->first();
+        $order = Order::query()
+            ->where('code', (string) ($params['vnp_TxnRef'] ?? ''))
+            ->first();
 
-            if (! $order) {
-                return $this->ipnResponse('01', 'Order not found');
-            }
+        if (! $order) {
+            return $this->ipnResponse('01', 'Order not found');
+        }
 
-            if (! $this->vnpayService->amountMatches($order, $params)) {
-                return $this->ipnResponse('04', 'Invalid amount');
-            }
+        if (! $this->vnpayService->amountMatches($order, $params)) {
+            return $this->ipnResponse('04', 'Invalid amount');
+        }
 
-            if ($order->status !== 'pending') {
-                return $this->ipnResponse('02', 'Order already confirmed');
-            }
+        if ($order->status !== 'pending') {
+            return $this->ipnResponse('02', 'Order already confirmed');
+        }
 
-            if ((string) ($params['vnp_ResponseCode'] ?? '') === '00') {
-                $this->vnpayService->processSuccessfulPayment($order, $params);
-            } else {
-                $this->vnpayService->processFailedPayment($order, $params);
-            }
+        if ((string) ($params['vnp_ResponseCode'] ?? '') === '00') {
+            $this->vnpayService->processSuccessfulPayment($order, $params);
+        } else {
+            $this->vnpayService->processFailedPayment($order, $params);
+        }
 
-            return $this->ipnResponse('00', 'Confirm Success');
-        });
+        return $this->ipnResponse('00', 'Confirm Success');
     }
 
     private function ipnResponse(string $code, string $message): JsonResponse

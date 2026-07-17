@@ -23,6 +23,7 @@ class OrderResource extends JsonResource
             'subtotal_amount' => $this->subtotal_amount,
             'total_amount' => $this->total_amount,
             'status' => $this->status,
+            'needs_attention' => $this->status === 'paid_stock_issue',
             'paid_at' => $this->paid_at,
             'refunded_at' => $this->refunded_at,
             'refund_note' => $this->refund_note,

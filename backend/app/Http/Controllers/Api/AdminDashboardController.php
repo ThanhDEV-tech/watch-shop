@@ -163,6 +163,53 @@ class AdminDashboardController extends Controller
         ]);
     }
 
+    public function markOrderAsRefunded(Request $request, Order $order): JsonResponse
+    {
+        $validated = $request->validate([
+            'refund_note' => ['nullable', 'string'],
+        ]);
+
+        $processedOrder = DB::transaction(function () use ($order, $validated): Order|JsonResponse {
+            $lockedOrder = Order::query()
+                ->whereKey($order->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (! in_array($lockedOrder->status, ['paid', 'paid_stock_issue', 'shipping'], true)) {
+                return response()->json([
+                    'success' => false,
+                    'data' => null,
+                    'message' => 'Chỉ có thể đánh dấu hoàn tiền cho đơn đã thanh toán, lỗi tồn kho hoặc đang giao.',
+                ], 400);
+            }
+
+            $lockedOrder->update([
+                'status' => 'refunded',
+                'refunded_at' => now(),
+                'refund_note' => $validated['refund_note'] ?? null,
+            ]);
+
+            return $lockedOrder->refresh();
+        });
+
+        if ($processedOrder instanceof JsonResponse) {
+            return $processedOrder;
+        }
+
+        $processedOrder->load([
+            'user',
+            'items.product',
+            'items.productVariant',
+            'vnpayTransactions' => fn ($query) => $query->latest('id')->limit(1),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new AdminOrderDetailResource($processedOrder),
+            'message' => 'Đã đánh dấu đơn hàng là đã hoàn tiền.',
+        ]);
+    }
+
     public function vnpayTransactions(DashboardIndexRequest $request): JsonResponse
     {
         $transactions = VnpayTransaction::query()
