@@ -11,11 +11,43 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'user_id', 'total_amount', 'status', 'paid_at'];
+    public const STATUSES = [
+        'pending',
+        'paid',
+        'paid_stock_issue',
+        'failed',
+        'cancelled',
+        'shipping',
+        'completed',
+        'refunded',
+    ];
+
+    protected $fillable = [
+        'code',
+        'user_id',
+        'receiver_name',
+        'receiver_phone',
+        'shipping_address',
+        'shipping_note',
+        'shipping_zone_name',
+        'shipping_fee',
+        'subtotal_amount',
+        'total_amount',
+        'status',
+        'paid_at',
+        'refunded_at',
+        'refund_note',
+    ];
 
     protected function casts(): array
     {
-        return ['total_amount' => 'decimal:2', 'paid_at' => 'datetime'];
+        return [
+            'shipping_fee' => 'decimal:2',
+            'subtotal_amount' => 'decimal:2',
+            'total_amount' => 'decimal:2',
+            'paid_at' => 'datetime',
+            'refunded_at' => 'datetime',
+        ];
     }
 
     public function user(): BelongsTo

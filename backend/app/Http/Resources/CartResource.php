@@ -14,6 +14,9 @@ class CartResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'items' => CartItemResource::collection($this->whenLoaded('items')),
+            'subtotal_amount' => $this->whenLoaded('items', fn () => $this->items->sum(
+                fn ($item) => (float) ($item->productVariant?->final_price ?? 0) * $item->quantity,
+            )),
         ];
     }
 }

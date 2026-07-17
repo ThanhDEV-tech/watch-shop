@@ -10,11 +10,11 @@ class CartItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['cart_id', 'course_id', 'price_snapshot'];
+    protected $fillable = ['cart_id', 'product_variant_id', 'quantity'];
 
     protected function casts(): array
     {
-        return ['price_snapshot' => 'decimal:2'];
+        return ['quantity' => 'integer'];
     }
 
     public function cart(): BelongsTo
@@ -22,8 +22,8 @@ class CartItem extends Model
         return $this->belongsTo(Cart::class);
     }
 
-    public function course(): BelongsTo
+    public function productVariant(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(ProductVariant::class);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Cart;
 use App\Models\CartItem;
-use App\Models\Course;
+use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
@@ -15,31 +15,42 @@ class CartService
         return $user->cart()->firstOrCreate();
     }
 
-    public function add(User $user, Course $course): Cart
+    public function add(User $user, ProductVariant $variant, int $quantity = 1): Cart
     {
-        if ($course->status !== 'approved') {
+        $variant->loadMissing('product');
+
+        if (! $variant->is_active || $variant->product?->status !== 'active') {
             throw ValidationException::withMessages([
-                'course_id' => ['Chỉ có thể thêm khóa học đã được duyệt vào giỏ hàng.'],
+                'product_variant_id' => ['Chỉ có thể thêm sản phẩm đang bán vào giỏ hàng.'],
             ]);
         }
 
-        if ($this->ownsCourse($user, $course)) {
+        if ($variant->stock_quantity < $quantity) {
             throw ValidationException::withMessages([
-                'course_id' => ['Bạn đã sở hữu khóa học này.'],
+                'quantity' => ['Số lượng trong kho không đủ.'],
             ]);
         }
 
         $cart = $this->getCart($user);
+        $cartItem = $cart->items()->where('product_variant_id', $variant->id)->first();
 
-        if ($cart->items()->where('course_id', $course->id)->exists()) {
-            throw ValidationException::withMessages([
-                'course_id' => ['Khóa học đã có trong giỏ hàng.'],
-            ]);
+        if ($cartItem) {
+            $newQuantity = $cartItem->quantity + $quantity;
+
+            if ($variant->stock_quantity < $newQuantity) {
+                throw ValidationException::withMessages([
+                    'quantity' => ['Số lượng trong kho không đủ.'],
+                ]);
+            }
+
+            $cartItem->update(['quantity' => $newQuantity]);
+
+            return $cart;
         }
 
         $cart->items()->create([
-            'course_id' => $course->id,
-            'price_snapshot' => $course->final_price,
+            'product_variant_id' => $variant->id,
+            'quantity' => $quantity,
         ]);
 
         return $cart;
@@ -60,15 +71,11 @@ class CartService
         return $cart;
     }
 
-    private function ownsCourse(User $user, Course $course): bool
+    public function hasPurchasedProductVariant(User $user, ProductVariant $variant): bool
     {
-        if ($user->enrollments()->where('course_id', $course->id)->exists()) {
-            return true;
-        }
-
         return $user->orders()
-            ->where('status', 'paid')
-            ->whereHas('items', fn ($query) => $query->where('course_id', $course->id))
+            ->whereIn('status', ['paid', 'shipping', 'completed'])
+            ->whereHas('items', fn ($query) => $query->where('product_variant_id', $variant->id))
             ->exists();
     }
 }

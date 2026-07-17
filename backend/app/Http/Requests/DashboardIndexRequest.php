@@ -18,7 +18,16 @@ class DashboardIndexRequest extends FormRequest
         return [
             'role' => ['nullable', Rule::in(['admin', 'instructor', 'student'])],
             'search' => ['nullable', 'string', 'max:255'],
-            'status' => ['nullable', Rule::in(['pending', 'paid', 'failed', 'cancelled'])],
+            'status' => ['nullable', Rule::in([
+                'pending',
+                'paid',
+                'paid_stock_issue',
+                'failed',
+                'cancelled',
+                'shipping',
+                'completed',
+                'refunded',
+            ])],
             'response_code' => ['nullable', 'string', 'max:10'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];

@@ -12,9 +12,9 @@ class CartItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'course_id' => $this->course_id,
-            'price_snapshot' => $this->price_snapshot,
-            'course' => new CourseResource($this->whenLoaded('course')),
+            'product_variant_id' => $this->product_variant_id,
+            'quantity' => $this->quantity,
+            'product_variant' => new ProductVariantResource($this->whenLoaded('productVariant')),
         ];
     }
 }

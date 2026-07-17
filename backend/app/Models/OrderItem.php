@@ -10,11 +10,33 @@ class OrderItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id', 'course_id', 'price'];
+    protected $fillable = [
+        'order_id',
+        'product_id',
+        'product_variant_id',
+        'product_name',
+        'brand_name',
+        'sku',
+        'strap_color',
+        'dial_color',
+        'diameter_mm',
+        'movement_type',
+        'unit_price',
+        'quantity',
+        'line_total',
+        'thumbnail_url',
+    ];
 
     protected function casts(): array
     {
-        return ['price' => 'decimal:2'];
+        return [
+            'product_id' => 'integer',
+            'product_variant_id' => 'integer',
+            'diameter_mm' => 'integer',
+            'unit_price' => 'decimal:2',
+            'quantity' => 'integer',
+            'line_total' => 'decimal:2',
+        ];
     }
 
     public function order(): BelongsTo
@@ -22,8 +44,13 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function course(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Product::class);
+    }
+
+    public function productVariant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class);
     }
 }

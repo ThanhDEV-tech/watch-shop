@@ -13,7 +13,7 @@ class MyOrderController extends Controller
     {
         $orders = $request->user()
             ->orders()
-            ->with(['user.role', 'items.course.category', 'items.course.instructor.role'])
+            ->with(['user.role', 'items.product', 'items.productVariant'])
             ->when($request->filled('status'), fn ($query) => $query->where(
                 'status',
                 $request->string('status')->toString(),

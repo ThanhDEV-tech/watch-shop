@@ -81,7 +81,7 @@ class AdminDashboardController extends Controller
     public function orders(DashboardIndexRequest $request): JsonResponse
     {
         $orders = Order::query()
-            ->with(['user.role', 'items.course.category', 'items.course.instructor.role'])
+            ->with(['user.role', 'items.product', 'items.productVariant'])
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
             ->latest('id')
             ->paginate($request->integer('per_page', 15));
@@ -97,7 +97,8 @@ class AdminDashboardController extends Controller
     {
         $order->load([
             'user',
-            'items.course',
+            'items.product',
+            'items.productVariant',
             'vnpayTransactions' => fn ($query) => $query->latest('id')->limit(1),
         ]);
 
@@ -150,7 +151,8 @@ class AdminDashboardController extends Controller
 
         $processedOrder->load([
             'user',
-            'items.course',
+            'items.product',
+            'items.productVariant',
             'vnpayTransactions' => fn ($query) => $query->latest('id')->limit(1),
         ]);
 
@@ -164,7 +166,7 @@ class AdminDashboardController extends Controller
     public function vnpayTransactions(DashboardIndexRequest $request): JsonResponse
     {
         $transactions = VnpayTransaction::query()
-            ->with(['order.user.role', 'order.items.course.category', 'order.items.course.instructor.role'])
+            ->with(['order.user.role', 'order.items.product', 'order.items.productVariant'])
             ->when($request->filled('response_code'), fn ($query) => $query->where(
                 'response_code',
                 $request->string('response_code')->toString(),
