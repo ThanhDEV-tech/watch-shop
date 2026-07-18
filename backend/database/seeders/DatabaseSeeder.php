@@ -16,11 +16,6 @@ class DatabaseSeeder extends Seeder
             ShippingZoneSeeder::class,
             UserSeeder::class,
             CategorySeeder::class,
-            CourseSeeder::class,
-            CertificationSeeder::class,
-            CertificationCourseSeeder::class,
-            DemoInstructorSeeder::class,
-            DemoLearningSeeder::class,
         ]);
     }
 }

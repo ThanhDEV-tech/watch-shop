@@ -11,16 +11,11 @@ class AiChatSession extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'lesson_id', 'title'];
+    protected $fillable = ['user_id', 'title'];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function lesson(): BelongsTo
-    {
-        return $this->belongsTo(Lesson::class);
     }
 
     public function messages(): HasMany

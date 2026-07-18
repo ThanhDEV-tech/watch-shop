@@ -3,7 +3,6 @@ import { watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import Footer from './components/Footer.vue'
 import Header from './components/Header.vue'
-import ChatbotWidget from './components/ChatbotWidget.vue'
 import { useAuthStore } from './stores/auth'
 import { useCartStore } from './stores/cart'
 
@@ -33,6 +32,5 @@ watch(
     <Header v-if="!route.meta.dashboardLayout" />
     <RouterView />
     <Footer v-if="!route.meta.hideFooter && !route.meta.dashboardLayout" />
-    <ChatbotWidget v-if="authStore.isAuthenticated && route.name !== 'lesson-player'" />
   </div>
 </template>

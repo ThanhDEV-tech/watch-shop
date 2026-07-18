@@ -1,6 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue'
-import { forgotPassword } from '../services/api'
+import { forgotPassword } from '../api/axios'
 
 const form = reactive({ email: '' })
 const errors = reactive({ email: '' })

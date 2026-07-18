@@ -21,31 +21,6 @@ const router = createRouter({
       component: () => import('../views/ProductDetailView.vue'),
     },
     {
-      path: '/courses/:id',
-      name: 'course-detail',
-      component: () => import('../views/CourseDetailView.vue'),
-    },
-    {
-      path: '/category/:slug',
-      name: 'category-courses',
-      component: () => import('../views/CategoryCoursesView.vue'),
-    },
-    {
-      path: '/search',
-      name: 'search-results',
-      component: () => import('../views/SearchResultsView.vue'),
-    },
-    {
-      path: '/certifications',
-      name: 'certifications',
-      component: () => import('../views/CertificationsView.vue'),
-    },
-    {
-      path: '/certifications/:id',
-      name: 'certification-detail',
-      component: () => import('../views/CertificationDetailView.vue'),
-    },
-    {
       path: '/cart',
       name: 'cart',
       component: () => import('../views/CartView.vue'),
@@ -86,12 +61,6 @@ const router = createRouter({
       component: () => import('../views/VnpayReturnView.vue'),
     },
     {
-      path: '/my-courses',
-      name: 'my-courses',
-      component: () => import('../views/MyCoursesView.vue'),
-      meta: { hideFooter: true },
-    },
-    {
       path: '/my-orders',
       name: 'my-orders',
       component: () => import('../views/MyOrdersView.vue'),
@@ -116,18 +85,6 @@ const router = createRouter({
       meta: { hideFooter: true, requiresAuth: true },
     },
     {
-      path: '/learn/:courseId/:lessonId',
-      name: 'lesson-player',
-      component: () => import('../views/LessonPlayerView.vue'),
-      meta: { hideFooter: true },
-    },
-    {
-      path: '/instructor/courses/:id/preview',
-      name: 'instructor-course-preview',
-      component: () => import('../views/CourseDetailView.vue'),
-      meta: { hideFooter: true, requiresAuth: true, roles: ['instructor', 'admin'] },
-    },
-    {
       path: '/admin',
       component: () => import('../layouts/DashboardLayout.vue'),
       meta: { dashboardLayout: true, hideFooter: true, requiresAuth: true, roles: ['admin'] },
@@ -144,20 +101,6 @@ const router = createRouter({
         { path: 'vnpay-transactions', name: 'admin-vnpay-transactions', component: () => import('../views/admin/VnpayTransactionsView.vue') },
         { path: 'stock-movements', name: 'admin-stock-movements', component: () => import('../views/admin/StockMovementsView.vue') },
         { path: 'users', name: 'admin-users', component: () => import('../views/admin/UsersManagementView.vue') },
-      ],
-    },
-    {
-      path: '/instructor',
-      component: () => import('../layouts/DashboardLayout.vue'),
-      meta: { dashboardLayout: true, hideFooter: true, requiresAuth: true, roles: ['instructor'] },
-      children: [
-        { path: '', redirect: '/instructor/dashboard' },
-        { path: 'dashboard', name: 'instructor-dashboard', component: () => import('../views/instructor/InstructorDashboardView.vue') },
-        { path: 'courses', name: 'instructor-courses', component: () => import('../views/instructor/InstructorCoursesView.vue') },
-        { path: 'courses/create', name: 'instructor-course-create', component: () => import('../views/instructor/CourseFormView.vue') },
-        { path: 'courses/:id/edit', name: 'instructor-course-edit', component: () => import('../views/instructor/CourseFormView.vue') },
-        { path: 'courses/:id/curriculum', name: 'instructor-course-curriculum', component: () => import('../views/instructor/CourseCurriculumManageView.vue') },
-        { path: 'courses/:id/students', name: 'instructor-course-students', component: () => import('../views/instructor/CourseStudentsView.vue') },
       ],
     },
   ],

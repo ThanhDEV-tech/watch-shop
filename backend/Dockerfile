@@ -23,8 +23,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
-COPY docker/entrypoint.sh /usr/local/bin/edumarket-entrypoint.sh
+COPY docker/entrypoint.sh /usr/local/bin/watchora-entrypoint.sh
 
-RUN chmod +x /usr/local/bin/edumarket-entrypoint.sh
+RUN chmod +x /usr/local/bin/watchora-entrypoint.sh
 
 WORKDIR /var/www/html

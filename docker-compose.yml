@@ -3,7 +3,7 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-edumarket}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-watchora}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-}
       MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}
     ports:
@@ -25,7 +25,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: edumarket-php:dev
+    image: watchora-php:dev
     restart: unless-stopped
     working_dir: /var/www/html
     environment:
@@ -33,7 +33,7 @@ services:
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_DATABASE: ${MYSQL_DATABASE:-edumarket}
+      DB_DATABASE: ${MYSQL_DATABASE:-watchora}
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-}
       QUEUE_CONNECTION: database
@@ -45,7 +45,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: ["sh", "/usr/local/bin/edumarket-entrypoint.sh"]
+    command: ["sh", "/usr/local/bin/watchora-entrypoint.sh"]
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8000/api/categories | grep -Eq '\"success\"[[:space:]]*:[[:space:]]*true' || exit 1"]
       interval: 10s
@@ -57,7 +57,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    image: edumarket-php:dev
+    image: watchora-php:dev
     restart: unless-stopped
     working_dir: /var/www/html
     environment:
@@ -65,7 +65,7 @@ services:
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_DATABASE: ${MYSQL_DATABASE:-edumarket}
+      DB_DATABASE: ${MYSQL_DATABASE:-watchora}
       DB_USERNAME: root
       DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-}
       QUEUE_CONNECTION: database

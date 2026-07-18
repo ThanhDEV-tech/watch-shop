@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import api, { TOKEN_KEY } from '../services/api'
+import api, { TOKEN_KEY } from '../api/axios'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)

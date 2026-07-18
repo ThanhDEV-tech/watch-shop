@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { createVnpayPayment } from '../services/api'
+import { createVnpayPayment } from '../api/axios'
 import { useCartStore } from '../stores/cart'
 import { formatCurrency } from '../utils/formatCurrency'
 

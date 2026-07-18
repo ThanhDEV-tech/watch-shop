@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ProductShowcaseGrid from '../components/ProductShowcaseGrid.vue'
-import { getBrands, getCategories, getCollections, getProducts } from '../services/api'
+import { getBrands, getCategories, getCollections, getProducts } from '../api/axios'
 
 const route = useRoute()
 const router = useRouter()

@@ -1,34 +1,43 @@
-# EduMarket development with Docker
+# Watchora development with Docker
 
-Docker Compose starts MySQL, Laravel API, the database queue worker, and Vite together. The native `backend/.env` used by XAMPP is not modified.
+Docker Compose starts MySQL, the Laravel API, the database queue worker, Vite, and phpMyAdmin. The default Docker database is `watchora`.
 
 ## First run
 
-Make sure ports `3306`, `8000`, and `5173` are free. In particular, stop the XAMPP MySQL service while Docker MySQL is running.
+Make sure ports `3306`, `8000`, `5173`, and `8080` are free. Stop XAMPP MySQL while Docker MySQL is using port `3306`.
 
-Fill the credentials you need in `backend/.env` when that file already exists. If it does not exist, Docker copies `backend/.env.docker` to `.env`; secrets in the template are intentionally blank.
+If `backend/.env` does not exist, copy `backend/.env.docker` to it. Keep credentials and secrets in the environment files, not in committed configuration.
 
-Optionally create a root `.env` containing a MySQL root password. The same value is passed to Laravel automatically:
+Optionally create a root `.env` containing the MySQL settings used by Compose:
 
 ```dotenv
+MYSQL_DATABASE=watchora
 MYSQL_ROOT_PASSWORD=
 ```
 
-Start all four services from the project root:
+Start the services:
 
 ```bash
 docker compose up -d --build
 ```
 
-The backend automatically installs Composer dependencies when needed, generates `APP_KEY` only when blank, runs safe migrations without seeding, creates the storage link, and starts on port 8000.
+The backend installs Composer dependencies when needed, generates `APP_KEY` when blank, runs safe migrations without seeding, creates the storage link, and starts on port `8000`.
 
-The project deliberately does not seed on container restart. On a fresh Docker database, add demo data manually or run a specific seeder once:
+## Database rename from an existing Docker volume
+
+MySQL creates `MYSQL_DATABASE` only when its data directory is initialized. Changing the Compose variable does not rename the database in an existing `mysql_data` volume.
+
+When you are ready to discard the existing Docker database and initialize `watchora`, run these commands yourself from the project root:
 
 ```bash
-docker compose exec backend php artisan db:seed
+docker compose down -v
+docker compose up -d --build
+docker compose exec backend php artisan migrate
 ```
 
-## Check status and logs
+`docker compose down -v` permanently removes the current Docker volumes and their data. Back up anything needed before running it. Do not run it merely to restart the application.
+
+## Status and logs
 
 ```bash
 docker compose ps
@@ -37,8 +46,6 @@ docker compose logs -f frontend
 docker compose logs -f queue
 docker compose logs -f mysql
 ```
-
-The queue log is the useful place to confirm queued email processing.
 
 ## Laravel commands
 
@@ -50,18 +57,18 @@ docker compose exec backend php artisan test
 
 ## Smoke test
 
+The backend healthcheck uses the existing public Watchora category endpoint:
+
 ```bash
-curl http://localhost:8000/api/courses
+curl http://localhost:8000/api/categories
 ```
 
-Then open <http://localhost:5173> in a browser.
+Then open http://localhost:5173.
 
-## Stop
+## Stop without deleting data
 
 ```bash
 docker compose down
 ```
 
-The `mysql_data` volume persists database data. To intentionally remove all Docker database data, use `docker compose down -v` only when you really want a clean database.
-
-Older Compose installations also accept `docker-compose` instead of `docker compose`.
+The `mysql_data` volume persists unless you explicitly add `-v`.

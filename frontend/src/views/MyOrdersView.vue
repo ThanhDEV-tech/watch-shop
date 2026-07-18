@@ -2,7 +2,7 @@
 import { onMounted, reactive, ref, watch } from 'vue'
 import DashboardPagination from '../components/dashboard/DashboardPagination.vue'
 import OrderDetailModal from '../components/dashboard/OrderDetailModal.vue'
-import { getMyOrders } from '../services/api'
+import { getMyOrders } from '../api/axios'
 import { formatCurrency } from '../utils/formatCurrency'
 import { formatDateTime } from '../utils/formatDate'
 

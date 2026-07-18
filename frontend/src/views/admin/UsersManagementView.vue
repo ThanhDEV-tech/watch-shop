@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import DashboardPagination from '../../components/dashboard/DashboardPagination.vue'
-import { getAdminUsers, toggleAdminUserActive } from '../../services/api'
+import { getAdminUsers, toggleAdminUserActive } from '../../api/axios'
 
 const users = ref([])
 const pagination = ref({ current_page: 1, last_page: 1, total: 0 })

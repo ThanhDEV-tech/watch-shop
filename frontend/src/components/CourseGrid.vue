@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import CourseCard from './CourseCard.vue'
-import { getCourses } from '../services/api'
+import { getCourses } from '../api/axios'
 
 const props = defineProps({
   categoryId: { type: [Number, String], default: null },

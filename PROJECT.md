@@ -30,9 +30,10 @@ có biến thể (variant)".
 
 ## 3. Xóa hoàn toàn (domain khóa học cũ)
 
-Chapter, Lesson, Certification, Enrollment, Lesson Progress, AI Learning
-Assistant, Comment (gắn lesson), Instructor Dashboard, toàn bộ seeder demo
-liên quan khóa học. Danh sách file chi tiết: xem `.agents/docs/audit-report.md`.
+Chapter, Lesson, Certification, Enrollment, Lesson Progress, Comment (gắn
+lesson), Instructor Dashboard, toàn bộ seeder demo liên quan khóa học. Giữ lại
+hạ tầng AI Chat để redesign thành AI Shopping Assistant cho tư vấn chọn đồng hồ
+và hỏi đáp chính sách. Danh sách file chi tiết: xem `.agents/docs/audit-report.md`.
 
 ## 4. Domain Model
 
@@ -195,10 +196,9 @@ Mỗi khách tối đa 1 review/sản phẩm. `rating_avg` tính từ review.
 
 ## 6. Phạm vi loại trừ khỏi MVP
 
-AI assistant, product recommendation chatbot, guest checkout, COD, coupon,
-wishlist, quản lý nhà cung cấp, address book, tích hợp API vận chuyển, phí
-ship theo cân nặng, luồng `returned`, product tag, multi-warehouse,
-marketplace nhiều người bán.
+Guest checkout, COD, coupon, wishlist, quản lý nhà cung cấp, address book, tích
+hợp API vận chuyển, phí ship theo cân nặng, luồng `returned`, product tag,
+multi-warehouse, marketplace nhiều người bán.
 
 ## 7. Kế hoạch triển khai (Backend trước, Frontend sau)
 

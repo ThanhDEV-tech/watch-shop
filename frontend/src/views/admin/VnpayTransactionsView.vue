@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import DashboardPagination from '../../components/dashboard/DashboardPagination.vue'
-import { getAdminVnpayTransactions } from '../../services/api'
+import { getAdminVnpayTransactions } from '../../api/axios'
 import { formatCurrency } from '../../utils/formatCurrency'
 
 const transactions = ref([])

@@ -227,14 +227,14 @@ Files:
 
 Reason: the watch shop needs order fulfillment, shipping, stock reservation, and customer order history, not course ownership or lesson completion.
 
-### AI Learning Assistant
+### AI Shopping Assistant
 
-Status: delete or redesign from scratch.
+Status: keep infrastructure; redesign behavior later.
 
-Files:
+Keep:
 
 - `backend/app/Services/AiChatService.php`
-- `backend/app/Services/OpenAiService.php` if no product assistant is planned
+- `backend/app/Services/OpenAiService.php`
 - `backend/app/Http/Controllers/Api/AiChatController.php`
 - `backend/app/Http/Requests/Ai/ChatRequest.php`
 - `backend/app/Models/AiChatSession.php`
@@ -243,7 +243,7 @@ Files:
 - `backend/database/migrations/2026_07_03_100019_create_ai_chat_messages_table.php`
 - `frontend/src/components/ChatbotWidget.vue`
 
-Reason: current AI prompt, authorization, and context are lesson/course-specific. A future watch assistant would need product recommendation context, style preferences, budget, movement type, wrist size, and stock availability; the old implementation is a shallow fit for that.
+Reason: AI Chat is retained for the Watchora shopping assistant, covering watch selection advice and policy Q&A. The current lesson/course-specific behavior still needs a later redesign, but the route, controller, service, models, and migrations must not be deleted during Phase 6 cleanup.
 
 ### Course-Specific Review And Comment Logic
 
@@ -442,11 +442,11 @@ Important seam: cart/order should reference `product_variant_id`. Orders should 
 1. Create a deep `Product Catalog` module first: `Product`, `ProductVariant`, variant option validation, product resources, and product admin CRUD.
 2. Move cart and checkout from `course_id` to `product_variant_id`, add `quantity`, stock checks, and variant snapshots.
 3. Keep VNPay signing and transaction logging, but move enrollment creation out of payment success.
-4. Replace course routes with product routes; remove `/courses/{course}/chapters`, `/my-courses`, `/lessons/*`, `/certifications/*`, `/ai/chat` if no product assistant is planned.
+4. Replace course routes with product routes; remove `/courses/{course}/chapters`, `/my-courses`, `/lessons/*`, and `/certifications/*`. Keep `/ai/chat` for the planned AI Shopping Assistant.
 5. Replace frontend course pages with product listing/detail/variant selector.
 6. Replace admin course moderation with product and inventory management.
 7. Rewrite seeders for watch brands, categories, products, variants, and demo orders.
-8. After domain deletion, remove stale tests for course, curriculum, certification, learning, AI lesson chat; keep and adapt auth, commerce, VNPay, admin order tests.
+8. After domain deletion, remove stale tests for course, curriculum, certification, and learning; keep AI Chat infrastructure tests or adapt them for the future shopping assistant.
 
 ## High-Risk Couplings To Watch
 

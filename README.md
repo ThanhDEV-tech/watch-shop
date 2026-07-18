@@ -1,63 +1,42 @@
-# EduMarket
+# Watchora
 
-EduMarket là nền tảng bán và quản lý khóa học trực tuyến tích hợp AI Chatbot, xây dựng bằng Laravel 11 và Vue 3.
+Watchora is a fashion watch storefront built with Laravel 11 and Vue 3. The MVP covers a product catalog with variants/SKUs, authenticated cart and checkout, VNPay Sandbox payments, inventory tracking, order management, and an admin dashboard.
 
-## Yêu cầu
-- Docker Desktop đã cài sẵn
-- Không cần cài riêng PHP, Node.js, MySQL hoặc Composer
+## Requirements
 
-## Cài đặt và chạy
-1. Clone/copy source về máy.
-2. Copy file backend/.env.docker thành backend/.env và điền các secret cá nhân cần thiết:
-   - VNPAY_TMN_CODE
-   - VNPAY_HASH_SECRET
-   - MAIL_USERNAME
-   - MAIL_PASSWORD
-   - OPENAI_API_KEY
-   > Các giá trị này là secret cá nhân, không nên commit lên git.
-3. Khởi động container:
-   ```bash
-   docker compose up -d --build
-   ```
-4. Chạy migration và seed dữ liệu demo:
-   ```bash
-   docker compose exec backend php artisan migrate --seed
-   ```
+- Docker Desktop
+- Ports `3306`, `8000`, `5173`, and `8080` available
 
-## Truy cập
+## Start the project
+
+1. Copy `backend/.env.docker` to `backend/.env` if the latter does not exist, then fill in the VNPay and mail credentials you need.
+2. Build and start the services:
+
+```bash
+docker compose up -d --build
+```
+
+3. On a fresh database, run migrations:
+
+```bash
+docker compose exec backend php artisan migrate
+```
+
+## URLs
+
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000/api
 - phpMyAdmin: http://localhost:8080
-  - User: root
-  - Password: rỗng
 
-## Tài khoản demo
-- Admin: admin@edumarket.com / password
-- Instructor: instructor1@edumarket.com / password
-- Student: student1@edumarket.com / password
+## Useful commands
 
-## Lệnh hữu ích
 ```bash
+docker compose ps
+docker compose logs -f backend
 docker compose logs -f queue
-docker compose exec backend php artisan tinker
+docker compose exec backend php artisan migrate:status
 docker compose exec backend php artisan test
 docker compose down
-docker compose down -v
 ```
 
-## Tính năng chính
-- Student: đăng ký, xem khóa học, mua hàng, thanh toán VNPay, học bài, theo dõi tiến độ, review khóa học
-- Instructor: tạo khóa học, quản lý chương/bài học, xem học viên
-- Admin: quản lý người dùng, danh mục, khóa học, đơn hàng, giao dịch VNPay
-- AI Chatbot: gợi ý và hỗ trợ học viên
-- Email tự động gửi qua queue
-
-## Cấu trúc thư mục
-- backend/
-- frontend/
-- docker-compose.yml
-- AGENTS.md
-- PROJECT.md
-
-## Lưu ý
-- VNPay đang chạy ở môi trường Sandbox/Test, không phải production thật.
+VNPay runs in Sandbox/Test mode. Secrets belong in environment files and must not be committed.

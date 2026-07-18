@@ -1,7 +1,7 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { resetPassword } from '../services/api'
+import { resetPassword } from '../api/axios'
 
 const route = useRoute()
 const router = useRouter()

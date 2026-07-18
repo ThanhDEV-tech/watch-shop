@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getCategories } from '../services/api'
+import { getCategories } from '../api/axios'
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import { formatCurrency } from '../utils/formatCurrency'

@@ -3,7 +3,7 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DashboardPagination from '../../components/dashboard/DashboardPagination.vue'
 import OrderDetailModal from '../../components/dashboard/OrderDetailModal.vue'
-import { getAdminOrder, getAdminOrders, markAdminOrderAsPaid, markAdminOrderAsRefunded } from '../../services/api'
+import { getAdminOrder, getAdminOrders, markAdminOrderAsPaid, markAdminOrderAsRefunded } from '../../api/axios'
 import { formatCurrency } from '../../utils/formatCurrency'
 import { formatDateTime } from '../../utils/formatDate'
 

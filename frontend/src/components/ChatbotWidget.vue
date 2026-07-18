@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { sendAiChat } from '../services/api'
+import { sendAiChat } from '../api/axios'
 import { formatCurrency } from '../utils/formatCurrency'
 
 const props = defineProps({

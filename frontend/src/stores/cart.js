@@ -6,7 +6,7 @@ import {
   getCart,
   removeFromCart,
   updateCartItem,
-} from '../services/api'
+} from '../api/axios'
 
 const extractApiError = (requestError) => {
   const errors = requestError.response?.data?.data?.errors

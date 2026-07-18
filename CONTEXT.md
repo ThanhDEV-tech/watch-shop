@@ -25,7 +25,7 @@ The MVP removes EduMarket-specific learning concepts:
 - Enrollment
 - Lesson progress
 - Instructor dashboards
-- AI learning assistant
+- AI learning assistant behavior, while keeping AI Chat infrastructure for the Watchora shopping assistant
 
 ## Roles
 
@@ -587,12 +587,21 @@ On `paid_stock_issue`:
 
 Email content must no longer mention courses, learning, enrollment, lessons, or instructors.
 
+## AI Shopping Assistant
+
+AI Chat infrastructure is retained for Watchora and must not be removed during cleanup.
+
+Planned assistant purposes:
+
+- Advise customers on choosing watches by style, budget, gender target, movement type, strap/dial preferences, and stock availability.
+- Answer store policy questions such as warranty, payment, shipping, order status, refund handling, and support flow.
+
+The restored implementation may still contain EduMarket lesson/course-specific prompt, authorization, and suggestion logic. Do not redesign that logic during Phase 6 cleanup; handle it in a separate AI Shopping Assistant redesign step.
+
 ## Excluded From MVP
 
 Do not include these in MVP:
 
-- AI assistant
-- Product recommendation chatbot
 - Guest checkout
 - COD
 - Coupons

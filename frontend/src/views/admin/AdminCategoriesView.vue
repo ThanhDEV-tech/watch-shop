@@ -2,7 +2,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import CategoryFormModal from '../../components/dashboard/CategoryFormModal.vue'
 import DashboardPagination from '../../components/dashboard/DashboardPagination.vue'
-import { createAdminCategory, deleteAdminCategory, getAdminCategories, toggleAdminCategoryActive, updateAdminCategory } from '../../services/api'
+import { createAdminCategory, deleteAdminCategory, getAdminCategories, toggleAdminCategoryActive, updateAdminCategory } from '../../api/axios'
 
 const categories = ref([])
 const pagination = ref({ current_page: 1, last_page: 1, total: 0 })

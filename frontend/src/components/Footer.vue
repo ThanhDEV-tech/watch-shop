@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { getCategories } from '../services/api'
+import { getCategories } from '../api/axios'
 
 const categories = ref([])
 

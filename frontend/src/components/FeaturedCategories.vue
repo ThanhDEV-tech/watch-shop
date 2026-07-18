@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { getCategories } from '../services/api'
+import { getCategories } from '../api/axios'
 
 const categories = ref([])
 const isLoading = ref(true)

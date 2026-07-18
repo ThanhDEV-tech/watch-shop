@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import DashboardStatCard from '../../components/dashboard/DashboardStatCard.vue'
 import RevenueBarChart from '../../components/dashboard/RevenueBarChart.vue'
-import { getAdminDashboardStats } from '../../services/api'
+import { getAdminDashboardStats } from '../../api/axios'
 import { formatCurrency } from '../../utils/formatCurrency'
 
 const stats = ref(null)

@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProductShowcaseGrid from '../components/ProductShowcaseGrid.vue'
-import { getBrands, getProducts } from '../services/api'
+import { getBrands, getProducts } from '../api/axios'
 
 gsap.registerPlugin(ScrollTrigger)
 

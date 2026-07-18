@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import DashboardPagination from '../../components/dashboard/DashboardPagination.vue'
-import { getAdminStockMovements } from '../../services/api'
+import { getAdminStockMovements } from '../../api/axios'
 import { formatDateTime } from '../../utils/formatDate'
 
 const movements = ref([])
