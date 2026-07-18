@@ -118,14 +118,124 @@ const genderLabel = computed(() => ({
   unisex: 'Unisex',
 }[product.value?.gender_target] ?? product.value?.gender_target))
 
-const specs = computed(() => [
-  ['Chất liệu vỏ', product.value?.case_material],
-  ['Chất liệu dây', product.value?.strap_material],
-  ['Mặt kính', product.value?.glass_material],
-  ['Kháng nước', product.value?.water_resistance],
-  ['Bảo hành', product.value?.warranty_months ? `${product.value.warranty_months} tháng` : null],
-  ['Ghi chú bảo hành', product.value?.warranty_note],
-].filter(([, value]) => Boolean(value)))
+const readableValue = (value) => String(value ?? '').trim()
+const hasText = (value) => Boolean(readableValue(value))
+
+const materialNote = (type, value) => {
+  const normalized = readableValue(value).toLowerCase()
+
+  if (type === 'case') {
+    if (normalized.includes('thép') || normalized.includes('steel')) {
+      return 'Phần vỏ tạo cảm giác chắc tay, giữ phom gọn gàng và dễ phối cùng nhiều phong cách hằng ngày.'
+    }
+
+    if (normalized.includes('hợp kim') || normalized.includes('alloy')) {
+      return 'Kết cấu nhẹ giúp đồng hồ thoải mái khi đeo lâu, phù hợp nhịp sử dụng linh hoạt trong ngày.'
+    }
+
+    return 'Thiết kế vỏ được hoàn thiện cân bằng giữa độ bền, cảm giác đeo và vẻ ngoài chỉn chu.'
+  }
+
+  if (type === 'strap') {
+    if (normalized.includes('da') || normalized.includes('leather')) {
+      return 'Dây da đem lại cảm giác mềm mại, thanh lịch và lên tay tự nhiên trong môi trường công sở hoặc các dịp trang trọng.'
+    }
+
+    if (normalized.includes('kim loại') || normalized.includes('thép') || normalized.includes('metal')) {
+      return 'Dây kim loại tạo dáng đeo cứng cáp, sạch sẽ và dễ chuyển từ trang phục thường ngày sang phong cách chỉn chu hơn.'
+    }
+
+    if (normalized.includes('vải') || normalized.includes('fabric') || normalized.includes('nylon')) {
+      return 'Dây vải có tinh thần trẻ trung, nhẹ và thoáng, hợp với những ngày di chuyển nhiều.'
+    }
+
+    return 'Dây đeo được chọn để cân bằng giữa độ ôm cổ tay, độ bền và cảm giác thoải mái khi sử dụng thường xuyên.'
+  }
+
+  if (normalized.includes('sapphire')) {
+    return 'Bề mặt kính giúp hạn chế trầy xước trong quá trình dùng hằng ngày và giữ mặt số luôn rõ nét.'
+  }
+
+  if (normalized.includes('khoáng') || normalized.includes('mineral')) {
+    return 'Lớp kính khoáng cho khả năng hiển thị rõ ràng, dễ chăm sóc và phù hợp nhu cầu sử dụng thường xuyên.'
+  }
+
+  return 'Mặt kính được hoàn thiện để bảo vệ mặt số, giữ độ trong và giúp chi tiết hiển thị dễ quan sát.'
+}
+
+const movementNote = (value) => {
+  const normalized = readableValue(value).toLowerCase()
+
+  if (normalized === 'quartz') {
+    return 'Bộ máy quartz ưu tiên sự ổn định, dễ sử dụng hằng ngày và ít cần căn chỉnh.'
+  }
+
+  if (normalized === 'automatic') {
+    return 'Bộ máy automatic mang tinh thần cơ khí truyền thống, phù hợp người thích cảm giác chuyển động tinh tế bên trong đồng hồ.'
+  }
+
+  return 'Cấu hình bộ máy được chọn để giữ nhịp vận hành ổn định và phù hợp thói quen đeo thường ngày.'
+}
+
+const waterResistanceNote = (value) => `Mức ${readableValue(value)} hỗ trợ yên tâm hơn trong các va chạm nước nhẹ khi sinh hoạt. Bạn vẫn nên hạn chế ngâm nước lâu hoặc dùng trong môi trường áp lực nước mạnh.`
+
+const warrantyNoteText = computed(() => {
+  const months = product.value?.warranty_months
+  const note = readableValue(product.value?.warranty_note)
+
+  if (!months && !note) return ''
+
+  const duration = months ? `Thời hạn ${months} tháng` : 'Chính sách bảo hành'
+
+  return note
+    ? `${duration}, áp dụng theo ghi chú: ${note}`
+    : `${duration}, giúp bạn an tâm hơn trong quá trình sử dụng và bảo dưỡng sản phẩm.`
+})
+
+const specs = computed(() => {
+  const movement = selectedVariant.value?.movement_type ?? activeVariants.value[0]?.movement_type
+
+  return [
+    {
+      key: 'case',
+      label: 'Vỏ',
+      value: product.value?.case_material,
+      description: hasText(product.value?.case_material) ? materialNote('case', product.value.case_material) : '',
+    },
+    {
+      key: 'glass',
+      label: 'Mặt kính',
+      value: product.value?.glass_material,
+      description: hasText(product.value?.glass_material) ? materialNote('glass', product.value.glass_material) : '',
+    },
+    {
+      key: 'movement',
+      label: 'Bộ máy',
+      value: movement ? movementLabel(movement) : '',
+      description: movement ? movementNote(movement) : '',
+    },
+    {
+      key: 'strap',
+      label: 'Dây đeo',
+      value: product.value?.strap_material,
+      description: hasText(product.value?.strap_material) ? materialNote('strap', product.value.strap_material) : '',
+    },
+    {
+      key: 'water',
+      label: 'Khả năng chống nước',
+      value: product.value?.water_resistance,
+      description: product.value?.water_resistance ? waterResistanceNote(product.value.water_resistance) : '',
+    },
+    {
+      key: 'warranty',
+      label: 'Bảo hành',
+      value: warrantyNoteText.value
+        ? (product.value?.warranty_months ? `${product.value.warranty_months} tháng` : 'Theo chính sách')
+        : '',
+      description: warrantyNoteText.value,
+    },
+  ].filter((item) => hasText(item.value) || hasText(item.description))
+})
 
 const options = computed(() => ({
   strap_color: [...new Set(activeVariants.value.map((variant) => variant.strap_color))],
@@ -171,6 +281,15 @@ const changeImage = (image) => {
   if (!image || image === selectedImage.value) return
 
   selectedImage.value = image
+}
+
+const useNextGalleryImage = () => {
+  const currentIndex = galleryImages.value.indexOf(selectedImage.value)
+  const nextImage = galleryImages.value.slice(currentIndex + 1).find(Boolean)
+
+  if (nextImage) {
+    selectedImage.value = nextImage
+  }
 }
 
 const clampQuantity = () => {
@@ -242,15 +361,15 @@ const setupSpecsReveal = () => {
   specsMatchMedia = gsap.matchMedia()
 
   specsMatchMedia.add('(prefers-reduced-motion: reduce)', () => {
-    gsap.set(specsRef.value.querySelectorAll('.watch-spec-row'), { clearProps: 'all' })
+    gsap.set(specsRef.value.querySelectorAll('.watch-spec-item'), { clearProps: 'all' })
   })
 
   specsMatchMedia.add('(prefers-reduced-motion: no-preference)', () => {
-    const rows = specsRef.value.querySelectorAll('.watch-spec-row')
-    gsap.set(rows, { autoAlpha: 0, y: 18 })
+    const items = specsRef.value.querySelectorAll('.watch-spec-item')
+    gsap.set(items, { autoAlpha: 0, y: 24 })
 
-    const triggers = ScrollTrigger.batch(rows, {
-      start: 'top 88%',
+    const triggers = ScrollTrigger.batch(items, {
+      start: 'top 86%',
       once: true,
       batchMax: 6,
       interval: 0.08,
@@ -258,9 +377,9 @@ const setupSpecsReveal = () => {
         gsap.to(batch, {
           autoAlpha: 1,
           y: 0,
-          duration: 0.45,
+          duration: 0.55,
           ease: 'power2.out',
-          stagger: 0.06,
+          stagger: 0.09,
           overwrite: true,
         })
       },
@@ -345,6 +464,7 @@ onBeforeUnmount(() => {
               :src="selectedImage"
               :alt="product.name"
               class="h-full w-full object-cover"
+              @error="useNextGalleryImage"
             />
           </div>
 
@@ -513,19 +633,29 @@ onBeforeUnmount(() => {
           <div class="w-full min-w-0">
             <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">Technical notes</p>
             <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
-              Thông số tinh gọn.
+              Thông số kỹ thuật.
             </h2>
+            <p class="mt-5 w-full max-w-md text-base leading-8 text-on-surface-variant">
+              Những chi tiết cốt lõi được diễn giải ngắn gọn để bạn dễ hình dung cảm giác đeo, độ bền và cách sử dụng hằng ngày.
+            </p>
           </div>
-          <dl class="w-full min-w-0 divide-y divide-border border-y border-border">
-            <div
-              v-for="[label, value] in specs"
-              :key="label"
-              class="watch-spec-row grid w-full min-w-0 gap-2 py-5 sm:grid-cols-[0.45fr_0.55fr]"
+          <div class="grid w-full min-w-0 gap-4 sm:grid-cols-2">
+            <article
+              v-for="item in specs"
+              :key="item.key"
+              class="watch-spec-item flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)]"
             >
-              <dt class="w-full text-sm font-bold uppercase tracking-[0.14em] text-primary/60">{{ label }}</dt>
-              <dd class="w-full text-base leading-7 text-on-surface">{{ value }}</dd>
-            </div>
-          </dl>
+              <p class="w-full text-xs font-bold uppercase tracking-[0.18em] text-primary/55">
+                {{ item.label }}
+              </p>
+              <h3 class="mt-3 w-full font-display text-2xl font-semibold leading-tight text-primary">
+                {{ item.label }} — {{ item.value }}
+              </h3>
+              <p class="mt-4 w-full text-base leading-8 text-on-surface-variant">
+                {{ item.description }}
+              </p>
+            </article>
+          </div>
         </div>
       </section>
 

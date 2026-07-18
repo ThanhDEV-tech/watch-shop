@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CollectionResource extends JsonResource
+class ShippingZoneResource extends JsonResource
 {
     /** @return array<string, mixed> */
     public function toArray(Request $request): array
@@ -13,11 +13,9 @@ class CollectionResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'slug' => $this->slug,
-            'description' => $this->description,
-            'start_date' => $this->start_date?->toDateString(),
-            'end_date' => $this->end_date?->toDateString(),
-            'products_count' => $this->whenCounted('products'),
+            'fee' => $this->fee,
+            'is_active' => $this->is_active,
+            'display_order' => $this->display_order,
             'created_at' => $this->created_at,
         ];
     }

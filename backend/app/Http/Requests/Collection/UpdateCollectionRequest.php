@@ -24,6 +24,7 @@ class UpdateCollectionRequest extends FormRequest
                 'max:255',
                 Rule::unique('collections', 'slug')->ignore($this->route('collection')),
             ],
+            'description' => ['nullable', 'string'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
         ];

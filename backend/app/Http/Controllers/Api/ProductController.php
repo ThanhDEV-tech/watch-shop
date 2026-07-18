@@ -21,6 +21,7 @@ class ProductController extends Controller
                 'brand',
                 'category',
                 'collections',
+                'images',
                 'variants' => fn ($query) => $query->where('is_active', true),
             ])
             ->where('status', 'active')

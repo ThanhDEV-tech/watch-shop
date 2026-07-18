@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { gsap } from 'gsap'
 import { formatCurrency } from '../utils/formatCurrency'
 
@@ -12,17 +12,36 @@ const props = defineProps({
 
 const cardRef = ref(null)
 const quickActionRef = ref(null)
+const imageIndex = ref(0)
 let hoverTimeline
 let reduceMotionQuery
 
 const productHref = computed(() => `/products/${props.product.slug}`)
 const brandName = computed(() => props.product.brand?.name ?? 'Watchora')
-const imageSrc = computed(() => props.product.thumbnail || props.product.variants?.[0]?.image || '/vite.svg')
+const imageCandidates = computed(() => {
+  const galleryImage = (props.product.product_images ?? props.product.images ?? [])
+    .map((image) => image.image_path ?? image.url ?? image.path)
+    .filter(Boolean)
+
+  return [...new Set([
+    props.product.thumbnail,
+    ...galleryImage,
+    ...(props.product.variants ?? []).map((variant) => variant.image),
+    '/vite.svg',
+  ].filter(Boolean))]
+})
+const imageSrc = computed(() => imageCandidates.value[imageIndex.value] ?? '/vite.svg')
 const priceLabel = computed(() => (
   props.product.min_final_price
     ? `từ ${formatCurrency(props.product.min_final_price)}`
     : 'Liên hệ'
 ))
+
+const useNextImage = () => {
+  if (imageIndex.value < imageCandidates.value.length - 1) {
+    imageIndex.value += 1
+  }
+}
 
 const playHover = () => {
   if (!hoverTimeline || reduceMotionQuery?.matches) return
@@ -62,6 +81,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   hoverTimeline?.kill()
 })
+
+watch(() => props.product.slug, () => {
+  imageIndex.value = 0
+})
 </script>
 
 <template>
@@ -83,6 +106,7 @@ onBeforeUnmount(() => {
           :alt="product.name"
           class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           loading="lazy"
+          @error="useNextImage"
         />
         <span
           v-if="product.is_out_of_stock"

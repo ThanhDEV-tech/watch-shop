@@ -62,6 +62,16 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
+    public function productImages(): HasMany
+    {
+        return $this->images();
+    }
+
     public function collections(): BelongsToMany
     {
         return $this->belongsToMany(Collection::class, 'product_collection')

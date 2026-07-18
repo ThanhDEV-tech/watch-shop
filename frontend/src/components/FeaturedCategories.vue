@@ -71,7 +71,7 @@ onMounted(async () => {
           </div>
 
           <p class="featured-category-meta mt-md w-full font-mono text-label-mono">
-            {{ Number(category.courses_count ?? 0).toLocaleString('vi-VN') }} khóa học
+            {{ Number(category.products_count ?? 0).toLocaleString('vi-VN') }} sản phẩm
           </p>
         </RouterLink>
       </div>

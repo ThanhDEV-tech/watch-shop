@@ -17,7 +17,6 @@ class CategoryController extends Controller
     {
         $categories = Category::query()
             ->withCount([
-                'courses as courses_count' => fn ($query) => $query->where('status', 'approved'),
                 'products as products_count' => fn ($query) => $query->where('status', 'active'),
             ])
             ->where('is_active', true)
@@ -34,7 +33,7 @@ class CategoryController extends Controller
     public function adminIndex(DashboardIndexRequest $request): JsonResponse
     {
         $categories = Category::query()
-            ->withCount('courses')
+            ->withCount('products')
             ->when($request->filled('search'), fn ($query) => $query->where(
                 fn ($searchQuery) => $searchQuery
                     ->where('name', 'like', '%'.$request->string('search')->trim().'%')
@@ -101,11 +100,11 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): JsonResponse
     {
-        if ($category->courses()->exists()) {
+        if ($category->products()->exists()) {
             return response()->json([
                 'success' => false,
                 'data' => null,
-                'message' => 'Không thể xóa danh mục đang có khóa học.',
+                'message' => 'Không thể xóa danh mục đang có sản phẩm.',
             ], 422);
         }
 

@@ -11,65 +11,47 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Backend',
-                'slug' => 'backend',
-                'description' => 'Xây dựng API, hệ thống phân tán và kiến trúc server-side hiện đại.',
-                'icon' => 'cloud',
-                'accent_color' => '#4ADE80',
-                'is_active' => true,
+                'name' => 'Dress Watch',
+                'slug' => 'dress-watch',
+                'description' => 'Dong ho thanh lich cho cong so, su kien va trang phuc formal.',
+                'icon' => 'watch',
+                'accent_color' => '#BFA06A',
             ],
             [
-                'name' => 'Web Development',
-                'slug' => 'web-development',
-                'description' => 'Frontend và backend cho các sản phẩm web hiện đại.',
-                'icon' => 'code',
-                'accent_color' => '#FF6B4A',
-                'is_active' => true,
+                'name' => 'Sport Watch',
+                'slug' => 'sport-watch',
+                'description' => 'Thiet ke nang dong, de deo hang ngay va phu hop lich trinh di chuyen.',
+                'icon' => 'fitness_center',
+                'accent_color' => '#4C8C7A',
             ],
             [
-                'name' => 'Mobile Development',
-                'slug' => 'mobile-development',
-                'description' => 'Phát triển ứng dụng di động đa nền tảng và native.',
-                'icon' => 'smartphone',
-                'accent_color' => '#A78BFA',
-                'is_active' => true,
+                'name' => 'Casual Watch',
+                'slug' => 'casual-watch',
+                'description' => 'Dong ho de phoi do, can bang giua tinh ung dung va diem nhan ca nhan.',
+                'icon' => 'routine',
+                'accent_color' => '#D77A61',
             ],
             [
-                'name' => 'Data & AI',
-                'slug' => 'data-ai',
-                'description' => 'Phân tích dữ liệu, machine learning và trí tuệ nhân tạo.',
-                'icon' => 'psychology',
-                'accent_color' => '#F472B6',
-                'is_active' => true,
+                'name' => 'Minimal Watch',
+                'slug' => 'minimal-watch',
+                'description' => 'Mat so gon, duong net sach va phong cach toi gian lau loi mot.',
+                'icon' => 'radio_button_unchecked',
+                'accent_color' => '#8C8C8C',
             ],
             [
-                'name' => 'DevOps & Cloud',
-                'slug' => 'devops-cloud',
-                'description' => 'Triển khai, vận hành, CI/CD và hạ tầng cloud.',
-                'icon' => 'terminal',
-                'accent_color' => '#38BDF8',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'UI/UX Design',
-                'slug' => 'ui-ux-design',
-                'description' => 'Thiết kế giao diện và trải nghiệm người dùng cho sản phẩm số.',
-                'icon' => 'palette',
-                'accent_color' => '#FBBF24',
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Graphic Design',
-                'slug' => 'graphic-design',
-                'description' => 'Thiết kế đồ họa và hình ảnh thương hiệu cho sản phẩm số.',
-                'icon' => 'brush',
-                'accent_color' => '#FDBA74',
-                'is_active' => true,
+                'name' => 'Sport-Casual',
+                'slug' => 'sport-casual',
+                'description' => 'Lua chon linh hoat giua van dong nhe, di lam va gap go cuoi tuan.',
+                'icon' => 'explore',
+                'accent_color' => '#476A8E',
             ],
         ];
 
         foreach ($categories as $category) {
-            Category::query()->updateOrCreate(['slug' => $category['slug']], $category);
+            Category::query()->updateOrCreate(
+                ['slug' => $category['slug']],
+                $category + ['is_active' => true],
+            );
         }
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\CollectionController;
 use App\Http\Controllers\Api\MyOrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\ShippingZoneController;
 use App\Http\Controllers\VnpayController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,7 @@ Route::get('/brands', [BrandController::class, 'publicIndex']);
 Route::get('/collections', [CollectionController::class, 'publicIndex']);
 Route::get('/products', [ProductController::class, 'publicIndex']);
 Route::get('/products/{slug}', [ProductController::class, 'publicShow']);
+Route::get('/shipping-zones', [ShippingZoneController::class, 'publicIndex']);
 
 Route::prefix('payment/vnpay')->group(function () {
     Route::post('/create', [VnpayController::class, 'createPayment'])->middleware('auth:sanctum');
@@ -68,6 +70,11 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
         ], 404));
     Route::get('/vnpay-transactions', [AdminDashboardController::class, 'vnpayTransactions']);
     Route::get('/stock-movements', [AdminDashboardController::class, 'stockMovements']);
+    Route::get('/shipping-zones', [ShippingZoneController::class, 'index']);
+    Route::post('/shipping-zones', [ShippingZoneController::class, 'store']);
+    Route::match(['put', 'patch'], '/shipping-zones/{shippingZone}', [ShippingZoneController::class, 'update']);
+    Route::patch('/shipping-zones/{shippingZone}/toggle-active', [ShippingZoneController::class, 'toggleActive']);
+    Route::delete('/shipping-zones/{shippingZone}', [ShippingZoneController::class, 'destroy']);
     Route::get('/categories', [CategoryController::class, 'adminIndex']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::match(['put', 'patch'], '/categories/{category}', [CategoryController::class, 'update']);

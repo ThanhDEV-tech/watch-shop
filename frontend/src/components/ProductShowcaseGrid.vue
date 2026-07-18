@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onBeforeUnmount, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProductCard from './ProductCard.vue'
@@ -14,6 +14,7 @@ const props = defineProps({
 gsap.registerPlugin(ScrollTrigger)
 
 let mediaMatch
+const gridRef = ref(null)
 
 const clearReveal = () => {
   mediaMatch?.revert()
@@ -24,7 +25,7 @@ const setupReveal = async () => {
   clearReveal()
   await nextTick()
 
-  const cards = gsap.utils.toArray('.watch-product-card')
+  const cards = gsap.utils.toArray(gridRef.value?.querySelectorAll('.watch-product-card') ?? [])
 
   if (!cards.length) return
 
@@ -72,7 +73,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="grid w-full min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+  <div ref="gridRef" class="grid w-full min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-4">
     <ProductCard
       v-for="product in products"
       :key="product.id ?? product.slug"

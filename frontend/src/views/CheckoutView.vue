@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { createVnpayPayment } from '../api/axios'
+import { createVnpayPayment, getShippingZones } from '../api/axios'
 import { useCartStore } from '../stores/cart'
 import { formatCurrency } from '../utils/formatCurrency'
 
@@ -9,21 +9,17 @@ const router = useRouter()
 const cartStore = useCartStore()
 
 const isProcessing = ref(false)
+const isLoadingShippingZones = ref(true)
 const paymentError = ref('')
 const pendingOrderId = ref(null)
-
-const shippingZones = [
-  { id: 1, name: 'Nội thành', fee: 20000 },
-  { id: 2, name: 'Ngoại thành', fee: 35000 },
-  { id: 3, name: 'Tỉnh/thành khác', fee: 45000 },
-]
+const shippingZones = ref([])
 
 const form = reactive({
   receiver_name: '',
   receiver_phone: '',
   shipping_address: '',
   shipping_note: '',
-  shipping_zone_id: shippingZones[0].id,
+  shipping_zone_id: '',
 })
 
 const movementLabel = (value) => ({
@@ -40,7 +36,7 @@ const unitPrice = (item) => Number(
 
 const lineTotal = (item) => unitPrice(item) * Number(item.quantity ?? 1)
 const subtotal = computed(() => cartStore.items.reduce((sum, item) => sum + lineTotal(item), 0))
-const selectedZone = computed(() => shippingZones.find((zone) => zone.id === Number(form.shipping_zone_id)) ?? shippingZones[0])
+const selectedZone = computed(() => shippingZones.value.find((zone) => zone.id === Number(form.shipping_zone_id)) ?? shippingZones.value[0] ?? null)
 const shippingFee = computed(() => Number(selectedZone.value?.fee ?? 0))
 const totalAmount = computed(() => subtotal.value + shippingFee.value)
 
@@ -61,7 +57,8 @@ const formErrors = computed(() => {
   if (!form.receiver_name.trim()) errors.receiver_name = 'Vui lòng nhập tên người nhận.'
   if (!form.receiver_phone.trim()) errors.receiver_phone = 'Vui lòng nhập số điện thoại.'
   if (!form.shipping_address.trim()) errors.shipping_address = 'Vui lòng nhập địa chỉ giao hàng.'
-  if (!selectedZone.value) errors.shipping_zone_id = 'Vui lòng chọn khu vực giao hàng.'
+  if (!shippingZones.value.length) errors.shipping_zone_id = 'Chưa có khu vực giao hàng khả dụng.'
+  else if (!selectedZone.value) errors.shipping_zone_id = 'Vui lòng chọn khu vực giao hàng.'
 
   return errors
 })
@@ -71,6 +68,7 @@ const canSubmit = computed(() => (
   && invalidItems.value.length === 0
   && Object.keys(formErrors.value).length === 0
   && !isProcessing.value
+  && !isLoadingShippingZones.value
 ))
 
 const itemImage = (item) => (
@@ -125,9 +123,26 @@ const proceedToPayment = async () => {
   }
 }
 
+const fetchShippingZones = async () => {
+  isLoadingShippingZones.value = true
+
+  try {
+    const response = await getShippingZones()
+    shippingZones.value = response.data.data ?? []
+
+    if (!selectedZone.value && shippingZones.value.length) {
+      form.shipping_zone_id = shippingZones.value[0].id
+    }
+  } catch (error) {
+    paymentError.value = error.response?.data?.message ?? 'Không thể tải khu vực giao hàng.'
+  } finally {
+    isLoadingShippingZones.value = false
+  }
+}
+
 onMounted(async () => {
   try {
-    await cartStore.fetchCart()
+    await Promise.all([cartStore.fetchCart(), fetchShippingZones()])
   } catch {
     // Shared interceptor/store handles auth and API errors.
   }
@@ -214,6 +229,9 @@ onMounted(async () => {
 
             <fieldset class="mt-8 w-full min-w-0">
               <legend class="w-full font-display text-3xl font-semibold text-primary">Khu vực giao hàng</legend>
+              <p v-if="isLoadingShippingZones" class="mt-4 w-full rounded-[var(--radius-watch-md)] border border-border bg-background p-4 text-sm text-on-surface-variant">
+                Đang tải khu vực giao hàng...
+              </p>
               <div class="mt-4 grid w-full min-w-0 grid-cols-1 gap-3 md:grid-cols-3">
                 <label
                   v-for="zone in shippingZones"
@@ -226,6 +244,7 @@ onMounted(async () => {
                   <span class="watch-price-accent mt-3 w-full text-xl">{{ formatCurrency(zone.fee) }}</span>
                 </label>
               </div>
+              <p v-if="formErrors.shipping_zone_id" class="mt-3 w-full text-xs text-[var(--accent-danger)]">{{ formErrors.shipping_zone_id }}</p>
             </fieldset>
           </form>
 
@@ -260,7 +279,7 @@ onMounted(async () => {
                 <span class="shrink-0 font-semibold text-on-surface">{{ formatCurrency(subtotal) }}</span>
               </div>
               <div class="flex w-full justify-between gap-4 text-sm text-on-surface-variant">
-                <span>Phí giao hàng · {{ selectedZone.name }}</span>
+                <span>Phí giao hàng · {{ selectedZone?.name ?? 'Chưa chọn' }}</span>
                 <span class="shrink-0 font-semibold text-on-surface">{{ formatCurrency(shippingFee) }}</span>
               </div>
               <div class="h-px w-full bg-border"></div>

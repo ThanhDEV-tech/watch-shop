@@ -18,7 +18,6 @@ class CategoryResource extends JsonResource
             'icon' => $this->icon,
             'accent_color' => $this->accent_color ?: '#FF6B4A',
             'is_active' => $this->is_active,
-            'courses_count' => $this->whenCounted('courses'),
             'products_count' => $this->whenCounted('products'),
             'created_at' => $this->created_at,
         ];

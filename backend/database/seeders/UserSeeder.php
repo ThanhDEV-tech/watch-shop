@@ -9,62 +9,39 @@ use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
+    public const ADMIN_EMAIL = 'admin@watchora.vn';
+
+    public const ADMIN_PASSWORD = 'password';
+
     public function run(): void
     {
         $roleIds = Role::query()
-            ->whereIn('name', ['admin', 'instructor', 'student'])
+            ->whereIn('name', ['admin', 'customer'])
             ->pluck('id', 'name');
 
-        $admin = User::query()->firstOrCreate(
-            ['email' => 'admin@edumarket.com'],
+        User::query()->updateOrCreate(
+            ['email' => self::ADMIN_EMAIL],
             [
                 'role_id' => $roleIds->get('admin'),
-                'name' => 'Admin EduMarket',
-                'email' => 'admin@edumarket.com',
-                'password' => Hash::make('password'),
+                'name' => 'Watchora Admin',
+                'password' => Hash::make(self::ADMIN_PASSWORD),
+                'phone' => '0900000001',
                 'is_active' => true,
             ],
         );
 
-        $instructors = [
-            ['email' => 'instructor1@edumarket.com', 'name' => 'Nguyễn Minh Quân'],
-            ['email' => 'instructor2@edumarket.com', 'name' => 'Trần Thị Hạnh'],
-            ['email' => 'instructor3@edumarket.com', 'name' => 'Lê Hoàng Nam'],
+        $customers = [
+            ['email' => 'linh.nguyen@example.test', 'name' => 'Linh Nguyen', 'phone' => '0900000101'],
+            ['email' => 'minh.tran@example.test', 'name' => 'Minh Tran', 'phone' => '0900000102'],
+            ['email' => 'mai.hoang@example.test', 'name' => 'Mai Hoang', 'phone' => '0900000103'],
         ];
 
-        foreach ($instructors as $instructor) {
-            User::query()->firstOrCreate(
-                ['email' => $instructor['email']],
+        foreach ($customers as $customer) {
+            User::query()->updateOrCreate(
+                ['email' => $customer['email']],
                 [
-                    'role_id' => $roleIds->get('instructor'),
-                    'name' => $instructor['name'],
-                    'email' => $instructor['email'],
-                    'password' => Hash::make('password'),
-                    'is_active' => true,
-                ],
-            );
-        }
-
-        $students = [
-            ['email' => 'student1@edumarket.com', 'name' => 'Phạm Đức An'],
-            ['email' => 'student2@edumarket.com', 'name' => 'Võ Minh Khoa'],
-            ['email' => 'student3@edumarket.com', 'name' => 'Đặng Thu Thảo'],
-            ['email' => 'student4@edumarket.com', 'name' => 'Ngô Nhật Minh'],
-            ['email' => 'student5@edumarket.com', 'name' => 'Huỳnh Bảo Ngọc'],
-            ['email' => 'student6@edumarket.com', 'name' => 'Lý Quang Huy'],
-            ['email' => 'student7@edumarket.com', 'name' => 'Mai Hương Ly'],
-            ['email' => 'student8@edumarket.com', 'name' => 'Tạ Thanh Tùng'],
-            ['email' => 'student9@edumarket.com', 'name' => 'Bùi Ngọc Anh'],
-            ['email' => 'student10@edumarket.com', 'name' => 'Đỗ Minh Trí'],
-        ];
-
-        foreach ($students as $student) {
-            User::query()->firstOrCreate(
-                ['email' => $student['email']],
-                [
-                    'role_id' => $roleIds->get('student'),
-                    'name' => $student['name'],
-                    'email' => $student['email'],
+                    ...$customer,
+                    'role_id' => $roleIds->get('customer'),
                     'password' => Hash::make('password'),
                     'is_active' => true,
                 ],
