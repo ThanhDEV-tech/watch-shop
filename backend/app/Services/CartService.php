@@ -71,6 +71,37 @@ class CartService
         return $cart;
     }
 
+    public function updateQuantity(User $user, CartItem $cartItem, int $quantity): Cart
+    {
+        $cart = $this->getCart($user);
+
+        if ($cartItem->cart_id !== $cart->id) {
+            throw ValidationException::withMessages([
+                'cart_item' => ['Sản phẩm không thuộc giỏ hàng của bạn.'],
+            ]);
+        }
+
+        $cartItem->loadMissing('productVariant.product');
+        $variant = $cartItem->productVariant;
+        $product = $variant?->product;
+
+        if (! $variant || ! $product || ! $variant->is_active || $product->status !== 'active') {
+            throw ValidationException::withMessages([
+                'product_variant_id' => ['Sản phẩm này không còn khả dụng.'],
+            ]);
+        }
+
+        if ($variant->stock_quantity < $quantity) {
+            throw ValidationException::withMessages([
+                'quantity' => ['Số lượng trong kho không đủ.'],
+            ]);
+        }
+
+        $cartItem->update(['quantity' => $quantity]);
+
+        return $cart;
+    }
+
     public function hasPurchasedProductVariant(User $user, ProductVariant $variant): bool
     {
         return $user->orders()

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cart\AddCartItemRequest;
+use App\Http\Requests\Cart\UpdateCartItemRequest;
 use App\Http\Resources\CartResource;
 use App\Models\Cart;
 use App\Models\CartItem;
@@ -36,6 +37,17 @@ class CartController extends Controller
         $cart = $this->cartService->remove($request->user(), $cartItem);
 
         return $this->cartResponse($cart, 'Xóa sản phẩm khỏi giỏ hàng thành công.');
+    }
+
+    public function update(UpdateCartItemRequest $request, CartItem $cartItem): JsonResponse
+    {
+        $cart = $this->cartService->updateQuantity(
+            $request->user(),
+            $cartItem,
+            $request->integer('quantity'),
+        );
+
+        return $this->cartResponse($cart, 'Cập nhật số lượng sản phẩm thành công.');
     }
 
     private function cartResponse(Cart $cart, string $message, int $status = 200): JsonResponse

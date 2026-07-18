@@ -98,6 +98,18 @@ const router = createRouter({
       meta: { hideFooter: true, requiresAuth: true },
     },
     {
+      path: '/orders',
+      name: 'orders',
+      component: () => import('../views/MyOrdersView.vue'),
+      meta: { hideFooter: true, requiresAuth: true },
+    },
+    {
+      path: '/account/orders',
+      name: 'account-orders',
+      component: () => import('../views/MyOrdersView.vue'),
+      meta: { hideFooter: true, requiresAuth: true },
+    },
+    {
       path: '/profile',
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),

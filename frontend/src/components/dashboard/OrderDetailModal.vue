@@ -11,6 +11,7 @@ defineProps({
   markingPaid: { type: Boolean, default: false },
   refunding: { type: Boolean, default: false },
   actionError: { type: String, default: '' },
+  showAdminActions: { type: Boolean, default: true },
 })
 
 const emit = defineEmits(['close', 'mark-paid', 'mark-refunded'])
@@ -124,6 +125,7 @@ const statusClasses = {
         <p v-if="actionError" class="mb-sm w-full rounded-lg border border-error/40 bg-error/10 p-sm text-body-sm text-error">{{ actionError }}</p>
         <button
           v-if="order?.status === 'pending'"
+          v-show="showAdminActions"
           class="mb-sm w-full rounded-lg border border-tertiary bg-tertiary/10 px-md py-3 text-body-sm font-semibold text-tertiary hover:bg-tertiary hover:text-background disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           :disabled="markingPaid"
@@ -133,6 +135,7 @@ const statusClasses = {
         </button>
         <button
           v-if="['paid', 'paid_stock_issue', 'shipping'].includes(order?.status)"
+          v-show="showAdminActions"
           class="mb-sm w-full rounded-lg border border-error/40 bg-error/10 px-md py-3 text-body-sm font-semibold text-error hover:bg-error hover:text-background disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           :disabled="refunding"

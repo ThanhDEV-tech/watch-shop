@@ -5,6 +5,7 @@ import {
   checkout,
   getCart,
   removeFromCart,
+  updateCartItem,
 } from '../services/api'
 
 const extractApiError = (requestError) => {
@@ -70,12 +71,26 @@ export const useCartStore = defineStore('cart', () => {
 
   const removeItem = (itemId) => runCartAction(() => removeFromCart(itemId))
 
-  const doCheckout = async () => {
+  const setItemQuantity = async (item, quantity) => {
+    const nextQuantity = Number(quantity)
+
+    if (!item?.id || nextQuantity === Number(item.quantity ?? 1)) {
+      return null
+    }
+
+    if (nextQuantity <= 0) {
+      return removeItem(item.id)
+    }
+
+    return runCartAction(() => updateCartItem(item.id, nextQuantity))
+  }
+
+  const doCheckout = async (payload) => {
     loading.value = true
     error.value = ''
 
     try {
-      const response = await checkout()
+      const response = await checkout(payload)
 
       return response.data
     } catch (requestError) {
@@ -95,6 +110,7 @@ export const useCartStore = defineStore('cart', () => {
     fetchCart,
     addItem,
     removeItem,
+    setItemQuantity,
     doCheckout,
     clearCart,
   }

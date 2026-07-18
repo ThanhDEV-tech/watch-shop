@@ -9,6 +9,8 @@ use App\Models\StockMovement;
 use App\Models\VnpayTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class VnpayService
 {
@@ -33,6 +35,8 @@ class VnpayService
 
     public function buildPaymentUrl(Order $order, Request $request): string
     {
+        $this->ensurePaymentConfig();
+
         $paymentTime = now('Asia/Ho_Chi_Minh');
         $ip = $request->ip();
 
@@ -58,8 +62,36 @@ class VnpayService
 
         $hashData = $this->buildHashData($params);
         $signedParams = $this->signParams($params);
+        $paymentUrl = $this->url.'?'.$hashData.'&vnp_SecureHash='.$signedParams['vnp_SecureHash'];
 
-        return $this->url.'?'.$hashData.'&vnp_SecureHash='.$signedParams['vnp_SecureHash'];
+        Log::info('VNPay payment signing generated', [
+            'logged_at' => now('Asia/Ho_Chi_Minh')->format('Y-m-d H:i:s.vP'),
+            'order_id' => $order->id,
+            'order_code' => $order->code,
+            'hashdata' => $hashData,
+            'hash_secret_length' => strlen($this->hashSecret),
+            'secure_hash' => $signedParams['vnp_SecureHash'],
+            'payment_url' => $paymentUrl,
+        ]);
+
+        return $paymentUrl;
+    }
+
+    private function ensurePaymentConfig(): void
+    {
+        $missing = collect([
+            'VNPAY_TMN_CODE' => $this->tmnCode,
+            'VNPAY_HASH_SECRET' => $this->hashSecret,
+            'VNPAY_URL' => $this->url,
+            'VNPAY_RETURN_URL' => $this->returnUrl,
+        ])
+            ->filter(fn (string $value): bool => trim($value) === '')
+            ->keys()
+            ->all();
+
+        if ($missing !== []) {
+            throw new RuntimeException('Missing VNPay configuration: '.implode(', ', $missing));
+        }
     }
 
     /**

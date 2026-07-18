@@ -75,7 +75,11 @@ export const addToCart = (productVariantId, quantity = 1) => api.post('/cart/ite
 
 export const removeFromCart = (itemId) => api.delete(`/cart/items/${itemId}`)
 
-export const checkout = () => api.post('/checkout')
+export const updateCartItem = (itemId, quantity) => api.patch(`/cart/items/${itemId}`, {
+  quantity,
+})
+
+export const checkout = (payload) => api.post('/checkout', payload)
 
 export const createVnpayPayment = (orderId) => api.post('/payment/vnpay/create', {
   order_id: orderId,

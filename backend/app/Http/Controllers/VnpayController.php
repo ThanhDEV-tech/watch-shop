@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Services\VnpayService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use RuntimeException;
 
 class VnpayController extends Controller
 {
@@ -35,10 +37,28 @@ class VnpayController extends Controller
             ], 404);
         }
 
+        try {
+            $paymentUrl = $this->vnpayService->buildPaymentUrl($order, $request);
+        } catch (RuntimeException $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => 'Cấu hình VNPay chưa đầy đủ. Vui lòng kiểm tra VNPAY_TMN_CODE, VNPAY_HASH_SECRET, VNPAY_URL, VNPAY_RETURN_URL.',
+            ], 500);
+        }
+
+        Log::info('VNPay payment URL generated', [
+            'order_id' => $order->id,
+            'order_code' => $order->code,
+            'payment_url' => $paymentUrl,
+        ]);
+
         return response()->json([
             'success' => true,
             'data' => [
-                'payment_url' => $this->vnpayService->buildPaymentUrl($order, $request),
+                'payment_url' => $paymentUrl,
             ],
             'message' => 'Tạo URL thanh toán VNPay thành công.',
         ]);
