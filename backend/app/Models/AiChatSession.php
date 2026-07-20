@@ -11,7 +11,7 @@ class AiChatSession extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'title'];
+    protected $fillable = ['user_id', 'guest_token', 'title'];
 
     public function user(): BelongsTo
     {

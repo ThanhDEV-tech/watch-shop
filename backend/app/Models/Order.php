@@ -24,6 +24,7 @@ class Order extends Model
 
     protected $fillable = [
         'code',
+        'vnpay_create_date',
         'user_id',
         'receiver_name',
         'receiver_phone',

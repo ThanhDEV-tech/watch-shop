@@ -1,6 +1,7 @@
 <script setup>
 import { watch } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
+import ChatbotWidget from './components/ChatbotWidget.vue'
 import Footer from './components/Footer.vue'
 import Header from './components/Header.vue'
 import { useAuthStore } from './stores/auth'
@@ -32,5 +33,6 @@ watch(
     <Header v-if="!route.meta.dashboardLayout" />
     <RouterView />
     <Footer v-if="!route.meta.hideFooter && !route.meta.dashboardLayout" />
+    <ChatbotWidget v-if="!route.meta.dashboardLayout" />
   </div>
 </template>

@@ -38,6 +38,8 @@ Route::get('/products', [ProductController::class, 'publicIndex']);
 Route::get('/products/{product}/reviews', [ProductReviewController::class, 'index']);
 Route::get('/products/{slug}', [ProductController::class, 'publicShow']);
 Route::get('/shipping-zones', [ShippingZoneController::class, 'publicIndex']);
+Route::post('/ai/chat', [AiChatController::class, 'chat']);
+Route::get('/ai/sessions/{session}/messages', [AiChatController::class, 'messages']);
 
 Route::prefix('payment/vnpay')->group(function () {
     Route::post('/create', [VnpayController::class, 'createPayment'])->middleware('auth:sanctum');
@@ -46,8 +48,6 @@ Route::prefix('payment/vnpay')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/ai/chat', [AiChatController::class, 'chat']);
-    Route::get('/ai/sessions/{session}/messages', [AiChatController::class, 'messages']);
     Route::get('/my-orders', [MyOrderController::class, 'index']);
     Route::get('/cart', [CartController::class, 'show']);
     Route::post('/cart/items', [CartController::class, 'store']);

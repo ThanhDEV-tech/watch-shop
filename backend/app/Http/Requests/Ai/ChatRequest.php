@@ -16,8 +16,8 @@ class ChatRequest extends FormRequest
     {
         return [
             'message' => ['required', 'string', 'max:4000'],
-            'lesson_id' => ['nullable', 'integer'],
             'session_id' => ['nullable', 'integer', 'exists:ai_chat_sessions,id'],
+            'session_token' => ['nullable', 'string', 'max:100'],
         ];
     }
 }

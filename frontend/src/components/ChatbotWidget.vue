@@ -1,28 +1,18 @@
 <script setup>
-import { computed, nextTick, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { nextTick, ref } from 'vue'
 import { sendAiChat } from '../api/axios'
 import { formatCurrency } from '../utils/formatCurrency'
 
-const props = defineProps({
-  lessonId: { type: [Number, String], default: null },
-})
+const SESSION_ID_KEY = 'watchora_ai_session_id'
+const SESSION_TOKEN_KEY = 'watchora_ai_session_token'
 
-const route = useRoute()
-const router = useRouter()
 const isOpen = ref(false)
 const draft = ref('')
 const messages = ref([])
-const sessionId = ref(null)
+const sessionId = ref(Number(localStorage.getItem(SESSION_ID_KEY)) || null)
+const sessionToken = ref(localStorage.getItem(SESSION_TOKEN_KEY) || '')
 const isSending = ref(false)
 const messageList = ref(null)
-
-const effectiveLessonId = computed(() => {
-  const value = props.lessonId ?? (route.name === 'lesson-player' ? route.params.lessonId : null)
-  const parsed = Number(value)
-
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null
-})
 
 const parseMarkdown = (content) => {
   const source = String(content ?? '')
@@ -59,6 +49,14 @@ const openChat = async () => {
   await scrollToLatest()
 }
 
+const rememberSession = (data) => {
+  sessionId.value = data.session_id
+  sessionToken.value = data.session_token ?? sessionToken.value
+
+  if (sessionId.value) localStorage.setItem(SESSION_ID_KEY, String(sessionId.value))
+  if (sessionToken.value) localStorage.setItem(SESSION_TOKEN_KEY, sessionToken.value)
+}
+
 const sendMessage = async () => {
   const content = draft.value.trim()
   if (!content || isSending.value) return
@@ -70,22 +68,23 @@ const sendMessage = async () => {
 
   const payload = { message: content }
   if (sessionId.value) payload.session_id = sessionId.value
-  if (effectiveLessonId.value) payload.lesson_id = effectiveLessonId.value
+  if (sessionToken.value) payload.session_token = sessionToken.value
 
   try {
     const response = await sendAiChat(payload)
-    sessionId.value = response.data.data.session_id
+    const data = response.data.data
+    rememberSession(data)
     messages.value.push({
       id: `assistant-${Date.now()}`,
       role: 'assistant',
-      content: response.data.data.message,
-      course_suggestions: response.data.data.course_suggestions ?? [],
+      content: data.message,
+      product_suggestions: data.product_suggestions ?? [],
     })
   } catch (error) {
     messages.value.push({
       id: `error-${Date.now()}`,
       role: 'error',
-      content: error.response?.data?.message ?? 'Không thể kết nối với trợ lý AI. Vui lòng kiểm tra mạng và thử lại.',
+      content: error.response?.data?.message ?? 'Không thể kết nối với trợ lý Watchora. Vui lòng thử lại sau.',
     })
   } finally {
     isSending.value = false
@@ -106,42 +105,44 @@ const handleComposerKeydown = (event) => {
     <div class="fixed bottom-4 right-4 z-[120] font-body sm:bottom-6 sm:right-6">
       <button
         v-if="!isOpen"
-        class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-[0_12px_30px_rgba(0,0,0,0.4)] transition-transform hover:-translate-y-1 hover:bg-[var(--accent-primary-hover)]"
+        class="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-[0_12px_30px_rgba(0,0,0,0.4)] transition-transform hover:-translate-y-1 hover:bg-[var(--accent-primary-hover)]"
         type="button"
-        aria-label="Mở trợ lý AI EduMarket"
+        aria-label="Mở trợ lý AI Watchora"
         @click="openChat"
       >
-        <span class="material-symbols-outlined text-[28px]">smart_toy</span>
+        <span class="material-symbols-outlined text-[28px]">watch</span>
       </button>
 
       <section
         v-else
-        class="fixed inset-3 flex w-auto min-w-0 flex-col overflow-hidden rounded-xl border border-surface-variant bg-surface shadow-[0_24px_60px_rgba(0,0,0,0.5)] sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[36rem] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)]"
-        aria-label="Trợ lý AI EduMarket"
+        class="fixed inset-3 flex w-auto min-w-0 flex-col overflow-hidden rounded-xl border border-surface-variant bg-surface shadow-[0_24px_60px_rgba(0,0,0,0.5)] sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[38rem] sm:w-[26rem] sm:max-w-[calc(100vw-3rem)]"
+        aria-label="Trợ lý AI Watchora"
       >
         <header class="flex w-full min-w-0 items-center justify-between gap-sm border-b border-surface-variant bg-surface-container-lowest p-md">
           <div class="flex w-full min-w-0 items-center gap-sm">
-            <span class="material-symbols-outlined shrink-0 text-primary">smart_toy</span>
+            <span class="material-symbols-outlined shrink-0 text-primary">watch</span>
             <div class="w-full min-w-0">
-              <h2 class="w-full truncate font-display text-body-md font-semibold text-on-surface">Trợ lý AI EduMarket</h2>
-              <p class="w-full text-xs text-on-surface-variant">{{ effectiveLessonId ? 'Đang dùng ngữ cảnh bài học' : 'Sẵn sàng hỗ trợ bạn' }}</p>
+              <h2 class="w-full truncate font-display text-body-md font-semibold text-on-surface">Trợ lý Watchora</h2>
+              <p class="w-full text-xs text-on-surface-variant">Tư vấn chọn đồng hồ và giải đáp chính sách</p>
             </div>
           </div>
-          <button class="material-symbols-outlined h-9 w-9 shrink-0 rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" type="button" aria-label="Đóng trợ lý AI" @click="isOpen = false">close</button>
+          <button class="material-symbols-outlined h-9 w-9 shrink-0 cursor-pointer rounded-lg text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface" type="button" aria-label="Đóng trợ lý AI" @click="isOpen = false">close</button>
         </header>
 
         <div ref="messageList" class="w-full min-w-0 flex-1 space-y-sm overflow-y-auto bg-background/40 p-md" aria-live="polite">
           <div v-if="!messages.length" class="flex min-h-full w-full min-w-0 items-center justify-center text-center">
-            <div class="w-full min-w-0 max-w-[18rem]">
+            <div class="w-full min-w-0 max-w-[20rem]">
               <span class="material-symbols-outlined text-5xl text-primary">forum</span>
-              <p class="mt-sm w-full font-display text-body-md font-semibold text-on-surface">Bạn đang vướng ở đâu?</p>
-              <p class="mt-xs w-full text-body-sm leading-6 text-on-surface-variant">Hỏi về bài học, đoạn code hoặc khái niệm bạn muốn hiểu rõ hơn.</p>
+              <p class="mt-sm w-full font-display text-body-md font-semibold text-on-surface">Bạn đang tìm mẫu đồng hồ nào?</p>
+              <p class="mt-xs w-full text-body-sm leading-6 text-on-surface-variant">
+                Thử hỏi: “Tôi cần đồng hồ nữ tối giản dưới 3 triệu” hoặc “Chính sách bảo hành thế nào?”.
+              </p>
             </div>
           </div>
 
           <div v-for="message in messages" :key="message.id" class="flex w-full min-w-0" :class="message.role === 'user' ? 'justify-end' : 'justify-start'">
             <div
-              class="min-w-0 max-w-[86%] rounded-lg px-sm py-3 text-body-sm leading-6"
+              class="min-w-0 max-w-[90%] rounded-lg px-sm py-3 text-body-sm leading-6"
               :class="{
                 'bg-primary text-white': message.role === 'user',
                 'border border-surface-variant bg-surface-container-highest text-on-surface': message.role === 'assistant',
@@ -156,25 +157,27 @@ const handleComposerKeydown = (event) => {
                     <pre class="w-full min-w-0 overflow-x-auto p-sm font-mono text-xs leading-5 text-on-surface"><code>{{ segment.content }}</code></pre>
                   </div>
                 </template>
-                <div v-if="message.course_suggestions?.length" class="mt-sm space-y-xs">
-                  <router-link
-                    v-for="suggestion in message.course_suggestions"
-                    :key="suggestion.id"
-                    :to="{ name: 'course-detail', params: { id: suggestion.id } }"
-                    class="flex h-[78px] items-center gap-sm rounded-lg border border-surface-variant/80 bg-surface-container-lowest p-sm transition-all hover:border-primary hover:bg-surface-container-highest"
+
+                <div v-if="message.product_suggestions?.length" class="mt-sm space-y-xs">
+                  <RouterLink
+                    v-for="product in message.product_suggestions"
+                    :key="product.id"
+                    :to="{ name: 'product-detail', params: { slug: product.slug } }"
+                    class="flex min-h-[86px] w-full min-w-0 items-center gap-sm rounded-lg border border-surface-variant/80 bg-surface-container-lowest p-sm transition-all hover:border-primary hover:bg-surface-container-highest"
                     @click="isOpen = false"
                   >
-                    <div class="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-primary/10">
-                      <img v-if="suggestion.thumbnail" :src="suggestion.thumbnail" :alt="suggestion.title" class="h-full w-full object-cover" />
+                    <div class="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-primary/10">
+                      <img v-if="product.thumbnail" :src="product.thumbnail" :alt="product.name" class="h-full w-full object-cover" />
                       <div v-else class="flex h-full w-full items-center justify-center text-primary">
-                        <span class="material-symbols-outlined text-[20px]">menu_book</span>
+                        <span class="material-symbols-outlined text-[20px]">watch</span>
                       </div>
                     </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="w-full truncate font-medium leading-5 text-on-surface">{{ suggestion.title }}</p>
-                      <p class="mt-1 text-xs font-medium text-primary">{{ formatCurrency(suggestion.price) }}</p>
+                    <div class="w-full min-w-0">
+                      <p class="w-full truncate font-medium leading-5 text-on-surface">{{ product.name }}</p>
+                      <p class="mt-1 w-full truncate text-xs text-on-surface-variant">{{ product.brand }} · {{ product.category }}</p>
+                      <p class="mt-1 w-full text-xs font-semibold text-primary">Từ {{ formatCurrency(product.min_price) }}</p>
                     </div>
-                  </router-link>
+                  </RouterLink>
                 </div>
               </template>
               <p v-else class="w-full min-w-0 whitespace-pre-wrap break-words">{{ message.content }}</p>
@@ -194,12 +197,12 @@ const handleComposerKeydown = (event) => {
             class="max-h-28 min-h-11 w-full min-w-0 resize-none rounded-lg border border-surface-variant bg-background px-sm py-3 text-body-sm text-on-surface outline-none placeholder:text-on-surface-variant focus:border-primary"
             rows="1"
             maxlength="4000"
-            placeholder="Nhập câu hỏi..."
-            aria-label="Câu hỏi cho trợ lý AI"
+            placeholder="Hỏi về đồng hồ, ngân sách, bảo hành, vận chuyển..."
+            aria-label="Câu hỏi cho trợ lý AI Watchora"
             :disabled="isSending"
             @keydown="handleComposerKeydown"
           ></textarea>
-          <button class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-white hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50" type="submit" aria-label="Gửi câu hỏi" :disabled="isSending || !draft.trim()">
+          <button class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-primary text-white hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50" type="submit" aria-label="Gửi câu hỏi" :disabled="isSending || !draft.trim()">
             <span class="material-symbols-outlined">send</span>
           </button>
         </form>

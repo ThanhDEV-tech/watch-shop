@@ -13,26 +13,50 @@
 
         <div style="padding: 24px;">
             <p style="margin-top: 0;">Xin chào {{ $order->user->name }},</p>
-            <p>EduMarket đã nhận thanh toán cho đơn hàng <strong>{{ $order->code }}</strong>.</p>
+            <p>Watchora đã nhận thanh toán cho đơn hàng <strong>{{ $order->code }}</strong>.</p>
 
-            <h2 style="margin-top: 28px; font-size: 18px;">Khóa học đã mua</h2>
+            <h2 style="margin-top: 28px; font-size: 18px;">Sản phẩm đã mua</h2>
             <ul style="padding-left: 20px; line-height: 1.7;">
                 @foreach ($order->items as $item)
                     <li>
-                        {{ $item->course->title }}
-                        — {{ number_format((float) $item->price, 0, ',', '.') }} ₫
+                        <strong>{{ $item->product_name }}</strong>
+                        @if ($item->sku)
+                            <span>({{ $item->sku }})</span>
+                        @endif
+                        <br>
+                        <span style="color: #64748b;">
+                            {{ $item->strap_color }} / {{ $item->dial_color }} / {{ $item->diameter_mm }}mm
+                            × {{ $item->quantity }}
+                        </span>
+                        <span style="float: right;">
+                            {{ number_format((float) $item->line_total, 0, ',', '.') }} ₫
+                        </span>
                     </li>
                 @endforeach
             </ul>
 
             <div style="margin-top: 24px; padding: 16px; border-radius: 8px; background: #f7f8fa;">
-                <strong>Tổng thanh toán:</strong>
-                <span style="float: right; color: #e9573f; font-size: 18px;">
-                    {{ number_format((float) $order->total_amount, 0, ',', '.') }} ₫
-                </span>
+                <p style="margin: 0 0 8px;">
+                    <strong>Tạm tính:</strong>
+                    <span style="float: right;">{{ number_format((float) $order->subtotal_amount, 0, ',', '.') }} ₫</span>
+                </p>
+                <p style="margin: 0 0 8px;">
+                    <strong>Phí vận chuyển:</strong>
+                    <span style="float: right;">{{ number_format((float) $order->shipping_fee, 0, ',', '.') }} ₫</span>
+                </p>
+                <p style="margin: 0; color: #e9573f; font-size: 18px;">
+                    <strong>Tổng thanh toán:</strong>
+                    <span style="float: right;">{{ number_format((float) $order->total_amount, 0, ',', '.') }} ₫</span>
+                </p>
             </div>
 
-            <p style="margin-top: 28px;">Cảm ơn bạn đã tin tưởng EduMarket. Chúc bạn học tập hiệu quả!</p>
+            <div style="margin-top: 24px; padding: 16px; border-radius: 8px; border: 1px solid #dce2ea;">
+                <p style="margin: 0 0 8px;"><strong>Người nhận:</strong> {{ $order->receiver_name }}</p>
+                <p style="margin: 0 0 8px;"><strong>Số điện thoại:</strong> {{ $order->receiver_phone }}</p>
+                <p style="margin: 0;"><strong>Địa chỉ:</strong> {{ $order->shipping_address }}</p>
+            </div>
+
+            <p style="margin-top: 28px;">Cảm ơn bạn đã chọn Watchora. Chúng tôi sẽ chuẩn bị đơn hàng và cập nhật trạng thái vận chuyển trong thời gian sớm nhất.</p>
         </div>
     </div>
 </body>

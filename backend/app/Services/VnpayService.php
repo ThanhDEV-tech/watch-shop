@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\OrderPaidMail;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\ProductVariant;
@@ -9,7 +10,10 @@ use App\Models\StockMovement;
 use App\Models\VnpayTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use RuntimeException;
 
 class VnpayService
@@ -24,6 +28,8 @@ class VnpayService
 
     private readonly string $ipnUrl;
 
+    private readonly string $queryDrUrl;
+
     public function __construct()
     {
         $this->tmnCode = (string) config('services.vnpay.tmn_code');
@@ -31,6 +37,7 @@ class VnpayService
         $this->url = (string) config('services.vnpay.url');
         $this->returnUrl = (string) config('services.vnpay.return_url');
         $this->ipnUrl = (string) config('services.vnpay.ipn_url');
+        $this->queryDrUrl = (string) config('services.vnpay.querydr_url', 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction');
     }
 
     public function buildPaymentUrl(Order $order, Request $request): string
@@ -38,11 +45,9 @@ class VnpayService
         $this->ensurePaymentConfig();
 
         $paymentTime = now('Asia/Ho_Chi_Minh');
-        $ip = $request->ip();
+        $ip = $this->normalizeIpAddress($request->ip());
 
-        if ($ip === '::1' || ! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $ip = '127.0.0.1';
-        }
+        $createDate = $paymentTime->format('YmdHis');
 
         $params = [
             'vnp_Version' => '2.1.0',
@@ -51,14 +56,16 @@ class VnpayService
             'vnp_Amount' => (string) ((int) round((float) $order->total_amount * 100)),
             'vnp_CurrCode' => 'VND',
             'vnp_TxnRef' => $order->code,
-            'vnp_OrderInfo' => 'Thanh toan don hang '.$order->code,
+            'vnp_OrderInfo' => $this->orderInfo($order),
             'vnp_OrderType' => 'other',
             'vnp_Locale' => 'vn',
             'vnp_ReturnUrl' => $this->returnUrl,
             'vnp_IpAddr' => $ip,
-            'vnp_CreateDate' => $paymentTime->format('YmdHis'),
+            'vnp_CreateDate' => $createDate,
             'vnp_ExpireDate' => $paymentTime->copy()->addMinutes(15)->format('YmdHis'),
         ];
+
+        $order->forceFill(['vnpay_create_date' => $createDate])->save();
 
         $hashData = $this->buildHashData($params);
         $signedParams = $this->signParams($params);
@@ -125,6 +132,86 @@ class VnpayService
         $calculatedHash = hash_hmac('sha512', $this->buildHashData($params), $this->hashSecret);
 
         return hash_equals($calculatedHash, $secureHash);
+    }
+
+    /**
+     * @return array{
+     *     ok: bool,
+     *     payment_success: bool,
+     *     signature_verified: bool,
+     *     request: array<string, mixed>,
+     *     response: array<string, mixed>,
+     *     http_status: int|null,
+     *     message: string
+     * }
+     */
+    public function queryTransactionStatus(Order $order, ?string $ipAddress = null): array
+    {
+        $this->ensurePaymentConfig();
+
+        if (! $order->vnpay_create_date) {
+            throw new RuntimeException("Order {$order->code} is missing original VNPay create date.");
+        }
+
+        $createDate = now('Asia/Ho_Chi_Minh')->format('YmdHis');
+        $ip = $this->normalizeIpAddress($ipAddress);
+        $requestBody = [
+            'vnp_RequestId' => $this->makeQueryRequestId(),
+            'vnp_Version' => '2.1.0',
+            'vnp_Command' => 'querydr',
+            'vnp_TmnCode' => $this->tmnCode,
+            'vnp_TxnRef' => $order->code,
+            'vnp_OrderInfo' => $this->orderInfo($order),
+            'vnp_TransactionDate' => $order->vnpay_create_date,
+            'vnp_CreateDate' => $createDate,
+            'vnp_IpAddr' => $ip,
+        ];
+
+        $requestBody['vnp_SecureHash'] = $this->buildQueryRequestHash($requestBody);
+
+        Log::info('VNPay QueryDR request', [
+            'order_id' => $order->id,
+            'order_code' => $order->code,
+            'request' => $requestBody,
+        ]);
+
+        $response = Http::asJson()
+            ->acceptJson()
+            ->connectTimeout(10)
+            ->timeout(30)
+            ->post($this->queryDrUrl, $requestBody);
+
+        $responseBody = $response->json();
+
+        if (! is_array($responseBody)) {
+            $responseBody = [
+                'raw_body' => $response->body(),
+            ];
+        }
+
+        $signatureVerified = $this->verifyQueryResponseHash($responseBody);
+        $apiOk = (string) ($responseBody['vnp_ResponseCode'] ?? '') === '00';
+        $paymentSuccess = $apiOk
+            && $signatureVerified
+            && (string) ($responseBody['vnp_TransactionStatus'] ?? '') === '00';
+
+        Log::info('VNPay QueryDR response', [
+            'order_id' => $order->id,
+            'order_code' => $order->code,
+            'http_status' => $response->status(),
+            'signature_verified' => $signatureVerified,
+            'response' => $responseBody,
+        ]);
+
+        return [
+            'ok' => $response->successful() && $apiOk && $signatureVerified,
+            'payment_success' => $paymentSuccess,
+            'signature_verified' => $signatureVerified,
+            'request' => $requestBody,
+            'response' => $responseBody,
+            'http_status' => $response->status(),
+            'message' => (string) ($responseBody['vnp_Message'] ?? ''),
+        ];
     }
 
     /** @param array<string, mixed> $params */
@@ -204,6 +291,7 @@ class VnpayService
 
             $this->createTransaction($lockedOrder, $params, $receivedAmount, $adminId);
             $this->clearPurchasedCartItems($lockedOrder);
+            $this->queueOrderPaidMail($lockedOrder);
         });
     }
 
@@ -260,6 +348,90 @@ class VnpayService
             array_keys($params),
             array_values($params),
         ));
+    }
+
+    /** @param array<string, mixed> $params */
+    private function buildQueryRequestHash(array $params): string
+    {
+        $data = implode('|', [
+            (string) ($params['vnp_RequestId'] ?? ''),
+            (string) ($params['vnp_Version'] ?? ''),
+            (string) ($params['vnp_Command'] ?? ''),
+            (string) ($params['vnp_TmnCode'] ?? ''),
+            (string) ($params['vnp_TxnRef'] ?? ''),
+            (string) ($params['vnp_TransactionDate'] ?? ''),
+            (string) ($params['vnp_CreateDate'] ?? ''),
+            (string) ($params['vnp_IpAddr'] ?? ''),
+            (string) ($params['vnp_OrderInfo'] ?? ''),
+        ]);
+
+        return hash_hmac('sha512', $data, $this->hashSecret);
+    }
+
+    /** @param array<string, mixed> $params */
+    private function verifyQueryResponseHash(array $params): bool
+    {
+        $secureHash = (string) ($params['vnp_SecureHash'] ?? '');
+
+        if ($secureHash === '') {
+            return false;
+        }
+
+        $data = implode('|', [
+            (string) ($params['vnp_ResponseId'] ?? ''),
+            (string) ($params['vnp_Command'] ?? ''),
+            (string) ($params['vnp_ResponseCode'] ?? ''),
+            (string) ($params['vnp_Message'] ?? ''),
+            (string) ($params['vnp_TmnCode'] ?? ''),
+            (string) ($params['vnp_TxnRef'] ?? ''),
+            (string) ($params['vnp_Amount'] ?? ''),
+            (string) ($params['vnp_BankCode'] ?? ''),
+            (string) ($params['vnp_PayDate'] ?? ''),
+            (string) ($params['vnp_TransactionNo'] ?? ''),
+            (string) ($params['vnp_TransactionType'] ?? ''),
+            (string) ($params['vnp_TransactionStatus'] ?? ''),
+            (string) ($params['vnp_OrderInfo'] ?? ''),
+            (string) ($params['vnp_PromotionCode'] ?? ''),
+            (string) ($params['vnp_PromotionAmount'] ?? ''),
+        ]);
+
+        $calculatedHash = hash_hmac('sha512', $data, $this->hashSecret);
+
+        return hash_equals(strtolower($calculatedHash), strtolower($secureHash));
+    }
+
+    private function makeQueryRequestId(): string
+    {
+        return now('Asia/Ho_Chi_Minh')->format('YmdHis').Str::upper(Str::random(8));
+    }
+
+    private function normalizeIpAddress(?string $ipAddress): string
+    {
+        $ip = $ipAddress ?: request()->ip();
+
+        if ($ip === '::1' || ! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return '127.0.0.1';
+        }
+
+        return $ip;
+    }
+
+    private function orderInfo(Order $order): string
+    {
+        return 'Thanh toan don hang '.$order->code;
+    }
+
+    private function queueOrderPaidMail(Order $order): void
+    {
+        $order->loadMissing('user', 'items');
+
+        if (! $order->user?->email) {
+            return;
+        }
+
+        Mail::to($order->user->email)->queue(
+            (new OrderPaidMail($order))->afterCommit(),
+        );
     }
 
     private function expectedAmount(Order $order): int
