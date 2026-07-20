@@ -6,7 +6,7 @@ const openIndex = ref(0)
 const faqs = [
   {
     question: 'Làm sao để mua khóa học?',
-    answer: 'Đăng ký tài khoản, thêm khóa học vào giỏ, checkout và thanh toán qua VNPay Sandbox. Sau khi IPN xác nhận thành công, khóa học sẽ xuất hiện trong My Courses.',
+    answer: 'Đăng ký tài khoản, chọn mẫu đồng hồ, thêm vào giỏ và thanh toán qua VNPay Sandbox. Sau khi IPN xác nhận thành công, đơn hàng sẽ xuất hiện trong lịch sử mua hàng.',
   },
   {
     question: 'EduMarket có hoàn tiền không?',

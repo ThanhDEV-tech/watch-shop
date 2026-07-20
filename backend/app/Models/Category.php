@@ -17,11 +17,6 @@ class Category extends Model
         return ['is_active' => 'boolean'];
     }
 
-    public function courses(): HasMany
-    {
-        return $this->hasMany(Course::class);
-    }
-
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

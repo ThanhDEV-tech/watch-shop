@@ -3,12 +3,13 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProductShowcaseGrid from '../components/ProductShowcaseGrid.vue'
-import { getBrands, getProducts } from '../api/axios'
+import { getBrands, getCollections, getProducts } from '../api/axios'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const featuredProducts = ref([])
 const partnerBrands = ref([])
+const collectionHighlights = ref([])
 const isLoadingProducts = ref(false)
 const homeRootRef = ref(null)
 const heroTiltRef = ref(null)
@@ -18,27 +19,6 @@ const campaignImageRef = ref(null)
 let heroTiltMatchMedia
 let scrollMatchMedia
 let removeHeroTiltListeners = () => {}
-
-const collectionHighlights = [
-  {
-    name: 'Summer 2026',
-    slug: 'summer-2026',
-    copy: 'Mặt số sáng, dây thép mảnh và sắc độ champagne cho những ngày nhiều ánh nắng.',
-    query: { collection: 'summer-2026' },
-  },
-  {
-    name: 'Office Style',
-    slug: 'office-style',
-    copy: 'Đồng hồ tối giản, dễ phối với suit, sơ mi và nhịp làm việc hằng ngày.',
-    query: { collection: 'office-style' },
-  },
-  {
-    name: 'Evening Gifting',
-    slug: 'evening-gifting',
-    copy: 'Các lựa chọn trang nhã cho quà tặng kỷ niệm, sinh nhật và dịp đặc biệt.',
-    query: { collection: 'evening-gifting' },
-  },
-]
 
 const faqs = [
   {
@@ -88,13 +68,23 @@ const fetchHomeData = async () => {
   isLoadingProducts.value = true
 
   try {
-    const [productsResponse, brandsResponse] = await Promise.all([
+    const [productsResponse, brandsResponse, collectionsResponse] = await Promise.all([
       getProducts({ per_page: 4 }),
       getBrands(),
+      getCollections(),
     ])
 
     featuredProducts.value = productsResponse.data.data?.items ?? []
     partnerBrands.value = brandsResponse.data.data ?? []
+    collectionHighlights.value = (collectionsResponse.data.data ?? [])
+      .filter((collection) => (collection.products_count ?? 0) > 0)
+      .slice(0, 3)
+      .map((collection) => ({
+        name: collection.name,
+        slug: collection.slug,
+        copy: collection.description || 'Khám phá các mẫu đồng hồ được tuyển chọn theo cùng một tinh thần phối đồ.',
+        query: { collection: collection.slug },
+      }))
   } finally {
     isLoadingProducts.value = false
   }

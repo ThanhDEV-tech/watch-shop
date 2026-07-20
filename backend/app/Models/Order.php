@@ -69,9 +69,4 @@ class Order extends Model
     {
         return $this->hasMany(VnpayTransaction::class);
     }
-
-    public function enrollments(): HasMany
-    {
-        return $this->hasMany(Enrollment::class);
-    }
 }

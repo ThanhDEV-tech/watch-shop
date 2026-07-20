@@ -33,6 +33,7 @@ class BrandController extends Controller
     public function index(DashboardIndexRequest $request): JsonResponse
     {
         $brands = Brand::query()
+            ->withCount('products')
             ->when($request->filled('search'), function ($query) use ($request): void {
                 $search = $request->string('search')->trim()->toString();
 
@@ -85,13 +86,32 @@ class BrandController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new BrandResource($brand->refresh()),
+            'data' => new BrandResource($brand->refresh()->loadCount('products')),
             'message' => 'Cập nhật thương hiệu thành công.',
+        ]);
+    }
+
+    public function toggleActive(Brand $brand): JsonResponse
+    {
+        $brand->update(['is_active' => ! $brand->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new BrandResource($brand->refresh()->loadCount('products')),
+            'message' => 'Cập nhật trạng thái thương hiệu thành công.',
         ]);
     }
 
     public function destroy(Brand $brand): JsonResponse
     {
+        if ($brand->products()->withTrashed()->exists()) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => 'Không thể xóa thương hiệu đang có sản phẩm liên kết.',
+            ], 422);
+        }
+
         $brand->delete();
 
         return response()->json([

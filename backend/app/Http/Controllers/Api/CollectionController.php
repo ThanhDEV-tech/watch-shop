@@ -8,14 +8,24 @@ use App\Http\Requests\Collection\UpdateCollectionRequest;
 use App\Http\Requests\DashboardIndexRequest;
 use App\Http\Resources\CollectionResource;
 use App\Models\Collection;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CollectionController extends Controller
 {
     public function publicIndex(): JsonResponse
     {
+        $today = now()->toDateString();
+
         $collections = Collection::query()
+            ->where(fn ($query) => $query
+                ->whereNull('start_date')
+                ->orWhereDate('start_date', '<=', $today))
+            ->where(fn ($query) => $query
+                ->whereNull('end_date')
+                ->orWhereDate('end_date', '>=', $today))
             ->withCount([
                 'products as products_count' => fn ($query) => $query->where('status', 'active'),
             ])
@@ -32,6 +42,14 @@ class CollectionController extends Controller
     public function index(DashboardIndexRequest $request): JsonResponse
     {
         $collections = Collection::query()
+            ->with([
+                'products' => fn ($query) => $query
+                    ->with(['brand', 'category', 'images'])
+                    ->withCount('variants')
+                    ->orderBy('product_collection.display_order')
+                    ->orderBy('products.name'),
+            ])
+            ->withCount('products')
             ->when($request->filled('search'), function ($query) use ($request): void {
                 $search = $request->string('search')->trim()->toString();
 
@@ -66,7 +84,7 @@ class CollectionController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new CollectionResource($collection),
+            'data' => new CollectionResource($collection->loadCount('products')),
             'message' => 'Tạo bộ sưu tập thành công.',
         ], 201);
     }
@@ -83,7 +101,7 @@ class CollectionController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new CollectionResource($collection->refresh()),
+            'data' => new CollectionResource($collection->refresh()->loadCount('products')),
             'message' => 'Cập nhật bộ sưu tập thành công.',
         ]);
     }
@@ -96,6 +114,62 @@ class CollectionController extends Controller
             'success' => true,
             'data' => null,
             'message' => 'Xóa bộ sưu tập thành công.',
+        ]);
+    }
+
+    public function attachProduct(Request $request, Collection $collection): JsonResponse
+    {
+        $data = $request->validate([
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'display_order' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $collection->products()->syncWithoutDetaching([
+            $data['product_id'] => [
+                'display_order' => $data['display_order'] ?? 0,
+            ],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new CollectionResource($this->loadCollectionForAdmin($collection->refresh())),
+            'message' => 'Đã thêm sản phẩm vào bộ sưu tập.',
+        ]);
+    }
+
+    public function detachProduct(Collection $collection, Product $product): JsonResponse
+    {
+        $collection->products()->detach($product->id);
+
+        return response()->json([
+            'success' => true,
+            'data' => new CollectionResource($this->loadCollectionForAdmin($collection->refresh())),
+            'message' => 'Đã gỡ sản phẩm khỏi bộ sưu tập.',
+        ]);
+    }
+
+    public function updateProductOrder(Request $request, Collection $collection, Product $product): JsonResponse
+    {
+        $data = $request->validate([
+            'display_order' => ['required', 'integer', 'min:0'],
+        ]);
+
+        if (! $collection->products()->whereKey($product->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => 'Sản phẩm chưa thuộc bộ sưu tập này.',
+            ], 422);
+        }
+
+        $collection->products()->updateExistingPivot($product->id, [
+            'display_order' => $data['display_order'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new CollectionResource($this->loadCollectionForAdmin($collection->refresh())),
+            'message' => 'Đã cập nhật thứ tự hiển thị sản phẩm.',
         ]);
     }
 
@@ -114,5 +188,16 @@ class CollectionController extends Controller
         }
 
         return $slug;
+    }
+
+    private function loadCollectionForAdmin(Collection $collection): Collection
+    {
+        return $collection->load([
+            'products' => fn ($query) => $query
+                ->with(['brand', 'category', 'images'])
+                ->withCount('variants')
+                ->orderBy('product_collection.display_order')
+                ->orderBy('products.name'),
+        ])->loadCount('products');
     }
 }

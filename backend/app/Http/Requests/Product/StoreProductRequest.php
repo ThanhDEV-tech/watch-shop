@@ -32,9 +32,13 @@ class StoreProductRequest extends FormRequest
             'warranty_months' => ['sometimes', 'integer', 'min:0', 'max:240'],
             'warranty_note' => ['nullable', 'string'],
             'status' => ['sometimes', Rule::in(Product::STATUSES)],
-            'rating_avg' => ['sometimes', 'numeric', 'min:0', 'max:5'],
             'collection_ids' => ['sometimes', 'array'],
             'collection_ids.*' => ['integer', 'exists:collections,id'],
+            'product_images' => ['sometimes', 'array'],
+            'product_images.*.image_path' => ['required_with:product_images', 'string', 'max:255'],
+            'product_images.*.alt_text' => ['nullable', 'string', 'max:255'],
+            'product_images.*.display_order' => ['sometimes', 'integer', 'min:0'],
+            'product_images.*.is_primary' => ['sometimes', 'boolean'],
         ];
     }
 }

@@ -63,7 +63,7 @@ onMounted(fetchUsers)
     <form class="mt-lg flex w-full min-w-0 flex-col gap-sm rounded-lg border border-surface-variant bg-surface p-md md:flex-row" @submit.prevent="applyFilters">
       <input v-model.trim="filters.search" class="w-full min-w-0 flex-1 rounded-lg border border-surface-variant bg-background px-md py-3 text-body-sm text-on-surface outline-none focus:border-primary" placeholder="Tìm theo tên hoặc email..." />
       <select v-model="filters.role" class="w-full rounded-lg border border-surface-variant bg-background px-md py-3 text-body-sm text-on-surface outline-none focus:border-primary md:w-52">
-        <option value="">Tất cả vai trò</option><option value="admin">Admin</option><option value="instructor">Instructor</option><option value="student">Student</option>
+        <option value="">Tất cả vai trò</option><option value="admin">Admin</option><option value="customer">Customer</option>
       </select>
       <button class="w-full rounded-lg bg-primary-container px-md py-3 font-display text-body-sm font-semibold text-on-primary-container transition-opacity hover:opacity-90 md:w-auto" type="submit">Tìm kiếm</button>
     </form>

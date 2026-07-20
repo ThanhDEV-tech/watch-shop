@@ -10,7 +10,7 @@ class Review extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'course_id', 'rating', 'comment'];
+    protected $fillable = ['user_id', 'product_id', 'rating', 'comment'];
 
     protected function casts(): array
     {
@@ -22,8 +22,8 @@ class Review extends Model
         return $this->belongsTo(User::class)->withTrashed();
     }
 
-    public function course(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Product::class);
     }
 }

@@ -95,7 +95,7 @@ onBeforeUnmount(() => {
               type="button"
               @click="selectCategory(null)"
             >
-              All Courses
+              All Watches
             </button>
 
             <span

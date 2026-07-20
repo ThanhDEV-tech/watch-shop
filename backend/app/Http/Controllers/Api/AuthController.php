@@ -27,11 +27,11 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $studentRole = Role::query()->where('name', 'student')->firstOrFail();
+        $customerRole = Role::query()->where('name', 'customer')->firstOrFail();
 
         $user = User::query()->create([
             ...$request->safe()->only(['name', 'email', 'password']),
-            'role_id' => $studentRole->id,
+            'role_id' => $customerRole->id,
         ]);
 
         $user->load('role');

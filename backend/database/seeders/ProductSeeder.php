@@ -33,7 +33,7 @@ class ProductSeeder extends Seeder
                     'category_id' => $categories[$categorySlug],
                     'thumbnail' => $gallery[0],
                     'status' => 'active',
-                    'rating_avg' => $item['rating_avg'] ?? 0,
+                    'rating_avg' => 0,
                 ],
             );
 
@@ -176,7 +176,6 @@ class ProductSeeder extends Seeder
             'warranty_note' => 'Bảo hành máy 12 tháng, không bảo hành hao mòn tự nhiên của dây đeo.',
             'collections' => $collections,
             'gallery_offset' => $galleryOffset,
-            'rating_avg' => round(4 + (($galleryOffset % 10) / 10), 2),
             'base_price' => $basePrice,
         ];
     }

@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProductShowcaseGrid from '../components/ProductShowcaseGrid.vue'
-import { getProductBySlug, getProducts } from '../api/axios'
+import { getProductBySlug, getProductReviews, getProducts, submitProductReview } from '../api/axios'
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import { formatCurrency } from '../utils/formatCurrency'
@@ -23,9 +23,13 @@ const mainImageRef = ref(null)
 const specsRef = ref(null)
 const isLoading = ref(false)
 const isAdding = ref(false)
+const isLoadingReviews = ref(false)
+const isSubmittingReview = ref(false)
 const errorMessage = ref('')
 const cartMessage = ref('')
 const cartError = ref('')
+const reviewMessage = ref('')
+const reviewError = ref('')
 const quantity = ref(1)
 let specsMatchMedia
 
@@ -34,6 +38,18 @@ const selected = reactive({
   dial_color: '',
   diameter_mm: '',
   movement_type: '',
+})
+
+const reviews = ref([])
+const reviewMeta = reactive({
+  can_review: false,
+  existing_review: null,
+  rating_avg: 0,
+  reviews_count: 0,
+})
+const reviewForm = reactive({
+  rating: 5,
+  comment: '',
 })
 
 const colorMap = {
@@ -244,6 +260,9 @@ const options = computed(() => ({
   movement_type: [...new Set(activeVariants.value.map((variant) => variant.movement_type))],
 }))
 
+const displayRating = computed(() => Number(reviewMeta.rating_avg || product.value?.rating_avg || 0).toFixed(1))
+const reviewCountLabel = computed(() => `${Number(reviewMeta.reviews_count || reviews.value.length || 0)} đánh giá`)
+
 const partialMatch = (candidate) => activeVariants.value.some((variant) => (
   (!candidate.strap_color || variant.strap_color === candidate.strap_color)
   && (!candidate.dial_color || variant.dial_color === candidate.dial_color)
@@ -318,6 +337,7 @@ const fetchProduct = async () => {
     product.value = found
     selectedImage.value = galleryImages.value[0] ?? found.thumbnail ?? ''
     preselectFirstAvailableVariant()
+    await fetchProductReviews()
     await fetchRelatedProducts()
   } catch (error) {
     errorMessage.value = error.response?.data?.message ?? 'Không thể tải chi tiết sản phẩm.'
@@ -339,6 +359,61 @@ const fetchRelatedProducts = async () => {
   relatedProducts.value = (response.data.data?.items ?? [])
     .filter((item) => item.slug !== product.value.slug)
     .slice(0, 4)
+}
+
+const fetchProductReviews = async () => {
+  if (!product.value?.id) return
+
+  isLoadingReviews.value = true
+  reviewError.value = ''
+
+  try {
+    const response = await getProductReviews(product.value.id, { per_page: 8 })
+    const data = response.data.data
+    reviews.value = data?.items ?? []
+    reviewMeta.can_review = Boolean(data?.can_review)
+    reviewMeta.existing_review = data?.existing_review ?? null
+    reviewMeta.rating_avg = Number(data?.summary?.rating_avg ?? product.value.rating_avg ?? 0)
+    reviewMeta.reviews_count = Number(data?.summary?.reviews_count ?? reviews.value.length)
+
+    if (reviewMeta.existing_review) {
+      reviewForm.rating = Number(reviewMeta.existing_review.rating ?? 5)
+      reviewForm.comment = reviewMeta.existing_review.comment ?? ''
+    } else {
+      reviewForm.rating = 5
+      reviewForm.comment = ''
+    }
+  } catch (error) {
+    reviewError.value = error.response?.data?.message ?? 'Không thể tải đánh giá sản phẩm.'
+  } finally {
+    isLoadingReviews.value = false
+  }
+}
+
+const submitReview = async () => {
+  if (!product.value?.id || !reviewMeta.can_review || isSubmittingReview.value) return
+
+  reviewMessage.value = ''
+  reviewError.value = ''
+  isSubmittingReview.value = true
+
+  try {
+    await submitProductReview(product.value.id, {
+      rating: Number(reviewForm.rating),
+      comment: reviewForm.comment,
+    })
+    reviewMessage.value = reviewMeta.existing_review
+      ? 'Đã cập nhật đánh giá của bạn.'
+      : 'Cảm ơn bạn đã đánh giá sản phẩm.'
+    await fetchProductReviews()
+  } catch (error) {
+    const errors = error.response?.data?.errors
+    reviewError.value = errors
+      ? Object.values(errors).flat().join(' ')
+      : error.response?.data?.message ?? 'Không thể gửi đánh giá lúc này.'
+  } finally {
+    isSubmittingReview.value = false
+  }
 }
 
 const preselectFirstAvailableVariant = () => {
@@ -655,6 +730,113 @@ onBeforeUnmount(() => {
                 {{ item.description }}
               </p>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="border-t border-border bg-background">
+        <div class="mx-auto grid w-full max-w-container-max gap-8 px-margin-mobile py-16 md:px-gutter lg:grid-cols-[0.8fr_1.2fr]">
+          <div class="flex w-full min-w-0 flex-col">
+            <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">Customer reviews</p>
+            <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
+              Đánh giá sản phẩm.
+            </h2>
+            <div class="mt-6 flex w-full min-w-0 items-end gap-3">
+              <p class="font-display text-6xl font-semibold leading-none text-primary">{{ displayRating }}</p>
+              <p class="pb-2 text-sm font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
+                / 5 · {{ reviewCountLabel }}
+              </p>
+            </div>
+            <p class="mt-5 w-full max-w-md text-base leading-8 text-on-surface-variant">
+              Review chỉ mở cho khách đã có đơn hàng hoàn tất chứa mẫu đồng hồ này, để phần đánh giá phản ánh trải nghiệm mua thật.
+            </p>
+          </div>
+
+          <div class="grid w-full min-w-0 gap-5">
+            <form
+              v-if="authStore.isAuthenticated && reviewMeta.can_review"
+              class="flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)]"
+              @submit.prevent="submitReview"
+            >
+              <p class="w-full text-xs font-bold uppercase tracking-[0.18em] text-primary/55">
+                {{ reviewMeta.existing_review ? 'Cập nhật đánh giá của bạn' : 'Viết đánh giá của bạn' }}
+              </p>
+
+              <label class="mt-5 flex w-full min-w-0 flex-col gap-2 text-sm font-semibold text-primary">
+                Điểm đánh giá
+                <select
+                  v-model.number="reviewForm.rating"
+                  class="h-11 w-full rounded-[var(--radius-watch-md)] border border-border bg-background px-3 text-on-surface outline-none focus:border-[var(--accent-primary)]"
+                  required
+                >
+                  <option v-for="score in [5, 4, 3, 2, 1]" :key="score" :value="score">
+                    {{ score }} sao
+                  </option>
+                </select>
+              </label>
+
+              <label class="mt-4 flex w-full min-w-0 flex-col gap-2 text-sm font-semibold text-primary">
+                Cảm nhận
+                <textarea
+                  v-model.trim="reviewForm.comment"
+                  rows="4"
+                  maxlength="2000"
+                  class="w-full rounded-[var(--radius-watch-md)] border border-border bg-background px-3 py-3 text-on-surface outline-none focus:border-[var(--accent-primary)]"
+                  placeholder="Chia sẻ cảm nhận về thiết kế, cảm giác đeo, độ hoàn thiện..."
+                ></textarea>
+              </label>
+
+              <button
+                type="submit"
+                class="mt-5 min-h-11 w-full cursor-pointer rounded-[var(--radius-watch-md)] bg-primary px-5 text-sm font-bold uppercase tracking-[0.14em] text-on-primary transition-colors hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50 sm:w-fit"
+                :disabled="isSubmittingReview"
+              >
+                {{ isSubmittingReview ? 'Đang gửi...' : reviewMeta.existing_review ? 'Cập nhật đánh giá' : 'Gửi đánh giá' }}
+              </button>
+
+              <p v-if="reviewMessage" class="mt-3 w-full text-sm font-semibold text-[var(--accent-success)]">{{ reviewMessage }}</p>
+              <p v-if="reviewError" class="mt-3 w-full text-sm font-semibold text-[var(--accent-danger)]">{{ reviewError }}</p>
+            </form>
+
+            <div
+              v-else
+              class="flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-dashed border-border bg-surface/70 p-6"
+            >
+              <p class="w-full text-sm font-semibold text-primary">
+                {{ authStore.isAuthenticated ? 'Bạn có thể đánh giá sau khi có đơn hàng hoàn tất chứa sản phẩm này.' : 'Đăng nhập để hệ thống kiểm tra quyền đánh giá sản phẩm.' }}
+              </p>
+            </div>
+
+            <div v-if="isLoadingReviews" class="rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 text-on-surface-variant">
+              Đang tải đánh giá...
+            </div>
+
+            <div v-else-if="reviews.length" class="grid w-full min-w-0 gap-4">
+              <article
+                v-for="review in reviews"
+                :key="review.id"
+                class="flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6"
+              >
+                <div class="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
+                  <div class="w-full min-w-0 sm:w-auto">
+                    <p class="w-full font-semibold text-primary">{{ review.user?.name ?? 'Khách hàng Watchora' }}</p>
+                    <p class="mt-1 w-full text-xs uppercase tracking-[0.14em] text-on-surface-variant">
+                      {{ new Date(review.created_at).toLocaleDateString('vi-VN') }}
+                    </p>
+                  </div>
+                  <p class="w-fit rounded-full border border-[rgb(161_98_7/0.34)] bg-[rgb(161_98_7/0.08)] px-3 py-1 text-sm font-bold text-[var(--accent-primary)]">
+                    {{ review.rating }} / 5
+                  </p>
+                </div>
+                <p class="mt-4 w-full text-base leading-8 text-on-surface-variant">
+                  {{ review.comment || 'Khách hàng chưa để lại nhận xét chi tiết.' }}
+                </p>
+              </article>
+            </div>
+
+            <div v-else class="rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 text-on-surface-variant">
+              Sản phẩm chưa có đánh giá. Đánh giá đầu tiên sẽ xuất hiện sau khi khách có đơn hoàn tất.
+            </div>
           </div>
         </div>
       </section>

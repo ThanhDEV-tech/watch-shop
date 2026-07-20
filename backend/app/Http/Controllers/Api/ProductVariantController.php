@@ -99,7 +99,13 @@ class ProductVariantController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => null,
+            'data' => [
+                'errors' => [
+                    'option_combination' => [
+                        'Tổ hợp dây, mặt, đường kính và bộ máy này đã tồn tại.',
+                    ],
+                ],
+            ],
             'message' => 'Xóa biến thể sản phẩm thành công.',
         ]);
     }

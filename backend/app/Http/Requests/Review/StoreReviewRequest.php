@@ -8,11 +8,7 @@ class StoreReviewRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $course = $this->route('course');
-
-        return $this->user()?->enrollments()
-            ->where('course_id', $course?->id)
-            ->exists() ?? false;
+        return $this->user() !== null;
     }
 
     /** @return array<string, mixed> */
@@ -20,7 +16,7 @@ class StoreReviewRequest extends FormRequest
     {
         return [
             'rating' => ['required', 'integer', 'between:1,5'],
-            'comment' => ['nullable', 'string', 'max:5000'],
+            'comment' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

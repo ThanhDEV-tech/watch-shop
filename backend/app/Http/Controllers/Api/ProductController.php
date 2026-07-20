@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -110,7 +111,13 @@ class ProductController extends Controller
     public function index(Request $request): JsonResponse
     {
         $products = Product::query()
-            ->with(['brand', 'category'])
+            ->with([
+                'brand',
+                'category',
+                'collections',
+                'images',
+                'variants' => fn ($query) => $query->where('is_active', true),
+            ])
             ->withCount('variants')
             ->when($request->filled('search'), function ($query) use ($request): void {
                 $search = $request->string('search')->trim()->toString();
@@ -120,6 +127,8 @@ class ProductController extends Controller
                     ->orWhere('slug', 'like', "%{$search}%"));
             })
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->when($request->filled('brand_id'), fn ($query) => $query->where('brand_id', $request->integer('brand_id')))
+            ->when($request->filled('category_id'), fn ($query) => $query->where('category_id', $request->integer('category_id')))
             ->orderByDesc('created_at')
             ->paginate($request->integer('per_page', 15));
 
@@ -142,7 +151,7 @@ class ProductController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => new ProductResource($product->load(['brand', 'category', 'variants', 'collections'])),
+            'data' => new ProductResource($product->load(['brand', 'category', 'variants', 'collections', 'images'])),
             'message' => 'Lấy thông tin sản phẩm thành công.',
         ]);
     }
@@ -151,14 +160,20 @@ class ProductController extends Controller
     {
         $data = $request->validated();
         $collectionIds = Arr::pull($data, 'collection_ids', []);
+        $productImages = Arr::pull($data, 'product_images', []);
         $data['slug'] = $data['slug'] ?? $this->uniqueSlug($data['name']);
 
-        $product = Product::query()->create($data);
-        $product->collections()->sync($collectionIds);
+        $product = DB::transaction(function () use ($data, $collectionIds, $productImages): Product {
+            $product = Product::query()->create($data);
+            $product->collections()->sync($collectionIds);
+            $this->syncImages($product, $productImages);
+
+            return $product;
+        });
 
         return response()->json([
             'success' => true,
-            'data' => new ProductResource($product->load(['brand', 'category', 'collections'])),
+            'data' => new ProductResource($product->load(['brand', 'category', 'collections', 'images', 'variants'])),
             'message' => 'Tạo sản phẩm thành công.',
         ], 201);
     }
@@ -168,20 +183,28 @@ class ProductController extends Controller
         $data = $request->validated();
         $hasCollectionIds = array_key_exists('collection_ids', $data);
         $collectionIds = Arr::pull($data, 'collection_ids', []);
+        $hasProductImages = array_key_exists('product_images', $data);
+        $productImages = Arr::pull($data, 'product_images', []);
 
         if (isset($data['name']) && ! array_key_exists('slug', $data)) {
             $data['slug'] = $this->uniqueSlug($data['name'], $product->id);
         }
 
-        $product->update($data);
+        DB::transaction(function () use ($product, $data, $hasCollectionIds, $collectionIds, $hasProductImages, $productImages): void {
+            $product->update($data);
 
-        if ($hasCollectionIds) {
-            $product->collections()->sync($collectionIds);
-        }
+            if ($hasCollectionIds) {
+                $product->collections()->sync($collectionIds);
+            }
+
+            if ($hasProductImages) {
+                $this->syncImages($product, $productImages);
+            }
+        });
 
         return response()->json([
             'success' => true,
-            'data' => new ProductResource($product->refresh()->load(['brand', 'category', 'collections'])),
+            'data' => new ProductResource($product->refresh()->load(['brand', 'category', 'collections', 'images', 'variants'])),
             'message' => 'Cập nhật sản phẩm thành công.',
         ]);
     }
@@ -212,5 +235,30 @@ class ProductController extends Controller
         }
 
         return $slug;
+    }
+
+    /** @param array<int, array<string, mixed>> $images */
+    private function syncImages(Product $product, array $images): void
+    {
+        $normalizedImages = collect($images)
+            ->filter(fn ($image) => filled($image['image_path'] ?? null))
+            ->values();
+
+        $primaryIndex = $normalizedImages->search(fn ($image) => (bool) ($image['is_primary'] ?? false));
+
+        if ($primaryIndex === false && $normalizedImages->isNotEmpty()) {
+            $primaryIndex = 0;
+        }
+
+        $product->images()->delete();
+
+        $normalizedImages->each(function (array $image, int $index) use ($product, $primaryIndex): void {
+            $product->images()->create([
+                'image_path' => $image['image_path'],
+                'alt_text' => $image['alt_text'] ?? $product->name,
+                'display_order' => $image['display_order'] ?? $index,
+                'is_primary' => $index === $primaryIndex,
+            ]);
+        });
     }
 }

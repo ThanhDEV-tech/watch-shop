@@ -17,7 +17,6 @@ const passwordSuccess = ref('')
 
 const displayedAvatar = computed(() => avatarPreview.value || authStore.user?.avatar_url || authStore.user?.avatar || '')
 const userInitial = computed(() => authStore.user?.name?.charAt(0)?.toUpperCase() || 'U')
-const isInstructor = computed(() => authStore.user?.role?.name === 'instructor')
 
 const apiError = (error, fallback) => {
   const errors = error.response?.data?.data?.errors
@@ -144,18 +143,6 @@ onBeforeUnmount(() => {
           <div class="w-full min-w-0"><label class="block w-full text-body-sm font-medium text-on-surface" for="profile-phone">Số điện thoại</label><input id="profile-phone" v-model="profileForm.phone" class="mt-xs w-full min-w-0 rounded-lg border border-surface-variant bg-background px-md py-3 text-on-surface outline-none focus:border-primary" maxlength="30" placeholder="Chưa cập nhật" /></div>
         </div>
         <div class="w-full min-w-0"><label class="block w-full text-body-sm font-medium text-on-surface" for="profile-email">Email</label><input id="profile-email" :value="authStore.user?.email" class="mt-xs w-full min-w-0 cursor-not-allowed rounded-lg border border-surface-variant bg-surface-container-highest px-md py-3 text-on-surface-variant" disabled /><p class="mt-xs w-full text-xs text-on-surface-variant">Email không thể thay đổi tại trang này.</p></div>
-        <div v-if="isInstructor" class="w-full min-w-0">
-          <label class="block w-full text-body-sm font-medium text-on-surface" for="profile-bio">Giới thiệu bản thân</label>
-          <textarea
-            id="profile-bio"
-            v-model="profileForm.bio"
-            rows="5"
-            class="mt-xs w-full min-w-0 rounded-lg border border-surface-variant bg-background px-md py-3 text-on-surface outline-none focus:border-primary"
-            maxlength="5000"
-            placeholder="Chia sẻ kinh nghiệm, chuyên môn và phong cách giảng dạy của bạn."
-          ></textarea>
-          <p class="mt-xs w-full text-xs text-on-surface-variant">Phần này sẽ hiển thị trong trang chi tiết khóa học của bạn.</p>
-        </div>
         <p v-if="profileError" class="w-full rounded-lg border border-error/40 bg-error/10 p-sm text-body-sm text-error">{{ profileError }}</p>
         <p v-if="profileSuccess" class="w-full rounded-lg border border-[var(--accent-success)]/40 bg-[var(--accent-success)]/10 p-sm text-body-sm text-[var(--accent-success)]">{{ profileSuccess }}</p>
         <button class="w-full rounded-lg bg-primary px-md py-3 font-display text-button-text font-semibold text-white hover:bg-[var(--accent-primary-hover)] disabled:opacity-50 sm:w-auto" type="submit" :disabled="savingProfile || uploadingAvatar">{{ savingProfile ? 'Đang lưu...' : 'Lưu thông tin' }}</button>

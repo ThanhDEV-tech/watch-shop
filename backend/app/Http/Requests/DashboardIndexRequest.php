@@ -16,7 +16,7 @@ class DashboardIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role' => ['nullable', Rule::in(['admin', 'instructor', 'student'])],
+            'role' => ['nullable', Rule::in(['admin', 'customer'])],
             'search' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in([
                 'pending',

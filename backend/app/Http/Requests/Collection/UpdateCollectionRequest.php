@@ -26,7 +26,7 @@ class UpdateCollectionRequest extends FormRequest
             ],
             'description' => ['nullable', 'string'],
             'start_date' => ['nullable', 'date'],
-            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'end_date' => ['nullable', 'date', 'after:start_date'],
         ];
     }
 }

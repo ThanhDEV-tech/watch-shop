@@ -1,7 +1,7 @@
 <script setup>
 const steps = [
   ['01', 'Register', 'Create your developer account in seconds.'],
-  ['02', 'Choose Course', 'Select from expert-led engineering paths.'],
+  ['02', 'Choose Watch', 'Select a style, variant, and strap combination that fits your day.'],
   ['03', 'Learn', 'Deep dive into code with terminal-grade videos.'],
   ['04', 'Get Certified', 'Validate your mastery with final assessments.'],
 ]

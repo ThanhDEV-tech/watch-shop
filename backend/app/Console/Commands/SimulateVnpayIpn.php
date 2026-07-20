@@ -50,16 +50,16 @@ class SimulateVnpayIpn extends Command
         $this->line((string) $response->getContent());
 
         $order->refresh()
-            ->load('user.cart.items:id,cart_id,course_id')
-            ->loadCount(['items', 'vnpayTransactions', 'enrollments']);
-        $remainingCartCourseIds = $order->user->cart?->items
-            ->pluck('course_id')
+            ->load('user.cart.items:id,cart_id,product_variant_id')
+            ->loadCount(['items', 'vnpayTransactions']);
+        $remainingCartVariantIds = $order->user->cart?->items
+            ->pluck('product_variant_id')
             ->implode(', ') ?: '-';
 
         $this->newLine();
         $this->info('Order after IPN:');
         $this->table(
-            ['ID', 'Code', 'Status', 'Paid at', 'Items', 'Transactions', 'Enrollments', 'Cart course IDs'],
+            ['ID', 'Code', 'Status', 'Paid at', 'Items', 'Transactions', 'Cart variant IDs'],
             [[
                 $order->id,
                 $order->code,
@@ -67,8 +67,7 @@ class SimulateVnpayIpn extends Command
                 $order->paid_at?->toDateTimeString() ?? '-',
                 $order->items_count,
                 $order->vnpay_transactions_count,
-                $order->enrollments_count,
-                $remainingCartCourseIds,
+                $remainingCartVariantIds,
             ]],
         );
 

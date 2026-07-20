@@ -5,6 +5,6 @@
     </div>
     <h2 class="font-display text-headline-sm mb-base">Your cart is empty</h2>
     <p class="w-full max-w-[28rem] text-on-surface-variant mb-lg">Looks like you haven't added any courses to your cart yet. Explore our top-rated courses to start your learning journey.</p>
-    <RouterLink to="/" class="bg-primary text-on-primary px-lg py-3 rounded-lg font-display text-button-text hover:opacity-90 active:scale-95 transition-all">Browse Courses</RouterLink>
+    <RouterLink to="/products" class="bg-primary text-on-primary px-lg py-3 rounded-lg font-display text-button-text hover:opacity-90 active:scale-95 transition-all">Browse Watches</RouterLink>
   </section>
 </template>

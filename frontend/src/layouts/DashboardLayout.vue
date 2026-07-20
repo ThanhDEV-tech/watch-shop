@@ -12,7 +12,7 @@ const menus = {
   admin: [
     { label: 'Tổng quan', icon: 'dashboard', to: '/admin/dashboard' },
     { label: 'Catalog sản phẩm', icon: 'inventory_2', to: '/admin/products' },
-    { label: 'Variant/SKU', icon: 'qr_code_2', to: '/admin/product-variants' },
+    { label: 'Variant/SKU', icon: 'qr_code_2', to: '/admin/products' },
     { label: 'Brand', icon: 'sell', to: '/admin/brands' },
     { label: 'Category', icon: 'category', to: '/admin/categories' },
     { label: 'Collection', icon: 'collections_bookmark', to: '/admin/collections' },
@@ -22,18 +22,14 @@ const menus = {
     { label: 'Stock Movement History', icon: 'history', to: '/admin/stock-movements' },
     { label: 'User Management', icon: 'group', to: '/admin/users' },
   ],
-  instructor: [
-    { label: 'Tổng quan', icon: 'dashboard', to: '/instructor/dashboard' },
-    { label: 'Khóa học của tôi', icon: 'menu_book', to: '/instructor/courses' },
-  ],
 }
 
 const roleName = computed(() => authStore.user?.role?.name ?? '')
 const menuItems = computed(() => menus[roleName.value] ?? [])
-const roleLabel = computed(() => roleName.value === 'admin' ? 'Admin Console' : 'Instructor Studio')
-const productLabel = computed(() => roleName.value === 'admin' ? 'Watchora Admin' : 'Watchora Studio')
-const dashboardLink = computed(() => roleName.value === 'admin' ? '/admin/dashboard' : '/instructor/dashboard')
-const dashboardLinkLabel = computed(() => roleName.value === 'admin' ? 'Quản trị' : 'Kênh giảng dạy')
+const roleLabel = computed(() => roleName.value === 'admin' ? 'Admin Console' : 'Customer Account')
+const productLabel = computed(() => roleName.value === 'admin' ? 'Watchora Admin' : 'Watchora')
+const dashboardLink = computed(() => roleName.value === 'admin' ? '/admin/dashboard' : '/my-orders')
+const dashboardLinkLabel = computed(() => roleName.value === 'admin' ? 'Quản trị' : 'Đơn hàng của tôi')
 
 const handleLogout = async () => {
   if (isLoggingOut.value) return

@@ -28,13 +28,6 @@ class UserResource extends JsonResource
                 'name' => $this->role->name,
                 'display_name' => $this->role->display_name,
             ],
-            'instructor_stats' => $this->role->name === 'instructor'
-                ? [
-                    'total_courses' => $this->instructorTotalCourses(),
-                    'total_students' => $this->instructorTotalStudents(),
-                    'rating_avg' => $this->instructorRatingAvg(),
-                ]
-                : null,
         ];
     }
 }

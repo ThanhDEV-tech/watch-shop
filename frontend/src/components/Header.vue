@@ -337,25 +337,6 @@ onBeforeUnmount(() => {
                 </RouterLink>
 
                 <RouterLink
-                  v-if="currentRole === 'instructor'"
-                  to="/instructor/dashboard"
-                  class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-md px-4 py-3 text-body-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  @click="closeUserMenu"
-                >
-                  <span class="material-symbols-outlined shrink-0 text-[19px]">co_present</span>
-                  <span class="min-w-0">Kênh giảng dạy</span>
-                </RouterLink>
-
-                <RouterLink
-                  to="/my-courses"
-                  class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-md px-4 py-3 text-body-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:bg-surface-container-highest focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  @click="closeUserMenu"
-                >
-                  <span class="material-symbols-outlined shrink-0 text-[19px]">school</span>
-                  <span class="min-w-0">Sản phẩm đã mua</span>
-                </RouterLink>
-
-                <RouterLink
                   to="/my-orders"
                   class="flex w-full min-w-0 cursor-pointer items-center gap-sm rounded-md px-4 py-3 text-body-sm font-medium text-on-surface transition-colors hover:bg-surface-container-highest hover:text-primary focus-visible:bg-surface-container-highest focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   @click="closeUserMenu"

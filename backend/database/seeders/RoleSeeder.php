@@ -12,12 +12,15 @@ class RoleSeeder extends Seeder
         $roles = [
             ['name' => 'admin', 'display_name' => 'Administrator'],
             ['name' => 'customer', 'display_name' => 'Customer'],
-            ['name' => 'student', 'display_name' => 'Student'],
-            ['name' => 'instructor', 'display_name' => 'Instructor'],
         ];
 
         foreach ($roles as $role) {
             Role::query()->updateOrCreate(['name' => $role['name']], $role);
         }
+
+        Role::query()
+            ->whereNotIn('name', ['admin', 'customer'])
+            ->whereDoesntHave('users')
+            ->delete();
     }
 }

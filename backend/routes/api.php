@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\CollectionController;
 use App\Http\Controllers\Api\MyOrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductReviewController;
 use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\ShippingZoneController;
 use App\Http\Controllers\VnpayController;
@@ -34,6 +35,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/brands', [BrandController::class, 'publicIndex']);
 Route::get('/collections', [CollectionController::class, 'publicIndex']);
 Route::get('/products', [ProductController::class, 'publicIndex']);
+Route::get('/products/{product}/reviews', [ProductReviewController::class, 'index']);
 Route::get('/products/{slug}', [ProductController::class, 'publicShow']);
 Route::get('/shipping-zones', [ShippingZoneController::class, 'publicIndex']);
 
@@ -52,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/cart/items/{cartItem}', [CartController::class, 'update']);
     Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy']);
     Route::post('/checkout', [CheckoutController::class, 'store']);
+    Route::post('/products/{product}/reviews', [ProductReviewController::class, 'store']);
 });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
@@ -83,10 +86,14 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::get('/brands', [BrandController::class, 'index']);
     Route::post('/brands', [BrandController::class, 'store']);
     Route::match(['put', 'patch'], '/brands/{brand}', [BrandController::class, 'update']);
+    Route::patch('/brands/{brand}/toggle-active', [BrandController::class, 'toggleActive']);
     Route::delete('/brands/{brand}', [BrandController::class, 'destroy']);
     Route::get('/collections', [CollectionController::class, 'index']);
     Route::post('/collections', [CollectionController::class, 'store']);
     Route::match(['put', 'patch'], '/collections/{collection}', [CollectionController::class, 'update']);
+    Route::post('/collections/{collection}/products', [CollectionController::class, 'attachProduct']);
+    Route::patch('/collections/{collection}/products/{product}/order', [CollectionController::class, 'updateProductOrder']);
+    Route::delete('/collections/{collection}/products/{product}', [CollectionController::class, 'detachProduct']);
     Route::delete('/collections/{collection}', [CollectionController::class, 'destroy']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::post('/products', [ProductController::class, 'store']);
@@ -100,6 +107,6 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::delete('/product-variants/{productVariant}', [ProductVariantController::class, 'destroy']);
 });
 
-Route::prefix('student')->middleware(['auth:sanctum', 'role:student'])->group(function () {
+Route::prefix('customer')->middleware(['auth:sanctum', 'role:customer'])->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 });
