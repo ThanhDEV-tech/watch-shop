@@ -3,17 +3,23 @@ import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ProductCard from './ProductCard.vue'
+import { motionTokens } from '../utils/motion'
 
 const props = defineProps({
   products: {
     type: Array,
     default: () => [],
   },
+  variant: {
+    type: String,
+    default: 'default',
+  },
 })
 
 gsap.registerPlugin(ScrollTrigger)
 
 let mediaMatch
+let revealSetupId = 0
 const gridRef = ref(null)
 
 const clearReveal = () => {
@@ -22,8 +28,12 @@ const clearReveal = () => {
 }
 
 const setupReveal = async () => {
+  const setupId = ++revealSetupId
+
   clearReveal()
   await nextTick()
+
+  if (setupId !== revealSetupId) return
 
   const cards = gsap.utils.toArray(gridRef.value?.querySelectorAll('.watch-product-card') ?? [])
 
@@ -36,7 +46,9 @@ const setupReveal = async () => {
   })
 
   mediaMatch.add('(prefers-reduced-motion: no-preference)', () => {
-    gsap.set(cards, { autoAlpha: 0, y: 24 })
+    const revealY = window.matchMedia('(max-width: 767px)').matches
+      ? motionTokens.revealYMobile
+      : motionTokens.revealYDesktop
 
     const triggers = ScrollTrigger.batch(cards, {
       start: 'top 86%',
@@ -44,12 +56,15 @@ const setupReveal = async () => {
       batchMax: 4,
       interval: 0.08,
       onEnter: (batch) => {
-        gsap.to(batch, {
+        gsap.fromTo(batch, {
+          autoAlpha: 0,
+          y: revealY,
+        }, {
           autoAlpha: 1,
           y: 0,
-          duration: 0.55,
-          ease: 'power2.out',
-          stagger: 0.07,
+          duration: motionTokens.durationReveal,
+          ease: motionTokens.easeReveal,
+          stagger: motionTokens.staggerSmall,
           overwrite: true,
         })
       },
@@ -73,11 +88,18 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="gridRef" class="grid w-full min-w-0 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+  <div
+    ref="gridRef"
+    class="grid w-full min-w-0"
+    :class="variant === 'editorial'
+      ? 'gap-x-8 gap-y-10 sm:grid-cols-2 xl:grid-cols-4'
+      : 'gap-6 sm:grid-cols-2 lg:grid-cols-4'"
+  >
     <ProductCard
       v-for="product in products"
       :key="product.id ?? product.slug"
       :product="product"
+      :variant="variant"
     />
   </div>
 </template>

@@ -1,15 +1,20 @@
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import ProductShowcaseGrid from '../components/ProductShowcaseGrid.vue'
+import EditorialSignatureMoment from '../components/product-detail/EditorialSignatureMoment.vue'
+import EditorialStorySection from '../components/product-detail/EditorialStorySection.vue'
+import ProductCampaignHero from '../components/product-detail/ProductCampaignHero.vue'
+import ProductCollectionSection from '../components/product-detail/ProductCollectionSection.vue'
+import ProductGallery from '../components/product-detail/ProductGallery.vue'
+import ProductQuoteSection from '../components/product-detail/ProductQuoteSection.vue'
+import ProductSpecifications from '../components/product-detail/ProductSpecifications.vue'
+import ProductPurchasePanel from '../components/product-detail/ProductPurchasePanel.vue'
 import { getProductBySlug, getProductReviews, getProducts, submitProductReview } from '../api/axios'
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import { formatCurrency } from '../utils/formatCurrency'
-
-gsap.registerPlugin(ScrollTrigger)
+import { resolveProductEditorial } from '../utils/productEditorial'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,8 +24,6 @@ const cartStore = useCartStore()
 const product = ref(null)
 const relatedProducts = ref([])
 const selectedImage = ref('')
-const mainImageRef = ref(null)
-const specsRef = ref(null)
 const isLoading = ref(false)
 const isAdding = ref(false)
 const isLoadingReviews = ref(false)
@@ -31,7 +34,6 @@ const cartError = ref('')
 const reviewMessage = ref('')
 const reviewError = ref('')
 const quantity = ref(1)
-let specsMatchMedia
 
 const selected = reactive({
   strap_color: '',
@@ -54,7 +56,7 @@ const reviewForm = reactive({
 
 const colorMap = {
   'Đen': '#111111',
-  'Bạc': '#c7c7c7',
+  'Bạc': '#e5e5e5',
   'Vàng gold': '#d4af37',
   'Vàng rose': '#b76e79',
   'Trắng': '#f8f7f2',
@@ -64,6 +66,13 @@ const colorMap = {
 
 const variants = computed(() => product.value?.variants ?? [])
 const activeVariants = computed(() => variants.value.filter((variant) => variant.is_active))
+
+const editorialContent = computed(() => {
+  const routeSlug = String(route.params.slug ?? '').trim()
+  const editorialProduct = product.value?.slug === routeSlug ? product.value : routeSlug
+
+  return resolveProductEditorial(editorialProduct)
+})
 
 const variantImages = computed(() => activeVariants.value
   .map((variant) => variant.image)
@@ -136,132 +145,108 @@ const genderLabel = computed(() => ({
 
 const readableValue = (value) => String(value ?? '').trim()
 const hasText = (value) => Boolean(readableValue(value))
+const stripHtml = (value) => readableValue(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
-const materialNote = (type, value) => {
-  const normalized = readableValue(value).toLowerCase()
+const technicalIntro = computed(() => {
+  const content = stripHtml(product.value?.content)
+  const description = stripHtml(product.value?.description)
 
-  if (type === 'case') {
-    if (normalized.includes('thép') || normalized.includes('steel')) {
-      return 'Phần vỏ tạo cảm giác chắc tay, giữ phom gọn gàng và dễ phối cùng nhiều phong cách hằng ngày.'
-    }
-
-    if (normalized.includes('hợp kim') || normalized.includes('alloy')) {
-      return 'Kết cấu nhẹ giúp đồng hồ thoải mái khi đeo lâu, phù hợp nhịp sử dụng linh hoạt trong ngày.'
-    }
-
-    return 'Thiết kế vỏ được hoàn thiện cân bằng giữa độ bền, cảm giác đeo và vẻ ngoài chỉn chu.'
+  if (content && content !== description) {
+    return content.length > 180 ? `${content.slice(0, 177).trim()}...` : content
   }
 
-  if (type === 'strap') {
-    if (normalized.includes('da') || normalized.includes('leather')) {
-      return 'Dây da đem lại cảm giác mềm mại, thanh lịch và lên tay tự nhiên trong môi trường công sở hoặc các dịp trang trọng.'
-    }
+  return ''
+})
 
-    if (normalized.includes('kim loại') || normalized.includes('thép') || normalized.includes('metal')) {
-      return 'Dây kim loại tạo dáng đeo cứng cáp, sạch sẽ và dễ chuyển từ trang phục thường ngày sang phong cách chỉn chu hơn.'
-    }
-
-    if (normalized.includes('vải') || normalized.includes('fabric') || normalized.includes('nylon')) {
-      return 'Dây vải có tinh thần trẻ trung, nhẹ và thoáng, hợp với những ngày di chuyển nhiều.'
-    }
-
-    return 'Dây đeo được chọn để cân bằng giữa độ ôm cổ tay, độ bền và cảm giác thoải mái khi sử dụng thường xuyên.'
-  }
-
-  if (normalized.includes('sapphire')) {
-    return 'Bề mặt kính giúp hạn chế trầy xước trong quá trình dùng hằng ngày và giữ mặt số luôn rõ nét.'
-  }
-
-  if (normalized.includes('khoáng') || normalized.includes('mineral')) {
-    return 'Lớp kính khoáng cho khả năng hiển thị rõ ràng, dễ chăm sóc và phù hợp nhu cầu sử dụng thường xuyên.'
-  }
-
-  return 'Mặt kính được hoàn thiện để bảo vệ mặt số, giữ độ trong và giúp chi tiết hiển thị dễ quan sát.'
-}
-
-const movementNote = (value) => {
-  const normalized = readableValue(value).toLowerCase()
-
-  if (normalized === 'quartz') {
-    return 'Bộ máy quartz ưu tiên sự ổn định, dễ sử dụng hằng ngày và ít cần căn chỉnh.'
-  }
-
-  if (normalized === 'automatic') {
-    return 'Bộ máy automatic mang tinh thần cơ khí truyền thống, phù hợp người thích cảm giác chuyển động tinh tế bên trong đồng hồ.'
-  }
-
-  return 'Cấu hình bộ máy được chọn để giữ nhịp vận hành ổn định và phù hợp thói quen đeo thường ngày.'
-}
-
-const waterResistanceNote = (value) => `Mức ${readableValue(value)} hỗ trợ yên tâm hơn trong các va chạm nước nhẹ khi sinh hoạt. Bạn vẫn nên hạn chế ngâm nước lâu hoặc dùng trong môi trường áp lực nước mạnh.`
-
-const warrantyNoteText = computed(() => {
+const warrantyValue = computed(() => {
   const months = product.value?.warranty_months
   const note = readableValue(product.value?.warranty_note)
 
-  if (!months && !note) return ''
-
-  const duration = months ? `Thời hạn ${months} tháng` : 'Chính sách bảo hành'
-
-  return note
-    ? `${duration}, áp dụng theo ghi chú: ${note}`
-    : `${duration}, giúp bạn an tâm hơn trong quá trình sử dụng và bảo dưỡng sản phẩm.`
-})
-
-const specs = computed(() => {
-  const movement = selectedVariant.value?.movement_type ?? activeVariants.value[0]?.movement_type
-
   return [
-    {
-      key: 'case',
-      label: 'Vỏ',
-      value: product.value?.case_material,
-      description: hasText(product.value?.case_material) ? materialNote('case', product.value.case_material) : '',
-    },
-    {
-      key: 'glass',
-      label: 'Mặt kính',
-      value: product.value?.glass_material,
-      description: hasText(product.value?.glass_material) ? materialNote('glass', product.value.glass_material) : '',
-    },
-    {
-      key: 'movement',
-      label: 'Bộ máy',
-      value: movement ? movementLabel(movement) : '',
-      description: movement ? movementNote(movement) : '',
-    },
-    {
-      key: 'strap',
-      label: 'Dây đeo',
-      value: product.value?.strap_material,
-      description: hasText(product.value?.strap_material) ? materialNote('strap', product.value.strap_material) : '',
-    },
-    {
-      key: 'water',
-      label: 'Khả năng chống nước',
-      value: product.value?.water_resistance,
-      description: product.value?.water_resistance ? waterResistanceNote(product.value.water_resistance) : '',
-    },
-    {
-      key: 'warranty',
-      label: 'Bảo hành',
-      value: warrantyNoteText.value
-        ? (product.value?.warranty_months ? `${product.value.warranty_months} tháng` : 'Theo chính sách')
-        : '',
-      description: warrantyNoteText.value,
-    },
-  ].filter((item) => hasText(item.value) || hasText(item.description))
+    months ? `${months} tháng` : '',
+    note,
+  ].filter(hasText).join(' · ')
 })
+
+const specs = computed(() => [
+  {
+    key: 'case',
+    label: 'Case material',
+    value: product.value?.case_material,
+  },
+  {
+    key: 'strap-material',
+    label: 'Strap',
+    value: product.value?.strap_material,
+  },
+  {
+    key: 'glass',
+    label: 'Glass',
+    value: product.value?.glass_material,
+  },
+  {
+    key: 'diameter',
+    label: 'Diameter',
+    value: selectedVariant.value?.diameter_mm ? `${selectedVariant.value.diameter_mm}mm` : '',
+  },
+  {
+    key: 'movement',
+    label: 'Movement',
+    value: selectedVariant.value?.movement_type ? movementLabel(selectedVariant.value.movement_type) : '',
+  },
+  {
+    key: 'water',
+    label: 'Resistance',
+    value: product.value?.water_resistance,
+  },
+  {
+    key: 'strap-color',
+    label: 'Strap color',
+    value: selectedVariant.value?.strap_color,
+  },
+  {
+    key: 'dial-color',
+    label: 'Dial color',
+    value: selectedVariant.value?.dial_color,
+  },
+  {
+    key: 'warranty',
+    label: 'Warranty',
+    value: warrantyValue.value,
+  },
+  {
+    key: 'sku',
+    label: 'SKU',
+    value: selectedVariant.value?.sku,
+  },
+].filter((item) => hasText(item.value)))
 
 const options = computed(() => ({
-  strap_color: [...new Set(activeVariants.value.map((variant) => variant.strap_color))],
-  dial_color: [...new Set(activeVariants.value.map((variant) => variant.dial_color))],
-  diameter_mm: [...new Set(activeVariants.value.map((variant) => Number(variant.diameter_mm)))].sort((a, b) => a - b),
-  movement_type: [...new Set(activeVariants.value.map((variant) => variant.movement_type))],
+  strap_color: [...new Set(activeVariants.value.map((variant) => variant.strap_color).filter(Boolean))],
+  dial_color: [...new Set(activeVariants.value.map((variant) => variant.dial_color).filter(Boolean))],
+  diameter_mm: [...new Set(activeVariants.value.map((variant) => Number(variant.diameter_mm)).filter(Boolean))].sort((a, b) => a - b),
+  movement_type: [...new Set(activeVariants.value.map((variant) => variant.movement_type).filter(Boolean))],
 }))
 
 const displayRating = computed(() => Number(reviewMeta.rating_avg || product.value?.rating_avg || 0).toFixed(1))
 const reviewCountLabel = computed(() => `${Number(reviewMeta.reviews_count || reviews.value.length || 0)} đánh giá`)
+const reviewQuotes = computed(() => {
+  if (reviews.value.length) {
+    return reviews.value.slice(0, 2).map((review) => ({
+      key: review.id,
+      quote: review.comment || `${review.rating} / 5`,
+      author: review.user?.name ?? 'Khách hàng Watchora',
+    }))
+  }
+
+  return [
+    {
+      key: 'rating',
+      quote: `${displayRating.value} / 5`,
+      author: reviewCountLabel.value,
+    },
+  ]
+})
 
 const partialMatch = (candidate) => activeVariants.value.some((variant) => (
   (!candidate.strap_color || variant.strap_color === candidate.strap_color)
@@ -290,7 +275,7 @@ const selectOption = async (field, value, event) => {
   cartError.value = ''
 
   if (event?.currentTarget && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    gsap.fromTo(event.currentTarget, { scale: 0.94 }, { scale: 1, duration: 0.24, ease: 'back.out(1.8)' })
+    gsap.fromTo(event.currentTarget, { scale: 0.96 }, { scale: 1, duration: 0.24, ease: 'back.out(1.6)' })
   }
 
   await nextTick()
@@ -343,8 +328,6 @@ const fetchProduct = async () => {
     errorMessage.value = error.response?.data?.message ?? 'Không thể tải chi tiết sản phẩm.'
   } finally {
     isLoading.value = false
-    await nextTick()
-    setupSpecsReveal()
   }
 }
 
@@ -358,7 +341,7 @@ const fetchRelatedProducts = async () => {
   const response = await getProducts(params)
   relatedProducts.value = (response.data.data?.items ?? [])
     .filter((item) => item.slug !== product.value.slug)
-    .slice(0, 4)
+    .slice(0, 3)
 }
 
 const fetchProductReviews = async () => {
@@ -428,44 +411,6 @@ const preselectFirstAvailableVariant = () => {
   quantity.value = 1
 }
 
-const setupSpecsReveal = () => {
-  specsMatchMedia?.revert()
-
-  if (!specsRef.value) return
-
-  specsMatchMedia = gsap.matchMedia()
-
-  specsMatchMedia.add('(prefers-reduced-motion: reduce)', () => {
-    gsap.set(specsRef.value.querySelectorAll('.watch-spec-item'), { clearProps: 'all' })
-  })
-
-  specsMatchMedia.add('(prefers-reduced-motion: no-preference)', () => {
-    const items = specsRef.value.querySelectorAll('.watch-spec-item')
-    gsap.set(items, { autoAlpha: 0, y: 24 })
-
-    const triggers = ScrollTrigger.batch(items, {
-      start: 'top 86%',
-      once: true,
-      batchMax: 6,
-      interval: 0.08,
-      onEnter: (batch) => {
-        gsap.to(batch, {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.55,
-          ease: 'power2.out',
-          stagger: 0.09,
-          overwrite: true,
-        })
-      },
-    })
-
-    ScrollTrigger.refresh()
-
-    return () => triggers.forEach((trigger) => trigger.kill())
-  })
-}
-
 const addToCart = async () => {
   cartMessage.value = ''
   cartError.value = ''
@@ -497,366 +442,110 @@ watch(selectedVariant, (variant) => {
   clampQuantity()
 })
 
-watch(selectedImage, async () => {
-  await nextTick()
-
-  if (mainImageRef.value && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    gsap.fromTo(mainImageRef.value, { autoAlpha: 0.35 }, { autoAlpha: 1, duration: 0.32, ease: 'power1.out' })
-  }
-})
-
 watch(() => route.params.slug, () => {
   fetchProduct()
 })
 
 onMounted(fetchProduct)
-
-onBeforeUnmount(() => {
-  specsMatchMedia?.revert()
-})
 </script>
 
 <template>
   <main class="w-full min-w-0 bg-background text-on-surface">
     <section v-if="isLoading" class="mx-auto w-full max-w-container-max px-margin-mobile py-20 md:px-gutter">
-      <div class="rounded-[var(--radius-watch-lg)] border border-border bg-surface p-10 text-center text-on-surface-variant">
+      <div class="border border-outline-variant bg-surface p-10 text-center text-on-surface-variant">
         Đang tải chi tiết sản phẩm...
       </div>
     </section>
 
     <section v-else-if="errorMessage" class="mx-auto w-full max-w-container-max px-margin-mobile py-20 md:px-gutter">
-      <div class="rounded-[var(--radius-watch-lg)] border border-[var(--accent-danger)] bg-[var(--accent-danger-surface)] p-8 text-[var(--accent-danger)]">
+      <div class="border border-[var(--accent-danger)] bg-[var(--accent-danger-surface)] p-8 text-[var(--accent-danger)]">
         {{ errorMessage }}
       </div>
     </section>
 
     <template v-else-if="product">
-      <section class="mx-auto grid w-full max-w-container-max gap-10 px-margin-mobile py-12 md:px-gutter lg:grid-cols-[1.05fr_0.95fr]">
-        <div class="w-full min-w-0">
-          <div class="aspect-[4/5] w-full overflow-hidden rounded-[var(--radius-watch-lg)] border border-border bg-surface shadow-[var(--shadow-watch-soft)]">
-            <img
-              ref="mainImageRef"
-              :src="selectedImage"
-              :alt="product.name"
-              class="h-full w-full object-cover"
-              @error="useNextGalleryImage"
-            />
-          </div>
+      <ProductCampaignHero
+        :product="product"
+        :content="editorialContent.hero"
+        :selected-variant="selectedVariant"
+        :price-display="displayPrice"
+        :fallback-image="selectedImage || galleryImages[0]"
+      />
 
-          <div class="mt-4 grid w-full min-w-0 grid-cols-4 gap-3 sm:grid-cols-6">
-            <button
-              v-for="image in galleryImages"
-              :key="image"
-              type="button"
-              class="aspect-square w-full overflow-hidden rounded-[var(--radius-watch-md)] border bg-surface transition-all hover:border-[var(--accent-primary)]"
-              :class="image === selectedImage ? 'border-[var(--accent-primary)] ring-2 ring-[rgb(161_98_7/0.22)]' : 'border-border'"
-              @click="changeImage(image)"
-            >
-              <img :src="image" :alt="product.name" class="h-full w-full object-cover" loading="lazy" />
-            </button>
-          </div>
-        </div>
-
-        <div class="flex w-full min-w-0 flex-col">
-          <div class="w-full min-w-0">
-            <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">
-              {{ product.brand?.name ?? 'Watchora' }}
-            </p>
-            <h1 class="mt-3 w-full font-display text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] text-primary">
-              {{ product.name }}
-            </h1>
-
-            <div class="mt-5 flex w-full min-w-0 flex-wrap gap-2">
-              <span class="rounded-full border border-border bg-surface px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-                {{ product.category?.name }}
-              </span>
-              <span class="rounded-full border border-[rgb(161_98_7/0.34)] bg-[rgb(161_98_7/0.08)] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[var(--accent-primary)]">
-                {{ genderLabel }}
-              </span>
-              <span
-                v-if="isOutOfStock"
-                class="rounded-full border border-[var(--accent-danger)] bg-[var(--accent-danger-surface)] px-3 py-1 text-xs font-bold uppercase tracking-[0.12em] text-[var(--accent-danger)]"
-              >
-                Hết hàng
-              </span>
-            </div>
-
-            <p class="watch-price-accent mt-6 w-full font-body text-3xl">
-              {{ displayPrice }}
-            </p>
-
-            <p class="mt-5 w-full text-base leading-8 text-on-surface-variant">
-              {{ product.description }}
-            </p>
-          </div>
-
-          <div class="mt-8 space-y-6">
-            <div class="w-full min-w-0">
-              <p class="w-full text-xs font-bold uppercase tracking-[0.16em] text-primary/70">Màu dây</p>
-              <div class="mt-3 flex w-full min-w-0 flex-wrap gap-3">
-                <button
-                  v-for="value in options.strap_color"
-                  :key="value"
-                  type="button"
-                  class="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-35"
-                  :class="selected.strap_color === value ? 'border-[var(--accent-primary)] bg-[rgb(161_98_7/0.08)] text-primary' : 'border-border bg-surface text-on-surface'"
-                  :disabled="isOptionDisabled('strap_color', value)"
-                  @click="selectOption('strap_color', value, $event)"
-                >
-                  <span class="h-5 w-5 rounded-full border border-black/15" :style="{ backgroundColor: colorMap[value] ?? '#d6d3d1' }"></span>
-                  {{ value }}
-                </button>
-              </div>
-            </div>
-
-            <div class="w-full min-w-0">
-              <p class="w-full text-xs font-bold uppercase tracking-[0.16em] text-primary/70">Màu mặt</p>
-              <div class="mt-3 flex w-full min-w-0 flex-wrap gap-3">
-                <button
-                  v-for="value in options.dial_color"
-                  :key="value"
-                  type="button"
-                  class="flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-35"
-                  :class="selected.dial_color === value ? 'border-[var(--accent-primary)] bg-[rgb(161_98_7/0.08)] text-primary' : 'border-border bg-surface text-on-surface'"
-                  :disabled="isOptionDisabled('dial_color', value)"
-                  @click="selectOption('dial_color', value, $event)"
-                >
-                  <span class="h-5 w-5 rounded-full border border-black/15" :style="{ backgroundColor: colorMap[value] ?? '#d6d3d1' }"></span>
-                  {{ value }}
-                </button>
-              </div>
-            </div>
-
-            <div class="w-full min-w-0">
-              <p class="w-full text-xs font-bold uppercase tracking-[0.16em] text-primary/70">Đường kính</p>
-              <div class="mt-3 flex w-full min-w-0 flex-wrap gap-3">
-                <button
-                  v-for="value in options.diameter_mm"
-                  :key="value"
-                  type="button"
-                  class="min-h-11 cursor-pointer rounded-full border px-4 py-2 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-35"
-                  :class="Number(selected.diameter_mm) === Number(value) ? 'border-[var(--accent-primary)] bg-[rgb(161_98_7/0.08)] text-primary' : 'border-border bg-surface text-on-surface'"
-                  :disabled="isOptionDisabled('diameter_mm', value)"
-                  @click="selectOption('diameter_mm', value, $event)"
-                >
-                  {{ value }}mm
-                </button>
-              </div>
-            </div>
-
-            <div class="w-full min-w-0">
-              <p class="w-full text-xs font-bold uppercase tracking-[0.16em] text-primary/70">Loại máy</p>
-              <div class="mt-3 flex w-full min-w-0 flex-wrap gap-3">
-                <button
-                  v-for="value in options.movement_type"
-                  :key="value"
-                  type="button"
-                  class="min-h-11 cursor-pointer rounded-full border px-4 py-2 text-sm font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-35"
-                  :class="selected.movement_type === value ? 'border-[var(--accent-primary)] bg-[rgb(161_98_7/0.08)] text-primary' : 'border-border bg-surface text-on-surface'"
-                  :disabled="isOptionDisabled('movement_type', value)"
-                  @click="selectOption('movement_type', value, $event)"
-                >
-                  {{ movementLabel(value) }}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <p v-if="hasInvalidCompleteSelection" class="mt-5 w-full rounded-[var(--radius-watch-md)] border border-[var(--accent-danger)] bg-[var(--accent-danger-surface)] px-4 py-3 text-sm font-semibold text-[var(--accent-danger)]">
-            Tổ hợp này hiện không có sẵn.
+      <section
+        id="product-commerce"
+        class="scroll-mt-24 bg-background px-6 py-18 md:px-20 md:py-26 lg:px-[100px]"
+      >
+        <div class="mx-auto mb-10 w-full max-w-[1480px] md:mb-12">
+          <p class="w-full font-body text-[10px] font-medium uppercase tracking-[0.32em] text-primary/45">
+            Product atelier
           </p>
+          <h2 class="mt-4 w-full font-display text-[clamp(2.5rem,5vw,4.25rem)] font-normal leading-none text-primary">
+            Configure your timepiece.
+          </h2>
+        </div>
 
-          <div class="mt-8 flex w-full min-w-0 flex-col gap-3 sm:flex-row">
-            <div class="flex h-12 w-full min-w-0 items-center rounded-[var(--radius-watch-md)] border border-border bg-surface sm:w-40">
-              <button type="button" class="h-full w-12 cursor-pointer text-xl font-semibold disabled:cursor-not-allowed disabled:opacity-40" :disabled="quantity <= 1" @click="addQuantity(-1)">−</button>
-              <input
-                v-model.number="quantity"
-                type="number"
-                min="1"
-                :max="quantityMax"
-                class="h-full w-full min-w-0 border-x border-border bg-transparent text-center font-semibold outline-none"
-                @blur="clampQuantity"
-              />
-              <button type="button" class="h-full w-12 cursor-pointer text-xl font-semibold disabled:cursor-not-allowed disabled:opacity-40" :disabled="quantity >= stockQuantity" @click="addQuantity(1)">+</button>
-            </div>
+        <div class="mx-auto grid w-full max-w-[1480px] items-start gap-12 lg:grid-cols-[minmax(0,0.62fr)_minmax(360px,0.38fr)] lg:gap-14 xl:gap-16">
+          <ProductGallery
+            v-model="selectedImage"
+            :images="galleryImages"
+            :product-name="product.name"
+            @image-error="useNextGalleryImage"
+            @select-image="changeImage"
+          />
 
-            <button
-              type="button"
-              class="min-h-12 w-full cursor-pointer rounded-[var(--radius-watch-md)] bg-primary px-6 text-sm font-bold uppercase tracking-[0.14em] text-on-primary transition-colors hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-45"
-              :disabled="!canAddToCart"
-              @click="addToCart"
-            >
-              {{ isAdding ? 'Đang thêm...' : isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng' }}
-            </button>
-          </div>
-
-          <p class="mt-3 w-full text-sm text-on-surface-variant">
-            <template v-if="selectedVariant">
-              Tồn kho: {{ stockQuantity }} sản phẩm · SKU {{ selectedVariant.sku }}
-            </template>
-            <template v-else>
-              Chọn đủ 4 tùy chọn để xem tồn kho.
-            </template>
-          </p>
-          <p v-if="cartMessage" class="mt-3 w-full text-sm font-semibold text-[var(--accent-success)]">{{ cartMessage }}</p>
-          <p v-if="cartError" class="mt-3 w-full text-sm font-semibold text-[var(--accent-danger)]">{{ cartError }}</p>
+          <ProductPurchasePanel
+            :product="product"
+            :gender-label="genderLabel"
+            :display-price="displayPrice"
+            :options="options"
+            :selected="selected"
+            :selected-variant="selectedVariant"
+            :stock-quantity="stockQuantity"
+            :quantity="quantity"
+            :quantity-max="quantityMax"
+            :can-add-to-cart="canAddToCart"
+            :is-adding="isAdding"
+            :is-out-of-stock="isOutOfStock"
+            :has-invalid-complete-selection="hasInvalidCompleteSelection"
+            :cart-message="cartMessage"
+            :cart-error="cartError"
+            :color-map="colorMap"
+            :is-option-disabled="isOptionDisabled"
+            :movement-label="movementLabel"
+            @select-option="selectOption"
+            @add-quantity="addQuantity"
+            @update:quantity="quantity = $event"
+            @clamp-quantity="clampQuantity"
+            @add-to-cart="addToCart"
+          />
         </div>
       </section>
 
-      <section ref="specsRef" class="mx-auto w-full max-w-container-max px-margin-mobile py-12 md:px-gutter">
-        <div class="grid w-full min-w-0 gap-8 lg:grid-cols-[0.75fr_1.25fr]">
-          <div class="w-full min-w-0">
-            <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">Technical notes</p>
-            <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
-              Thông số kỹ thuật.
-            </h2>
-            <p class="mt-5 w-full max-w-md text-base leading-8 text-on-surface-variant">
-              Những chi tiết cốt lõi được diễn giải ngắn gọn để bạn dễ hình dung cảm giác đeo, độ bền và cách sử dụng hằng ngày.
-            </p>
-          </div>
-          <div class="grid w-full min-w-0 gap-4 sm:grid-cols-2">
-            <article
-              v-for="item in specs"
-              :key="item.key"
-              class="watch-spec-item flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)]"
-            >
-              <p class="w-full text-xs font-bold uppercase tracking-[0.18em] text-primary/55">
-                {{ item.label }}
-              </p>
-              <h3 class="mt-3 w-full font-display text-2xl font-semibold leading-tight text-primary">
-                {{ item.label }} — {{ item.value }}
-              </h3>
-              <p class="mt-4 w-full text-base leading-8 text-on-surface-variant">
-                {{ item.description }}
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
+      <EditorialStorySection :content="editorialContent.story" />
 
-      <section class="border-t border-border bg-background">
-        <div class="mx-auto grid w-full max-w-container-max gap-8 px-margin-mobile py-16 md:px-gutter lg:grid-cols-[0.8fr_1.2fr]">
-          <div class="flex w-full min-w-0 flex-col">
-            <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">Customer reviews</p>
-            <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
-              Đánh giá sản phẩm.
-            </h2>
-            <div class="mt-6 flex w-full min-w-0 items-end gap-3">
-              <p class="font-display text-6xl font-semibold leading-none text-primary">{{ displayRating }}</p>
-              <p class="pb-2 text-sm font-semibold uppercase tracking-[0.14em] text-on-surface-variant">
-                / 5 · {{ reviewCountLabel }}
-              </p>
-            </div>
-            <p class="mt-5 w-full max-w-md text-base leading-8 text-on-surface-variant">
-              Review chỉ mở cho khách đã có đơn hàng hoàn tất chứa mẫu đồng hồ này, để phần đánh giá phản ánh trải nghiệm mua thật.
-            </p>
-          </div>
+      <EditorialSignatureMoment :content="editorialContent.signatureMoment" />
 
-          <div class="grid w-full min-w-0 gap-5">
-            <form
-              v-if="authStore.isAuthenticated && reviewMeta.can_review"
-              class="flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)]"
-              @submit.prevent="submitReview"
-            >
-              <p class="w-full text-xs font-bold uppercase tracking-[0.18em] text-primary/55">
-                {{ reviewMeta.existing_review ? 'Cập nhật đánh giá của bạn' : 'Viết đánh giá của bạn' }}
-              </p>
+      <ProductSpecifications
+        :specs="specs"
+        :intro="technicalIntro"
+      />
 
-              <label class="mt-5 flex w-full min-w-0 flex-col gap-2 text-sm font-semibold text-primary">
-                Điểm đánh giá
-                <select
-                  v-model.number="reviewForm.rating"
-                  class="h-11 w-full rounded-[var(--radius-watch-md)] border border-border bg-background px-3 text-on-surface outline-none focus:border-[var(--accent-primary)]"
-                  required
-                >
-                  <option v-for="score in [5, 4, 3, 2, 1]" :key="score" :value="score">
-                    {{ score }} sao
-                  </option>
-                </select>
-              </label>
+      <ProductQuoteSection
+        :quotes="reviewQuotes"
+        :can-review="authStore.isAuthenticated && reviewMeta.can_review"
+        :rating="reviewForm.rating"
+        :comment="reviewForm.comment"
+        :existing-review="reviewMeta.existing_review"
+        :is-submitting="isSubmittingReview"
+        :message="reviewMessage"
+        :error="reviewError"
+        @update:rating="reviewForm.rating = $event"
+        @update:comment="reviewForm.comment = $event"
+        @submit-review="submitReview"
+      />
 
-              <label class="mt-4 flex w-full min-w-0 flex-col gap-2 text-sm font-semibold text-primary">
-                Cảm nhận
-                <textarea
-                  v-model.trim="reviewForm.comment"
-                  rows="4"
-                  maxlength="2000"
-                  class="w-full rounded-[var(--radius-watch-md)] border border-border bg-background px-3 py-3 text-on-surface outline-none focus:border-[var(--accent-primary)]"
-                  placeholder="Chia sẻ cảm nhận về thiết kế, cảm giác đeo, độ hoàn thiện..."
-                ></textarea>
-              </label>
-
-              <button
-                type="submit"
-                class="mt-5 min-h-11 w-full cursor-pointer rounded-[var(--radius-watch-md)] bg-primary px-5 text-sm font-bold uppercase tracking-[0.14em] text-on-primary transition-colors hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50 sm:w-fit"
-                :disabled="isSubmittingReview"
-              >
-                {{ isSubmittingReview ? 'Đang gửi...' : reviewMeta.existing_review ? 'Cập nhật đánh giá' : 'Gửi đánh giá' }}
-              </button>
-
-              <p v-if="reviewMessage" class="mt-3 w-full text-sm font-semibold text-[var(--accent-success)]">{{ reviewMessage }}</p>
-              <p v-if="reviewError" class="mt-3 w-full text-sm font-semibold text-[var(--accent-danger)]">{{ reviewError }}</p>
-            </form>
-
-            <div
-              v-else
-              class="flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-dashed border-border bg-surface/70 p-6"
-            >
-              <p class="w-full text-sm font-semibold text-primary">
-                {{ authStore.isAuthenticated ? 'Bạn có thể đánh giá sau khi có đơn hàng hoàn tất chứa sản phẩm này.' : 'Đăng nhập để hệ thống kiểm tra quyền đánh giá sản phẩm.' }}
-              </p>
-            </div>
-
-            <div v-if="isLoadingReviews" class="rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 text-on-surface-variant">
-              Đang tải đánh giá...
-            </div>
-
-            <div v-else-if="reviews.length" class="grid w-full min-w-0 gap-4">
-              <article
-                v-for="review in reviews"
-                :key="review.id"
-                class="flex w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6"
-              >
-                <div class="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
-                  <div class="w-full min-w-0 sm:w-auto">
-                    <p class="w-full font-semibold text-primary">{{ review.user?.name ?? 'Khách hàng Watchora' }}</p>
-                    <p class="mt-1 w-full text-xs uppercase tracking-[0.14em] text-on-surface-variant">
-                      {{ new Date(review.created_at).toLocaleDateString('vi-VN') }}
-                    </p>
-                  </div>
-                  <p class="w-fit rounded-full border border-[rgb(161_98_7/0.34)] bg-[rgb(161_98_7/0.08)] px-3 py-1 text-sm font-bold text-[var(--accent-primary)]">
-                    {{ review.rating }} / 5
-                  </p>
-                </div>
-                <p class="mt-4 w-full text-base leading-8 text-on-surface-variant">
-                  {{ review.comment || 'Khách hàng chưa để lại nhận xét chi tiết.' }}
-                </p>
-              </article>
-            </div>
-
-            <div v-else class="rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 text-on-surface-variant">
-              Sản phẩm chưa có đánh giá. Đánh giá đầu tiên sẽ xuất hiện sau khi khách có đơn hoàn tất.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section v-if="relatedProducts.length" class="border-t border-border bg-surface">
-        <div class="mx-auto w-full max-w-container-max px-margin-mobile py-16 md:px-gutter">
-          <div class="flex w-full min-w-0 flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div class="w-full min-w-0">
-              <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">Related</p>
-              <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
-                Có thể bạn cũng thích.
-              </h2>
-            </div>
-            <RouterLink to="/products" class="watch-accent-strong w-fit text-sm font-bold uppercase tracking-[0.14em]">
-              Xem catalog
-            </RouterLink>
-          </div>
-          <ProductShowcaseGrid class="mt-10" :products="relatedProducts" />
-        </div>
-      </section>
+      <ProductCollectionSection :products="relatedProducts" />
     </template>
   </main>
 </template>

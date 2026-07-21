@@ -1,11 +1,9 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { createVnpayPayment, getShippingZones } from '../api/axios'
 import { useCartStore } from '../stores/cart'
 import { formatCurrency } from '../utils/formatCurrency'
 
-const router = useRouter()
 const cartStore = useCartStore()
 
 const isProcessing = ref(false)

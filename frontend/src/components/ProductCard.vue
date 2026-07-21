@@ -2,11 +2,16 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { gsap } from 'gsap'
 import { formatCurrency } from '../utils/formatCurrency'
+import { motionTokens } from '../utils/motion'
 
 const props = defineProps({
   product: {
     type: Object,
     required: true,
+  },
+  variant: {
+    type: String,
+    default: 'default',
   },
 })
 
@@ -15,17 +20,27 @@ const quickActionRef = ref(null)
 const imageIndex = ref(0)
 let hoverTimeline
 let reduceMotionQuery
+let hoverTarget
 
 const productHref = computed(() => `/products/${props.product.slug}`)
 const brandName = computed(() => props.product.brand?.name ?? 'Watchora')
 const imageCandidates = computed(() => {
-  const galleryImage = (props.product.product_images ?? props.product.images ?? [])
-    .map((image) => image.image_path ?? image.url ?? image.path)
+  const gallery = [
+    ...(props.product.product_images ?? []),
+    ...(props.product.images ?? []),
+  ]
+  const primaryImage = gallery.find((image) => image?.is_primary)
+  const normalizedGallery = gallery
+    .map((image) => image?.image_path ?? image?.url ?? image?.path)
     .filter(Boolean)
 
   return [...new Set([
+    primaryImage?.image_path ?? primaryImage?.url ?? primaryImage?.path,
     props.product.thumbnail,
-    ...galleryImage,
+    props.product.thumbnail_url,
+    props.product.image_url,
+    props.product.image,
+    ...normalizedGallery,
     ...(props.product.variants ?? []).map((variant) => variant.image),
     '/vite.svg',
   ].filter(Boolean))]
@@ -56,9 +71,12 @@ const reverseHover = () => {
 }
 
 onMounted(() => {
-  reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  if (props.variant === 'editorial') return
 
-  if (reduceMotionQuery.matches || !cardRef.value || !quickActionRef.value) {
+  reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  hoverTarget = cardRef.value?.querySelector('a')
+
+  if (reduceMotionQuery.matches || !hoverTarget || !quickActionRef.value) {
     return
   }
 
@@ -66,14 +84,16 @@ onMounted(() => {
 
   hoverTimeline = gsap.timeline({
     paused: true,
-    defaults: { duration: 0.18, ease: 'power2.out', overwrite: 'auto' },
+    defaults: { duration: motionTokens.durationMicro, ease: motionTokens.easeReveal, overwrite: 'auto' },
+    onReverseComplete: () => {
+      gsap.set(hoverTarget, { clearProps: 'transform,boxShadow' })
+    },
   })
-
   hoverTimeline
-    .to(cardRef.value, {
-      y: -5,
-      scale: 1.015,
-      boxShadow: '0 24px 70px rgb(12 10 9 / 0.13)',
+    .to(hoverTarget, {
+      y: -motionTokens.cardLift,
+      scale: motionTokens.cardScale,
+      boxShadow: '0 16px 44px rgb(12 10 9 / 0.09)',
     })
     .to(quickActionRef.value, { autoAlpha: 1, y: 0 }, '<0.05')
 })
@@ -90,21 +110,29 @@ watch(() => props.product.slug, () => {
 <template>
   <article
     ref="cardRef"
-    class="watch-product-card group flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[var(--radius-watch-lg)] border border-border bg-surface shadow-[var(--shadow-watch-soft)] outline-none transition-colors hover:border-primary/30 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    class="watch-product-card group flex h-full w-full min-w-0 flex-col overflow-hidden border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:transform-none"
+    :class="variant === 'editorial'
+      ? 'rounded-none border-transparent bg-transparent shadow-none'
+      : 'rounded-[var(--radius-watch-lg)] border-border bg-surface shadow-[var(--shadow-watch-soft)] hover:border-primary/30'"
     @mouseenter="playHover"
     @mouseleave="reverseHover"
   >
     <RouterLink
       :to="productHref"
-      class="flex h-full w-full min-w-0 flex-col outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      class="flex h-full w-full min-w-0 flex-col outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transform-none"
       @focus="playHover"
       @blur="reverseHover"
     >
-      <div class="relative aspect-[4/5] w-full overflow-hidden bg-surface-container-low">
+      <div
+        class="relative w-full overflow-hidden"
+        :class="variant === 'editorial' ? 'aspect-[3/4] bg-[#fbfaf7]' : 'aspect-[4/5] bg-surface-container-low'"
+      >
         <img
           :src="imageSrc"
           :alt="product.name"
-          class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          :style="{ '--watch-card-image-scale': motionTokens.imageScale }"
+          class="h-full w-full transition-[opacity,transform] duration-500 motion-reduce:transition-none motion-reduce:transform-none"
+          :class="variant === 'editorial' ? 'object-contain p-1 opacity-95 group-hover:scale-[1.025] group-hover:opacity-100 motion-reduce:group-hover:scale-100' : 'object-cover group-hover:scale-[var(--watch-card-image-scale)] motion-reduce:group-hover:scale-100'"
           loading="lazy"
           @error="useNextImage"
         />
@@ -116,23 +144,41 @@ watch(() => props.product.slug, () => {
         </span>
       </div>
 
-      <div class="flex w-full min-w-0 flex-1 flex-col gap-3 p-4">
+      <div
+        class="flex w-full min-w-0 flex-1 flex-col"
+        :class="variant === 'editorial' ? 'gap-3 px-0 pb-0 pt-4' : 'gap-3 p-4'"
+      >
         <div class="w-full min-w-0">
-        <p class="watch-accent-text w-full truncate text-xs font-bold uppercase tracking-[0.16em]">
+          <p
+            class="w-full truncate text-xs uppercase"
+            :class="variant === 'editorial' ? 'font-medium tracking-[0.24em] text-primary/42' : 'font-bold watch-accent-text tracking-[0.16em]'"
+          >
             {{ brandName }}
           </p>
-          <h3 class="mt-2 w-full min-w-0 text-xl font-semibold leading-tight text-on-surface">
+          <h3
+            class="w-full min-w-0 leading-tight text-on-surface"
+            :class="variant === 'editorial' ? 'mt-2 font-display text-[clamp(1.65rem,2.4vw,2.35rem)] font-semibold leading-[1.02] text-primary' : 'mt-2 text-xl font-semibold'"
+          >
             {{ product.name }}
           </h3>
         </div>
 
-        <div class="mt-auto flex w-full min-w-0 items-end justify-between gap-3">
-          <p class="watch-price-accent w-full min-w-0 font-body text-base">
+        <div
+          class="mt-auto flex w-full min-w-0 items-end justify-between gap-3"
+          :class="variant === 'editorial' ? 'pt-2' : ''"
+        >
+          <p
+            class="w-full min-w-0 font-body text-base"
+            :class="variant === 'editorial' ? 'font-medium text-primary/62' : 'watch-price-accent'"
+          >
             {{ priceLabel }}
           </p>
           <span
             ref="quickActionRef"
-            class="watch-accent-strong shrink-0 rounded-[var(--radius-watch-sm)] border border-[rgb(161_98_7/0.42)] bg-[rgb(161_98_7/0.07)] px-3 py-2 text-xs font-bold uppercase tracking-[0.12em]"
+            class="shrink-0 border px-3 py-2 text-xs font-bold uppercase"
+            :class="variant === 'editorial'
+              ? 'border-primary/12 bg-transparent tracking-[0.16em] text-primary/70 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 motion-reduce:transition-none'
+              : 'watch-accent-strong rounded-[var(--radius-watch-sm)] border-[rgb(161_98_7/0.42)] bg-[rgb(161_98_7/0.07)] tracking-[0.12em]'"
           >
             Xem chi tiết
           </span>

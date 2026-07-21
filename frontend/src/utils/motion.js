@@ -1,0 +1,15 @@
+export const motionTokens = {
+  durationMicro: 0.2,
+  durationReveal: 0.52,
+  durationImage: 0.32,
+  easeReveal: 'power2.out',
+  easeImage: 'power1.out',
+  revealYDesktop: 20,
+  revealYMobile: 14,
+  staggerSmall: 0.06,
+  staggerReveal: 0.08,
+  variantScaleFrom: 0.97,
+  cardLift: 3,
+  cardScale: 1.004,
+  imageScale: 1.008,
+}
