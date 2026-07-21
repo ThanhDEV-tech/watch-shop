@@ -1,5 +1,7 @@
 <script setup>
-import { computed, useId } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue'
+import { gsap } from 'gsap'
+import { motionTokens } from '../../utils/motion'
 
 const props = defineProps({
   product: {
@@ -25,6 +27,8 @@ const props = defineProps({
 })
 
 const headingId = `product-campaign-hero-${useId()}`
+const heroRef = ref(null)
+let heroMotion
 
 const readString = (value) => String(value ?? '').trim()
 const stripHtml = (value) => readString(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
@@ -65,6 +69,53 @@ const body = computed(() => (
 ))
 const ctaLabel = computed(() => readString(props.content?.ctaLabel) || 'Configure yours')
 
+const setupHeroMotion = async () => {
+  await nextTick()
+
+  heroMotion?.revert()
+
+  if (!heroRef.value) return
+
+  heroMotion = gsap.matchMedia()
+
+  heroMotion.add('(prefers-reduced-motion: reduce)', () => {
+    const targets = heroRef.value?.querySelectorAll('.watch-hero-image, .watch-hero-reveal') ?? []
+    gsap.set(targets, { clearProps: 'all' })
+  })
+
+  heroMotion.add('(prefers-reduced-motion: no-preference)', () => {
+    const image = heroRef.value?.querySelector('.watch-hero-image')
+    const revealItems = heroRef.value?.querySelectorAll('.watch-hero-reveal') ?? []
+
+    if (image) {
+      gsap.fromTo(image, {
+        autoAlpha: 0.92,
+        scale: 1.018,
+      }, {
+        autoAlpha: 1,
+        scale: 1,
+        duration: 0.78,
+        ease: motionTokens.easeReveal,
+        overwrite: 'auto',
+      })
+    }
+
+    if (revealItems.length) {
+      gsap.fromTo(revealItems, {
+        autoAlpha: 0,
+        y: 12,
+      }, {
+        autoAlpha: 1,
+        y: 0,
+        duration: motionTokens.durationReveal,
+        ease: motionTokens.easeReveal,
+        stagger: motionTokens.staggerSmall,
+        overwrite: 'auto',
+      })
+    }
+  })
+}
+
 const handleCommerceScroll = (event) => {
   const target = document.getElementById('product-commerce')
 
@@ -78,10 +129,17 @@ const handleCommerceScroll = (event) => {
     block: 'start',
   })
 }
+
+onMounted(setupHeroMotion)
+
+onBeforeUnmount(() => {
+  heroMotion?.revert()
+})
 </script>
 
 <template>
   <section
+    ref="heroRef"
     class="relative min-h-[92svh] w-full min-w-0 overflow-hidden bg-[var(--watch-color-ink-950)] text-white md:min-h-screen"
     :aria-labelledby="heading ? headingId : undefined"
   >
@@ -94,7 +152,7 @@ const handleCommerceScroll = (event) => {
       <img
         :src="desktopImage"
         :alt="imageAlt"
-        class="absolute inset-0 h-full w-full object-cover"
+        class="watch-hero-image absolute inset-0 h-full w-full object-cover"
         :style="{ objectPosition }"
         decoding="async"
         fetchpriority="high"
@@ -109,7 +167,7 @@ const handleCommerceScroll = (event) => {
       <div class="w-full min-w-0 max-w-3xl">
         <p
           v-if="eyebrow"
-          class="w-full font-body text-[10px] font-medium uppercase tracking-[0.36em] text-white/72"
+          class="watch-hero-reveal w-full font-body text-[10px] font-medium uppercase tracking-[0.36em] text-white/72"
         >
           {{ eyebrow }}
         </p>
@@ -117,19 +175,19 @@ const handleCommerceScroll = (event) => {
         <h1
           v-if="heading"
           :id="headingId"
-          class="mt-5 w-full max-w-[11ch] break-words font-display text-[clamp(4.25rem,14vw,8.5rem)] font-normal leading-[0.88] tracking-normal text-white md:text-[clamp(5.75rem,8.4vw,10.25rem)]"
+          class="watch-hero-reveal mt-5 w-full max-w-[11ch] break-words font-display text-[clamp(4.25rem,14vw,8.5rem)] font-normal leading-[0.88] tracking-normal text-white md:text-[clamp(5.75rem,8.4vw,10.25rem)]"
         >
           {{ heading }}
         </h1>
 
         <p
           v-if="body"
-          class="mt-6 w-full max-w-[34rem] font-body text-[15px] font-light leading-8 text-white/78 md:text-[17px] md:leading-9"
+          class="watch-hero-reveal mt-6 w-full max-w-[34rem] font-body text-[15px] font-light leading-8 text-white/78 md:text-[17px] md:leading-9"
         >
           {{ body }}
         </p>
 
-        <div class="mt-8 flex w-full min-w-0 flex-col gap-4 border-t border-white/18 pt-5 sm:flex-row sm:items-center sm:gap-7 sm:border-t-0 sm:pt-0">
+        <div class="watch-hero-reveal mt-8 flex w-full min-w-0 flex-col gap-4 border-t border-white/18 pt-5 sm:flex-row sm:items-center sm:gap-7 sm:border-t-0 sm:pt-0">
           <p
             v-if="priceDisplay"
             class="w-full font-body text-[11px] font-medium uppercase tracking-[0.24em] text-white/68 sm:w-auto"

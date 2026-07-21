@@ -1,7 +1,8 @@
 <script setup>
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import EditorialSignatureMoment from '../components/product-detail/EditorialSignatureMoment.vue'
 import EditorialStorySection from '../components/product-detail/EditorialStorySection.vue'
 import ProductCampaignHero from '../components/product-detail/ProductCampaignHero.vue'
@@ -14,7 +15,10 @@ import { getProductBySlug, getProductReviews, getProducts, submitProductReview }
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import { formatCurrency } from '../utils/formatCurrency'
+import { motionTokens } from '../utils/motion'
 import { resolveProductEditorial } from '../utils/productEditorial'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const route = useRoute()
 const router = useRouter()
@@ -34,6 +38,9 @@ const cartError = ref('')
 const reviewMessage = ref('')
 const reviewError = ref('')
 const quantity = ref(1)
+const detailRootRef = ref(null)
+let sectionRevealMedia
+let sectionRevealSetupId = 0
 
 const selected = reactive({
   strap_color: '',
@@ -53,6 +60,56 @@ const reviewForm = reactive({
   rating: 5,
   comment: '',
 })
+
+const clearSectionReveal = () => {
+  sectionRevealMedia?.revert()
+  sectionRevealMedia = null
+}
+
+const setupSectionReveal = async () => {
+  const setupId = ++sectionRevealSetupId
+
+  clearSectionReveal()
+  await nextTick()
+
+  if (setupId !== sectionRevealSetupId || !detailRootRef.value) return
+
+  const sections = gsap.utils.toArray(detailRootRef.value.querySelectorAll('.watch-detail-reveal'))
+
+  if (!sections.length) return
+
+  sectionRevealMedia = gsap.matchMedia()
+
+  sectionRevealMedia.add('(prefers-reduced-motion: reduce)', () => {
+    gsap.set(sections, { clearProps: 'all' })
+  })
+
+  sectionRevealMedia.add('(prefers-reduced-motion: no-preference)', () => {
+    const revealY = window.matchMedia('(max-width: 767px)').matches
+      ? motionTokens.revealYMobile
+      : motionTokens.revealYDesktop
+
+    sections.forEach((section) => {
+      gsap.fromTo(section, {
+        autoAlpha: 0,
+        y: revealY,
+      }, {
+        autoAlpha: 1,
+        y: 0,
+        duration: motionTokens.durationReveal,
+        ease: motionTokens.easeReveal,
+        overwrite: 'auto',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 88%',
+          once: true,
+        },
+      })
+    })
+
+    ScrollTrigger.refresh()
+  })
+}
 
 const colorMap = {
   'Đen': '#111111',
@@ -306,6 +363,7 @@ const addQuantity = (amount) => {
 }
 
 const fetchProduct = async () => {
+  clearSectionReveal()
   isLoading.value = true
   errorMessage.value = ''
   product.value = null
@@ -328,6 +386,7 @@ const fetchProduct = async () => {
     errorMessage.value = error.response?.data?.message ?? 'Không thể tải chi tiết sản phẩm.'
   } finally {
     isLoading.value = false
+    setupSectionReveal()
   }
 }
 
@@ -455,10 +514,14 @@ watch(() => route.params.slug, () => {
 })
 
 onMounted(fetchProduct)
+
+onBeforeUnmount(() => {
+  clearSectionReveal()
+})
 </script>
 
 <template>
-  <main class="w-full min-w-0 bg-background text-on-surface">
+  <main ref="detailRootRef" class="w-full min-w-0 bg-background text-on-surface">
     <section v-if="isLoading" class="mx-auto w-full max-w-container-max px-margin-mobile py-20 md:px-gutter">
       <div class="border border-outline-variant bg-surface p-10 text-center text-on-surface-variant">
         Đang tải chi tiết sản phẩm...
@@ -482,7 +545,7 @@ onMounted(fetchProduct)
 
       <section
         id="product-commerce"
-        class="scroll-mt-24 bg-background px-6 py-18 md:px-20 md:py-26 lg:px-[100px]"
+        class="watch-detail-reveal scroll-mt-24 bg-background px-6 py-18 md:px-20 md:py-26 lg:px-[100px]"
       >
         <div class="mx-auto mb-10 w-full max-w-[1480px] md:mb-12">
           <p class="w-full font-body text-[10px] font-medium uppercase tracking-[0.32em] text-primary/45">
@@ -530,16 +593,18 @@ onMounted(fetchProduct)
         </div>
       </section>
 
-      <EditorialStorySection :content="editorialContent.story" />
+      <EditorialStorySection class="watch-detail-reveal" :content="editorialContent.story" />
 
-      <EditorialSignatureMoment :content="editorialContent.signatureMoment" />
+      <EditorialSignatureMoment class="watch-detail-reveal" :content="editorialContent.signatureMoment" />
 
       <ProductSpecifications
+        class="watch-detail-reveal"
         :specs="specs"
         :intro="technicalIntro"
       />
 
       <ProductQuoteSection
+        class="watch-detail-reveal"
         :quotes="reviewQuotes"
         :can-review="authStore.isAuthenticated && reviewMeta.can_review"
         :rating="reviewForm.rating"
@@ -553,7 +618,7 @@ onMounted(fetchProduct)
         @submit-review="submitReview"
       />
 
-      <ProductCollectionSection :products="relatedProducts" />
+      <ProductCollectionSection class="watch-detail-reveal" :products="relatedProducts" />
     </template>
   </main>
 </template>
