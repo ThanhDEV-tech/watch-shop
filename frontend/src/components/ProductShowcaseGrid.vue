@@ -92,7 +92,7 @@ onBeforeUnmount(() => {
     ref="gridRef"
     class="grid w-full min-w-0"
     :class="variant === 'editorial'
-      ? 'gap-x-8 gap-y-10 sm:grid-cols-2 xl:grid-cols-4'
+      ? 'gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3'
       : 'gap-6 sm:grid-cols-2 lg:grid-cols-4'"
   >
     <ProductCard
