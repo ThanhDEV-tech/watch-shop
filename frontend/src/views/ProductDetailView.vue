@@ -334,9 +334,17 @@ const fetchProduct = async () => {
 const fetchRelatedProducts = async () => {
   if (!product.value) return
 
-  const params = product.value.category?.slug
-    ? { category: product.value.category.slug, per_page: 8 }
-    : { brand: product.value.brand?.slug, per_page: 8 }
+  const categorySlug = product.value.category?.slug
+  const brandSlug = product.value.brand?.slug
+
+  if (!categorySlug && !brandSlug) {
+    relatedProducts.value = []
+    return
+  }
+
+  const params = categorySlug
+    ? { category: categorySlug, per_page: 8 }
+    : { brand: brandSlug, per_page: 8 }
 
   const response = await getProducts(params)
   relatedProducts.value = (response.data.data?.items ?? [])
