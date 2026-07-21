@@ -299,35 +299,61 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <section class="mx-auto w-full max-w-container-max px-margin-mobile py-16 md:px-gutter">
-      <div class="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div class="w-full min-w-0 md:max-w-2xl">
-          <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">
+    <section class="mx-auto w-full max-w-container-max px-margin-mobile py-20 md:px-gutter md:py-28">
+      <div class="grid w-full min-w-0 gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(220px,0.28fr)] lg:items-end">
+        <div class="w-full min-w-0">
+          <p class="watch-accent-text w-full font-body text-[11px] font-semibold uppercase tracking-[0.28em]">
             Featured collections
           </p>
-          <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
+          <h2 class="mt-4 w-full max-w-4xl font-display text-[clamp(3.25rem,7vw,6.4rem)] font-semibold leading-[0.88] text-primary">
             Chọn theo khoảnh khắc.
           </h2>
+          <p class="mt-6 w-full max-w-2xl font-body text-base leading-8 text-on-surface-variant md:text-lg">
+            Những bộ sưu tập được tuyển chọn theo nhịp sống, dịp sử dụng và tinh thần phối đồ riêng.
+          </p>
         </div>
-        <RouterLink to="/products" class="watch-accent-strong w-fit text-sm font-bold uppercase tracking-[0.14em]">
+        <RouterLink
+          to="/products"
+          class="inline-flex min-h-11 w-fit max-w-full items-center justify-center border-b border-primary/35 pb-1 font-body text-[11px] font-semibold uppercase tracking-[0.24em] text-primary transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-4 focus-visible:ring-offset-background"
+        >
           Xem tất cả
         </RouterLink>
       </div>
 
-      <div class="mt-10 grid w-full min-w-0 gap-5 md:grid-cols-3">
+      <div v-if="collectionHighlights.length" class="mt-14 grid w-full min-w-0 gap-5 md:grid-cols-3 lg:gap-7">
         <RouterLink
-          v-for="collection in collectionHighlights"
+          v-for="(collection, index) in collectionHighlights"
           :key="collection.slug"
           :to="{ name: 'products', query: collection.query }"
-          class="watch-collection-card flex min-h-72 w-full min-w-0 flex-col justify-end rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)] transition-all duration-300 hover:-translate-y-1 hover:scale-[1.015] hover:border-[rgb(161_98_7/0.42)] hover:shadow-[var(--shadow-watch-floating)]"
+          class="watch-collection-card group flex min-h-80 w-full min-w-0 flex-col justify-between border border-primary/10 bg-[#fbfaf7] p-7 transition-[border-color,opacity,transform] duration-300 hover:-translate-y-0.5 hover:border-primary/35 hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-4 focus-visible:ring-offset-background motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:min-h-[23rem] lg:p-8"
+          :class="index === 1 ? 'md:mt-8' : index === 2 ? 'md:mt-16' : ''"
+          :aria-label="`Xem bộ sưu tập ${collection.name}`"
         >
-          <p class="w-full font-display text-4xl font-semibold text-primary">
-            {{ collection.name }}
-          </p>
-          <p class="mt-3 w-full text-sm leading-6 text-on-surface-variant">
-            {{ collection.copy }}
-          </p>
+          <div class="flex w-full min-w-0 items-start justify-between gap-6">
+            <span class="font-body text-[11px] font-medium uppercase tracking-[0.28em] text-primary/38">
+              {{ String(index + 1).padStart(2, '0') }}
+            </span>
+            <span class="max-w-[8rem] text-right font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-primary/38">
+              Curated edit
+            </span>
+          </div>
+
+          <div class="w-full min-w-0">
+            <p class="w-full font-display text-[clamp(2.45rem,4.2vw,4rem)] font-semibold leading-[0.95] text-primary">
+              {{ collection.name }}
+            </p>
+            <p class="mt-5 w-full max-w-sm font-body text-sm leading-7 text-on-surface-variant">
+              {{ collection.copy }}
+            </p>
+            <span class="mt-8 inline-flex w-fit max-w-full border-b border-primary/20 pb-1 font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-primary transition-colors group-hover:border-primary/70">
+              Khám phá bộ sưu tập
+            </span>
+          </div>
         </RouterLink>
+      </div>
+
+      <div v-else class="mt-12 w-full border border-primary/10 bg-surface px-6 py-10 text-center font-body text-sm leading-7 text-on-surface-variant">
+        Chưa có bộ sưu tập nổi bật.
       </div>
     </section>
 
@@ -362,56 +388,73 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="border-y border-[rgb(214_178_114/0.18)] bg-[var(--watch-color-ink-950)] text-[var(--watch-color-ivory-100)]">
-      <div class="mx-auto w-full max-w-container-max px-margin-mobile py-16 md:px-gutter">
-        <div class="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div class="w-full min-w-0 md:max-w-2xl">
-            <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">
+      <div class="mx-auto w-full max-w-container-max px-margin-mobile py-20 md:px-gutter md:py-28">
+        <div class="grid w-full min-w-0 gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(220px,0.28fr)] lg:items-end">
+          <div class="w-full min-w-0">
+            <p class="watch-accent-text w-full font-body text-[11px] font-semibold uppercase tracking-[0.28em]">
               Featured products
             </p>
-            <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-white md:text-6xl">
+            <h2 class="mt-4 w-full max-w-4xl font-display text-[clamp(3.25rem,7vw,6.4rem)] font-semibold leading-[0.88] text-white">
               Đang được quan tâm.
             </h2>
+            <p class="mt-6 w-full max-w-2xl font-body text-base leading-8 text-[rgb(250_250_249/0.68)] md:text-lg">
+              Những mẫu nổi bật được chọn để xem nhanh, từ tỷ lệ mặt số đến cảm giác phối đồ hằng ngày.
+            </p>
           </div>
+          <RouterLink
+            to="/products"
+            class="inline-flex min-h-11 w-fit max-w-full items-center justify-center border-b border-[rgb(214_178_114/0.45)] pb-1 font-body text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--watch-color-gold-300)] transition-colors hover:border-[var(--watch-color-gold-300)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--watch-color-gold-300)]/50 focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--watch-color-ink-950)]"
+          >
+            Xem tất cả
+          </RouterLink>
         </div>
 
-        <div v-if="isLoadingProducts" class="mt-10 w-full rounded-[var(--radius-watch-lg)] border border-[rgb(214_178_114/0.2)] bg-white/5 p-10 text-center text-[rgb(250_250_249/0.72)]">
+        <div v-if="isLoadingProducts" class="mt-14 w-full border border-[rgb(214_178_114/0.18)] bg-white/[0.04] p-10 text-center font-body text-sm text-[rgb(250_250_249/0.72)]">
           Đang tải sản phẩm nổi bật...
         </div>
-        <ProductShowcaseGrid v-else-if="featuredProducts.length" class="mt-10" :products="featuredProducts" />
-        <div v-else class="mt-10 w-full rounded-[var(--radius-watch-lg)] border border-[rgb(214_178_114/0.2)] bg-white/5 p-10 text-center text-[rgb(250_250_249/0.72)]">
+        <ProductShowcaseGrid
+          v-else-if="featuredProducts.length"
+          class="mt-14"
+          :products="featuredProducts"
+          variant="landing-dark"
+        />
+        <div v-else class="mt-14 w-full border border-[rgb(214_178_114/0.18)] bg-white/[0.04] p-10 text-center font-body text-sm text-[rgb(250_250_249/0.72)]">
           Chưa có sản phẩm nổi bật.
         </div>
       </div>
     </section>
 
-    <section class="mx-auto w-full max-w-container-max px-margin-mobile py-16 md:px-gutter">
-      <div class="flex w-full min-w-0 flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div class="w-full min-w-0 md:max-w-2xl">
-          <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">
+    <section class="mx-auto w-full max-w-container-max px-margin-mobile py-20 md:px-gutter md:py-28">
+      <div class="grid w-full min-w-0 gap-8 lg:grid-cols-[minmax(0,0.66fr)_minmax(280px,0.34fr)] lg:items-end">
+        <div class="w-full min-w-0">
+          <p class="watch-accent-text w-full font-body text-[11px] font-semibold uppercase tracking-[0.28em]">
             Why Watchora
           </p>
-          <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
+          <h2 class="mt-4 w-full max-w-4xl font-display text-[clamp(3.25rem,7vw,6.4rem)] font-semibold leading-[0.9] text-primary">
             Mua đồng hồ đẹp, an tâm hơn.
           </h2>
         </div>
-        <p class="w-full min-w-0 text-sm leading-7 text-on-surface-variant md:max-w-md md:text-right">
+        <p class="w-full min-w-0 border-l border-primary/12 pl-5 font-body text-sm leading-8 text-on-surface-variant lg:max-w-md">
           Những cam kết cơ bản nhưng quan trọng: rõ chính sách, rõ chi phí, rõ trách nhiệm sau mua.
         </p>
       </div>
 
-      <div class="mt-10 grid w-full min-w-0 gap-5 md:grid-cols-2 lg:grid-cols-4">
+      <div class="mt-14 grid w-full min-w-0 gap-px overflow-hidden border border-primary/10 bg-primary/10 md:grid-cols-2 lg:grid-cols-4">
         <article
-          v-for="item in uspItems"
+          v-for="(item, index) in uspItems"
           :key="item.title"
-          class="watch-usp-card flex min-h-56 w-full min-w-0 flex-col rounded-[var(--radius-watch-lg)] border border-border bg-surface p-6 shadow-[var(--shadow-watch-soft)]"
+          class="watch-usp-card flex min-h-64 w-full min-w-0 flex-col bg-background p-7 transition-colors duration-300 hover:bg-[#fbfaf7] motion-reduce:transition-none lg:p-8"
         >
-          <div class="flex h-12 w-12 items-center justify-center rounded-full border border-[rgb(161_98_7/0.26)] bg-[rgb(161_98_7/0.08)] text-[var(--accent-primary)]">
-            <span class="material-symbols-outlined text-[24px]" aria-hidden="true">{{ item.icon }}</span>
+          <div class="flex w-full min-w-0 items-start justify-between gap-5">
+            <span class="font-body text-[11px] font-medium uppercase tracking-[0.28em] text-primary/35">
+              {{ String(index + 1).padStart(2, '0') }}
+            </span>
+            <span class="material-symbols-outlined text-[22px] text-primary/30" aria-hidden="true">{{ item.icon }}</span>
           </div>
-          <h3 class="mt-6 w-full font-display text-3xl font-semibold leading-tight text-primary">
+          <h3 class="mt-auto w-full font-display text-[clamp(2rem,3vw,2.75rem)] font-semibold leading-[1] text-primary">
             {{ item.title }}
           </h3>
-          <p class="mt-3 w-full text-sm leading-7 text-on-surface-variant">
+          <p class="mt-4 w-full font-body text-sm leading-7 text-on-surface-variant">
             {{ item.copy }}
           </p>
         </article>
@@ -442,26 +485,29 @@ onBeforeUnmount(() => {
     </section>
 
     <section class="border-t border-border bg-surface">
-      <div class="mx-auto grid w-full max-w-container-max gap-10 px-margin-mobile py-16 md:px-gutter lg:grid-cols-[0.8fr_1.2fr]">
+      <div class="mx-auto grid w-full max-w-container-max gap-12 px-margin-mobile py-20 md:px-gutter md:py-28 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:gap-20">
         <div class="w-full min-w-0">
-          <p class="watch-accent-text w-full text-xs font-bold uppercase tracking-[0.2em]">
+          <p class="watch-accent-text w-full font-body text-[11px] font-semibold uppercase tracking-[0.28em]">
             FAQ
           </p>
-          <h2 class="mt-3 w-full font-display text-5xl font-semibold leading-none text-primary md:text-6xl">
+          <h2 class="mt-4 w-full max-w-xl font-display text-[clamp(3rem,6vw,5.7rem)] font-semibold leading-[0.92] text-primary">
             Mua đồng hồ, rõ ràng từ đầu.
           </h2>
+          <p class="mt-6 w-full max-w-sm font-body text-sm leading-8 text-on-surface-variant">
+            Câu trả lời ngắn gọn cho những điều nên biết trước khi chọn một chiếc đồng hồ.
+          </p>
         </div>
-        <div class="w-full min-w-0 divide-y divide-border border-y border-border">
+        <div class="w-full min-w-0 border-y border-primary/15">
           <details
             v-for="item in faqs"
             :key="item.question"
-            class="group w-full py-5"
+            class="group w-full border-b border-primary/10 py-6 last:border-b-0"
           >
-            <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-4 font-semibold text-primary">
+            <summary class="flex min-h-12 w-full cursor-pointer list-none items-center justify-between gap-5 font-body text-base font-medium leading-7 text-primary outline-none transition-colors hover:text-[var(--accent-primary)] focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-4 focus-visible:ring-offset-surface">
               <span class="min-w-0">{{ item.question }}</span>
-              <span class="shrink-0 text-xl transition-transform group-open:rotate-45">+</span>
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center border border-primary/15 font-body text-lg leading-none text-primary/55 transition-transform group-open:rotate-45 group-hover:border-primary/35 motion-reduce:transition-none">+</span>
             </summary>
-            <p class="mt-3 w-full text-sm leading-7 text-on-surface-variant">
+            <p class="mt-4 w-full max-w-2xl font-body text-sm leading-8 text-on-surface-variant">
               {{ item.answer }}
             </p>
           </details>
